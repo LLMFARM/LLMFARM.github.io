@@ -84,6 +84,7 @@ small{font-size:.82em}
 /* Energie-Objekt-SVGs füllen ihre vorbereiteten Halterungen */
 #rechenhausWelt i>svg,.rhMiniHof i>svg,.rhEnergieKarten i>svg,.rhAussen i>svg{width:100%;height:100%;display:block}
 .rhObj{width:100%;height:100%}
+.rhSchild{display:none}   /* Wiesen-Plakette „Rechenhaus/Stufe" ausgeblendet (User-Wunsch) – das Gebäude bleibt klickbar */
 .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
 .chips::-webkit-scrollbar{display:none}
 .chip{display:flex;align-items:center;gap:5px;flex:0 0 auto;background:#2f1d0e;
@@ -379,8 +380,12 @@ small{font-size:.82em}
 #blattleib .dbl,#bahnen .dbl,.bild .dbl,.bild .apin,.bild .gemblem,.bild .ewolke{display:none}
 .eigenwrap.eflip .ebfr{transform:scaleX(-1)}
 /* Posen-Frames: Stehen traegt die Hoehe, Laufen/Liegen liegen fussbuendig darueber */
-.eigenwrap .ebfr.lauf,.eigenwrap .ebfr.lieg{position:absolute;left:0;bottom:0;width:100%;opacity:0;transition:opacity .28s}
-.eigenwrap .ebfr.steh{transition:opacity .28s}
+/* KEINE opacity-Transition zwischen Posen-Frames: seit dem gemessenen Größenausgleich (sk)
+   sind die Frames unterschiedlich groß – eine Überblendung zeigt 0,3 s lang BEIDE Posen
+   übereinander (Geisterbild, Fellmuster ragen über die Silhouette). Harter Schnitt wie beim
+   steps(1)-Laufzyklus. */
+.eigenwrap .ebfr.lauf,.eigenwrap .ebfr.lieg{position:absolute;left:0;bottom:0;width:100%;opacity:0}
+.eigenwrap .ebfr.steh{}
 /* 2-Frame-Laufzyklus im Beintakt (nur auf der Wiese aktiv) */
 .pig .eigenwrap.hatlauf .ebfr.steh{animation:eStand var(--takt,.6s) steps(1) infinite}
 .pig .eigenwrap.hatlauf .ebfr.lauf{animation:eSchritt var(--takt,.6s) steps(1) infinite}
@@ -5429,6 +5434,7 @@ function tagBeenden(){
         }
         S.jobs=S.jobs.filter(x=>x.id!==j.id);
         p.status="frei"; p.job=null;
+        bericht.zeilen.push({t:"🐷 "+p.name+" ist wieder einsatzbereit – die Pinnwand wartet mit neuen Zetteln.",art:"info"});
         p.zustand=kl(p.zustand-zi(4,9),5,100);                 // Sitzungs-/Cache-Hygiene leidet im Dauereinsatz – die Gewichte nicht
         if(p.api&&(p.lizenzTage??7)<=0){ p._lizenzEnde=true; }
       }
@@ -6088,8 +6094,8 @@ function schilderNeu(){
     if(!p.el) return;
     let merker="";
     if(p.krank) merker=" 🤒";
-    else if(p.status==="job") merker=" 💼";
-    else if(p.status==="training") merker=" 🎓";
+    else if(p.status==="job") merker=" 💼"+(p.rest>0?p.rest+"T":"");   /* Restdauer direkt am Tier ablesbar */
+    else if(p.status==="training") merker=" 🎓"+(p.rest>0?p.rest+"T":"");
     else if(p.status==="zucht") merker=" 💞";
     else if(!p.bucht&&!p.api) merker=" 🏕️";
     p.schild.innerHTML=esc(p.name)+(p.gen?' <i>G'+p.gen+'</i>':"")+merker;
@@ -6141,7 +6147,13 @@ function hindernisListe(){
 function wieseSchritt(p,nx,ny,teichG){
   for(const gh of hindernisListe()){
     const q=rhKollisionsSchritt(p.x,p.y,nx,ny,gh);
-    if(q.hit){ p.vx=Math.abs(p.vx)*(p.x<gh.x?-1:1)||.04; p.vy=(p.y<gh.y?-1:1)*Math.max(.018,Math.abs(p.vy)); }
+    if(q.hit){
+      /* Konsistent VOM Hindernis-Zentrum weglaufen statt Achsen-Flip: der Flip ließ Tiere
+         zwischen zwei Hindernissen hin- und herzittern (wirkte wie Flackern) */
+      const wx=q.x-gh.x, wy=(q.y-gh.y)*1.6, wl=Math.hypot(wx,wy)||1;
+      const tempo=Math.max(.045,Math.hypot(p.vx,p.vy));
+      p.vx=wx/wl*tempo; p.vy=wy/wl*tempo*0.55;
+    }
     nx=q.x; ny=q.y;
   }
   rhWiesenSchritt(p,nx,ny,teichG);
@@ -7179,11 +7191,18 @@ function zeigeJobs(){
       bewertete.map(([id,k])=>{const K=KUNDEN[id];return '<span class="merk'+(k.sterne>=4?" gut":k.sterne<=2?" schlecht":"")+'" title="'+esc(K.branche||"")+(k.groll>0?" · gerade vergrätzt!":"")+'">'+K.z+" "+esc(K.n)+" "+"⭐".repeat(k.sterne)+(k.groll>0?" 💢":"")+'</span>';}).join("")+
       '</div><p style="font-size:11.5px;margin-top:6px;color:var(--tinte-2)">Erste Bewertung nach dem ersten Auftrag, danach alle 5 Tage neu. Hof-Ruf: ⭐ '+rufSterne().toFixed(1)+' – guter Ruf bringt größere Zettel, bessere Preise und zweite Chancen.</p></div>':"";
     return '<div class="notiz">Kunden zahlen <b>pro abgenommener Arbeitseinheit</b> (Post, Antwort, Dokument …) – nicht pro erzeugtem Token. Token sind deine <b>Kosten- und Kapazitätsseite</b>. Bei 🤖 Agent-Zetteln braucht das Tier ein Geschirr; 🔒-Zettel verlangen Verarbeitung auf eigener Hardware. Ist die Aufgabe zu groß fürs Modell, scheitert der Auftrag und kostet Strafe + Strom!<br>👉 <b>So nimmst du an:</b> Ein Tier muss in einer GPU-Bucht stehen (Stall → „Belegen") oder eine API-Lizenz haben – dann erscheint am Zettel für jedes einsatzbereite Tier ein <b>„Schicken"</b>-Knopf.</div>'+
+    (()=>{ /* Laufende Aufträge mit Restdauer + Fortschritt: man sieht, wann das Tier wieder frei ist */
+      const laufend=S.tiere.filter(p=>p.status==="job"&&p.job).map(p=>({p,j:S.jobs.find(x=>x.id===p.job)})).filter(x=>x.j);
+      return laufend.length?'<div class="karte hell"><h3>🔨 In Arbeit</h3>'+laufend.map(({p,j})=>{
+        const ges=Math.max(1,j.tage||1), done=kl(ges-(p.rest||0),0,ges), pct=Math.round(done/ges*100);
+        return '<div class="listenzeile"><span class="bild">'+pigSvgVon(p)+'</span>'+
+          '<span class="txt"><b>'+esc(p.name)+'</b> · '+esc(j.t)+
+          '<span>'+(p.rest>1?"braucht noch "+p.rest+" Arbeitstage":"⏳ wird mit der heutigen Abendabrechnung fertig")+' – Abnahme & Bezahlung am Tagesende</span>'+
+          '<span style="display:block;height:8px;border-radius:6px;background:rgba(74,44,21,.18);overflow:hidden;margin-top:4px"><i style="display:block;height:100%;width:'+pct+'%;background:#5aa348"></i></span>'+
+          '</span><span class="merk gold">'+geld(jobOekonomie(p,j).lohn)+'</span></div>';
+      }).join("")+'</div>':"";
+    })()+
     kundenLeiste+
-    (laufende.length?'<div class="karte hell"><h3>⏳ In Arbeit</h3>'+laufende.map(j=>{
-      const p=S.tiere.find(t=>t.job===j.id);
-      return '<div class="listenzeile"><span class="txt"><b>'+esc(j.t)+'</b><span>'+esc(p.name)+' · noch '+p.rest+' Tag(e)</span></span><span class="merk gold">'+geld(jobOekonomie(p,j).lohn)+'</span></div>';
-    }).join("")+'</div>':"")+
     (offene.length?offene.map(j=>{
       const kandidaten=S.tiere.filter(p=>p.status==="frei"&&(p.bucht||p.api));
       const K=(typeof KUNDEN!=="undefined")?KUNDEN[j.kunde]:null;
