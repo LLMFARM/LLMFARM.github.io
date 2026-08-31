@@ -4680,7 +4680,7 @@ let S=null;
 function frischerStand(){
   const stand={
     v:4, tag:1, kredit:2500, ruf:0, xp:0, hofname:"LLM FARM", co2:0,
-    skills:{}, meisterweg:null, schwierig:"hofalltag",
+    skills:{}, meisterweg:null, schwierig:"hofalltag", fuehrung:"gefuehrt", geselle:false,
     tierArt:"schwein", figurStil:"bild", einfFertig:false, spezial:null,
     eigenBild:null, eigenPosen:null, eigenFlip:false, eigenSatt:null,
     daten:{webmix:40, beispiele:10}, synthQ:0.8, synthGen:0,
@@ -5224,6 +5224,86 @@ function schwierig(){ return (S&&S.schwierig)||"hofalltag"; }
 function schwierigSetzen(id){ if(!SCHWIERIG[id])return; S.schwierig=id; melde(SCHWIERIG[id].n+" – "+SCHWIERIG[id].kurz,"gut"); sichern(); zeigeHofhaus(); }
 /* Behütet-Folgenbox: erklärt VOR der Aktion, was passieren kann und was dagegen hilft */
 function warnBox(was,gegen){ if(schwierig()!=="behuetet") return true; return confirm("🐣 Behütet-Hinweis\n\n"+was+"\n\n👉 Gegenmittel: "+gegen+"\n\nTrotzdem fortfahren?"); }
+
+/* ── Geführte Woche (Ära 7, Q3/R3): 7 Tageskapitel, wählbar gegen „Freie Hand" ──
+   Jede Aufgabe prüft echten Spielzustand – kein separates Questsystem, keine Pflicht. */
+const WOCHE=[
+  {z:"🌅",t:"Ankommen",tipp:"Stall → Bucht „Belegen“, dann an der Pinnwand einen kleinen Zettel „Schicken“.",
+    aufgaben:[["Setz ein Tier in die GPU-Bucht",()=>S.tiere.some(t=>t.bucht)],
+              ["Nimm einen Pinnwand-Zettel an",()=>S.tiere.some(t=>t.status==="job")||S.statistik.jobs>0]]},
+  {z:"🌾",t:"Daten sind Futter",tipp:"Futterscheune: Bestand sichten und die Datenlese spielen – Kuratieren macht Rohdaten wertvoll.",
+    aufgaben:[["Sieh ins Datenlager",()=>!!(S.flags||{}).futter_kauf],
+              ["Spiele eine Runde Datenlese",()=>(S.leseTag||0)>0]]},
+  {z:"🎓",t:"Lernen lassen",tipp:"Forscherstube: SFT erforschen, dann auf dem Trainingsplatz den ersten Lauf starten.",
+    aufgaben:[["Starte oder beende eine Forschung",()=>!!S.forschungAktiv||Object.values(S.forschung||{}).some(v=>v)],
+              ["Schicke ein Tier ins Training",()=>S.statistik.trainings>0||S.tiere.some(t=>t.status==="training")]]},
+  {z:"🥗",t:"Werkstatt-Tag",tipp:"Diätküche erforschen und ein Tier auf q4 setzen – gleicher Kopf, halber Speicher.",
+    aufgaben:[["Erforsche die Diätküche",()=>forschungFrei("quant")],
+              ["Quantisiere ein Tier",()=>S.tiere.some(t=>t.quant&&t.quant!=="bf16")]]},
+  {z:"🐴",t:"Agenten-Tag",tipp:"Sattlerei erforschen, Geschirr anlegen – dann öffnen sich die 🤖-Zettel.",
+    aufgaben:[["Erforsche die Sattlerei",()=>forschungFrei("geschirr")],
+              ["Lege einem Tier ein Geschirr an",()=>!!(S.flags||{}).geschirr_an||S.tiere.some(t=>t.geschirr)]]},
+  {z:"🌙",t:"Nacht & Wissen",tipp:"„Tag beenden“ öffnet die Nachtplanung (halber Strompreis!) – und das 📖-Hofbuch beantwortet jede Regelfrage.",
+    aufgaben:[["Plane eine Nacht (Tag beenden → Nachtplanung)",()=>((typeof hlStand==="function")&&(hlStand().naechte||0)>0)],
+              ["Schlag das Hofbuch auf (📖 oben rechts)",()=>!!(S.flags||{}).hofbuch_gelesen]]},
+  {z:"🎓",t:"Gesellenprüfung",tipp:"Ein Tag ohne Hilfen: Zeig, dass der Hof dich trägt. Belohnung: Abzeichen „Geselle“ + 150 € – die Prüfung darf wiederholt werden.",
+    aufgaben:[["Schließe heute einen Auftrag ab",()=>S.statistik.jobs>(S._w7jobs??S.statistik.jobs)],
+              ["Halte die Kasse im Plus",()=>S.kredit>0],
+              ["Nutze die Nachtplanung",()=>((typeof hlStand==="function")&&(hlStand().naechte||0)>0)]]}
+];
+function wocheAktiv(){ return S.fuehrung==="gefuehrt"&&!S.geselle&&S.tag<=10; }
+function wocheKapitel(){ return WOCHE[Math.min(S.tag,7)-1]; }
+function wocheBoxHtml(){
+  if(!wocheAktiv()) return "";
+  const k=wocheKapitel();
+  return '<h4>🧭 Geführte Woche · Tag '+Math.min(S.tag,7)+'/7: '+k.z+' '+esc(k.t)+'</h4>'+
+    k.aufgaben.map(([t,fn])=>{ let ok=false; try{ ok=!!fn(); }catch(e){}
+      return '<div class="zielzeile"><span class="haken'+(ok?" an":"")+'">'+(ok?"✅":"◻️")+'</span><span class="zieltext">'+esc(t)+'</span></div>'; }).join("")+
+    '<div class="zielhilfe">💡 '+esc(k.tipp)+'</div>';
+}
+function wocheTick(bericht){
+  if(S.fuehrung!=="gefuehrt"||S.geselle) return;
+  const gestern=S.tag-1;
+  if(gestern>=7&&gestern<=10){
+    const p=WOCHE[6], alle=p.aufgaben.every(([t,fn])=>{ try{ return !!fn(); }catch(e){ return false; } });
+    if(alle){
+      S.geselle=true;
+      buche(150,"foerderung","Gesellenprüfung bestanden – Prämie der Gemeinde");
+      bericht.zeilen.push({t:"🎓 GESELLENPRÜFUNG BESTANDEN! Das Abzeichen „Geselle“ hängt jetzt am Hofhaus (+150 € Prämie). Von hier an gehört der Hof ganz dir.",art:"gut"});
+    } else if(gestern<10){
+      bericht.zeilen.push({t:"🎓 Gesellenprüfung: noch nicht alle drei Ziele geschafft – heute zählt ein neuer Versuch (kein Malus).",art:"info"});
+    } else {
+      bericht.zeilen.push({t:"🎓 Die Prüfungswoche endet ohne Brief – macht nichts: Die Ziele stehen im Hofbuch, der Hof gehört dir trotzdem.",art:"info"});
+    }
+  }
+  if(S.tag>=7&&S.tag<=10) S._w7jobs=S.statistik.jobs;
+}
+function hlUebergabeF(tiere){
+  const fams=[...new Set((tiere||[]).filter(p=>p&&!p.api).map(p=>p.fam))];
+  return fams.length===1?1.08:1.12;   /* Team-Chemie: ein Tokenizer, weniger Übersetzungsverlust */
+}
+/* Bewährungsproben (Q5): einmal je ~3. Rolle und Arbeitstag ein Eignungs-Ereignis mit erklärter Ursache */
+function hlProben(j,team,c,ps,bericht){
+  const rollen=(typeof hlRollen==="function")?hlRollen(j):null;
+  if(!rollen||rollen.length<2) return;
+  const seg=team.seg[team.seg.length-1]; if(!seg) return;
+  rollen.forEach((r,i)=>{
+    if(Math.random()>=0.3) return;
+    const p=S.tiere.find(x=>x.uid===team.wahl[i]); if(!p) return;
+    const jj=(typeof hlRollenJob==="function")?hlRollenJob(j,i):j;
+    const marge=(jobCheckBasis(p,jj).erfolg||60)-62;
+    let gut=Math.random()<kl(0.5+marge/80,0.12,0.9);
+    if(!gut&&(p.setups||[]).includes("verifier")&&Math.random()<0.5){
+      gut=true;
+      bericht.zeilen.push({t:"🛡️ "+esc(p.name)+" („"+esc(r.n)+"“): Die Antwortkontrolle hat einen Patzer abgefangen – Bewährungsprobe gerettet.",art:"info"});
+    }
+    if(gut){ seg.erfolg=Math.min(100,seg.erfolg+3); tierXp(p,2);
+      bericht.zeilen.push({t:"🎲 Bewährungsprobe „"+esc(r.n)+"“: "+esc(p.name)+" meistert einen kniffligen Fall – Qualität +3.",art:"gut"});
+    } else { seg.erfolg=Math.max(5,seg.erfolg-4);
+      bericht.zeilen.push({t:"🎲 Bewährungsprobe „"+esc(r.n)+"“: "+esc(p.name)+" war dem Fall nicht gewachsen – Qualität −4. Passendere Besetzung, Training oder ein Verifier-Setup helfen.",art:"schlecht"});
+    }
+  });
+}
 
 function xpDazu(n){
   S.xp=Math.max(0,(S.xp||0)+Math.round(n));
@@ -5828,6 +5908,7 @@ function ausfuehrenTagesWechsel(){
     const sw=saison();
     bericht.zeilen.push({t:sw.z+" Saisonwechsel: "+sw.n+" beginnt. "+sw.hin,art:"info"});
   }
+  wocheTick(bericht);   /* Geführte Woche: Kapitel-Fortschritt & Gesellenprüfung */
   if(Math.random()<0.34){
     let kandidaten=EREIGNISSE.filter(e=>!S.events.some(a=>a.id===e.id))
       .filter(e=>!e.nurLeitstandOhneGuardrails||forschungFrei("openclaw"));   // Guardrails entfernen das Risiko NICHT aus der Welt (MH-043)
@@ -6303,8 +6384,8 @@ function tierText(t){
 function zieleNeu(){
   const k=document.getElementById("zielkarte");
   const q=QUESTS[S.questIdx];
-  if(!q){ k.innerHTML='<h4>'+IKONEN.ziel+'Alle Hofziele erreicht!</h4><div class="zielhilfe">Der Hof läuft – jetzt zählt deine eigene Strategie.</div>'; return; }
-  k.innerHTML='<h4>'+IKONEN.ziel+'Hofziel '+(S.questIdx+1)+'/'+QUESTS.length+'</h4>'+
+  if(!q){ k.innerHTML=wocheBoxHtml()+'<h4>'+IKONEN.ziel+'Alle Hofziele erreicht!</h4><div class="zielhilfe">Der Hof läuft – jetzt zählt deine eigene Strategie.</div>'; return; }
+  k.innerHTML=wocheBoxHtml()+'<h4>'+IKONEN.ziel+'Hofziel '+(S.questIdx+1)+'/'+QUESTS.length+'</h4>'+
     '<div class="zielzeile"><span class="haken"></span><span class="zieltext">'+esc(tierText(q.t))+'</span><b class="zielpreis">+'+geld(q.pr)+'</b></div>'+
     '<div class="zielhilfe">💡 '+esc(tierText(q.hilfe))+'</div>';
 }
@@ -8083,7 +8164,8 @@ function hofbuchHtml(){
     ["Was ist der Unterschied zwischen Hof-Fokus und Spezialist?","Der Hof-Fokus (Einführung) gibt +8 % auf EINE Auftragsart hofweit. Ein Spezialist ist EIN Tier mit +8 % auf seine Art (übers Marktlos). Beides stapelt."],
     ["Was machen die Schwierigkeitsgrade?","🐣 Behütet erklärt Folgen vor riskanten Aktionen, liefert zu jedem Ereignis das Gegenmittel und gibt 500 € Startpolster. ⛈️ Marktwirtschaft streicht die Warnboxen und erhöht die Pacht um 25 %. Die Simulation selbst (Preise, Formeln, Wahrscheinlichkeiten) ist auf ALLEN Stufen identisch – Wechsel jederzeit im Hofhaus."],
     ["Welchen Stack nehme ich wann?","Start: llama.cpp (gratis, kann in den RAM ausweichen). Ollama/LM Studio (60 €) erlauben beliebiges Umsetzen der Tiere. Auf Rack-Karten nach der Server-Stack-Forschung: vLLM für viele gleichzeitige Nutzer, SGLang für Agenten-Ketten – beide brauchen q8/bf16 und das ganze Modell im VRAM."]
-  ].map(([q,a])=>'<p style="margin-bottom:7px"><b>'+q+'</b><br>'+a+'</p>').join(""));
+  ].map(([q,a])=>'<p style="margin-bottom:7px"><b>'+q+'</b><br>'+a+'</p>').join("")+
+  (T(WOCHE)?'<p style="margin-top:8px"><b>🧭 Die Geführte Woche (7 Kapitel):</b> '+WOCHE.map((k,i)=>'<span class="merk">Tag '+(i+1)+': '+k.z+' '+e(k.t)+'</span>').join(" ")+' – Abschluss: Gesellenprüfung (Abzeichen + 150 €).</p>':""));
   /* Stufen */
   if(T(LEVELS)) h+=hbKap("stufen","🏅","Hofstufen ("+LEVELS.length+")",'<div class="werteliste">'+LEVELS.map((l,i)=>hbZeile("🏅","Stufe "+(i+1)+" · "+e(l.n)+" <span class=\"merk\">"+l.xp+" XP</span>",(l.frei.length?"Schaltet frei: "+l.frei.join(", "):"—")+" · "+e(l.hinweis||""))).join("")+'</div>');
   /* Techtree */
@@ -8155,7 +8237,7 @@ function hofbuchHtml(){
   ].map(([b,t])=>'<p style="margin-bottom:5px"><b>'+b+':</b> '+t+'</p>').join(""));
   return h;
 }
-function zeigeHofbuch(){ blattLive("📖 Hofbuch – Regelwerk & FAQ",hofbuchHtml,"hofbuch"); }
+function zeigeHofbuch(){ questHook("hofbuch_gelesen",null); blattLive("📖 Hofbuch – Regelwerk & FAQ",hofbuchHtml,"hofbuch"); }
 
 function zeigeHilfe(){
   blattLive("❓ Anleitung",()=>{
@@ -8482,6 +8564,9 @@ function zeigeWillkommen(){
     '<div class="karte abstand"><h3>🎚️ Wie fordernd soll es sein?</h3><div class="reihe" style="flex-wrap:wrap">'+
       Object.entries(SCHWIERIG).map(([id,s])=>'<button class="knopf s '+((_einf.schwierig||"hofalltag")===id?"gewaehlt":"hell")+'" onclick="einfSchwierig(\''+id+'\')">'+s.n+'</button>').join("")+'</div>'+
     '<p style="font-size:11px;color:var(--tinte-2);margin-top:4px">'+esc(SCHWIERIG[_einf.schwierig||"hofalltag"].kurz)+' Alle Stufen nutzen exakt dieselben Preise, Formeln und Wahrscheinlichkeiten – nur Hilfe und Polster unterscheiden sich. Jederzeit im Hofhaus wechselbar.</p></div>'+
+    '<div class="karte abstand"><h3>🧭 Wie startest du?</h3><div class="reihe" style="flex-wrap:wrap">'+
+      [["gefuehrt","🧭 Geführte erste Woche"],["frei","🗺️ Freie Hand"]].map(([id,n])=>'<button class="knopf s '+((_einf.fuehrung||"gefuehrt")===id?"gewaehlt":"hell")+'" onclick="einfFuehrung(\''+id+'\')">'+n+'</button>').join("")+'</div>'+
+    '<p style="font-size:11px;color:var(--tinte-2);margin-top:4px">'+((_einf.fuehrung||"gefuehrt")==="gefuehrt"?"Sieben Tageskapitel führen dich durch alle Kernsysteme – am Tag 7 wartet die Gesellenprüfung (Abzeichen + 150 €). Alles bleibt frei zugänglich, die Kapitel leuchten nur den Weg aus.":"Der ganze Hof sofort, ohne Wegweiser – die 7 Kapitel stehen trotzdem im 📖 Hofbuch, falls du sie brauchst.")+'</p></div>'+
     '<div class="reihe abstand"><button class="knopf hell" onclick="einfWeiter(2)">⟵ Zurück</button>'+
     '<button class="knopf gruen" onclick="willkommenFertig()">🌅 Hof übernehmen!</button></div>'+
     '<p class="abstand" style="font-size:11px;color:var(--tinte-2)">Illustrationen KI-erzeugt (Gemini 2.5 Flash Image via OpenRouter) – Details im Hofhaus unter „Mitwirkende".</p>';
@@ -8503,6 +8588,7 @@ function einfModell(id){
 }
 function einfSpezial(id){ _einf.spezial=id; zeigeWillkommen(); }
 function einfSchwierig(id){ _einf.schwierig=id; zeigeWillkommen(); }
+function einfFuehrung(id){ _einf.fuehrung=id; zeigeWillkommen(); }
 /* einfModus (Lernhof/Wirtschaftshof) ist Ära-7 ersatzlos entfallen (ADR 0003): der Schalter
    wurde nie gelesen – ersetzt durch die ECHTEN Schwierigkeitsgrade (S.schwierig). */
 function willkommenFertig(){
@@ -8512,6 +8598,7 @@ function willkommenFertig(){
   const sp=_einf.spezial||"gemischt";
   S.spezial=sp==="gemischt"?null:sp;
   S.schwierig=_einf.schwierig||"hofalltag";
+  S.fuehrung=_einf.fuehrung||"gefuehrt";
   if(S.schwierig==="behuetet") buche(500,"foerderung","Behütet-Start: Anschubpolster der Gemeinde");
   const geschenk={code:{fach_code:20},wissen:{kuratiert:20},agent:{beispiele:15}}[sp];
   if(geschenk) for(const f in geschenk) S.daten[f]=(S.daten[f]||0)+geschenk[f];
@@ -9000,7 +9087,7 @@ Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstal
   zuchtMethodeWahl,zuchtWaehle,zuchtLeer,zuchtStart,futterKauf,synthProduzieren,
   marktReiterWahl,marktFilter,modellKaufen,gpuKaufen,lizenzKaufen,jobAnnehmen,
   rennParcoursWahl,rennWaehlen,rennenStarten,rennenSchliessen,forschen,solarKaufen,
-  forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,stackKaufen,stackWechsel,einfSchwierig,schwierigSetzen,
+  forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,stackKaufen,stackWechsel,einfSchwierig,schwierigSetzen,einfFuehrung,
   hofUmbenennen,standExport,standImport,neustart,willkommenFertig,kurieren,
   tierArtWahl,eigenGenerieren,eigenUebernehmen,eigenFlipWechsel,figurStilWahl,onboardWahl,onboardEigen,zeigeTierwahl,
   einfWeiter,einfModell,einfSpezial,
@@ -9158,10 +9245,13 @@ function hlTeamCheck(j,wahl){
  let chance=ch.length?Math.min(...ch.map(c=>c.erfolg)):0;
  const teamwork=einzigartig.length>1;
  if(teamwork)chance-=3; // Übergaben sind nicht kostenlos und können scheitern.
+ /* Ära 7 (Haupt-Session, R5) – Team-Chemie: gleiche Modellfamilie = gleicher Tokenizer,
+    weniger Übersetzungsverlust bei Übergaben (12 % → 8 %) */
+ const uebF=teamwork?((typeof hlUebergabeF==='function')?hlUebergabeF(einzigartig.map(id=>S.tiere.find(t=>t.uid===id))):1.12):1;
  let anteil=ch.length?Math.min(...ch.map(c=>c.anteil)):0;
  for(const uid of einzigartig){const p=S.tiere.find(t=>t.uid===uid),jobs=ids.map((id,i)=>id===uid?hlRollenJob(j,i):null).filter(Boolean);
-  if(p){const last=jobs.reduce((a,jj)=>a+jj.mtokTag,0)* (teamwork?1.12:1);anteil=Math.min(anteil,mtokTagKapazitaet(p,j)/Math.max(.001,last));}}
- return {ok:!gruende.length,gruende,warnungen,erfolg:kl(chance,4,97),anteil:kl(anteil,0,1),ids:einzigartig,teamwork};
+  if(p){const last=jobs.reduce((a,jj)=>a+jj.mtokTag,0)*uebF;anteil=Math.min(anteil,mtokTagKapazitaet(p,j)/Math.max(.001,last));}}
+ return {ok:!gruende.length,gruende,warnungen,erfolg:kl(chance,4,97),anteil:kl(anteil,0,1),ids:einzigartig,teamwork,uebF};
 }
 function hlWaehlen(jid,i,uid){const p=S.tiere.find(t=>t.uid===uid);if(!p||p.status!=='frei')return;hlAuswahl[jid]=hlAuswahl[jid]||{};hlAuswahl[jid][i]=uid;zeigeAuftrag(jid);}
 function hlAuto(jid){const j=S.jobs.find(j=>j.id===jid);if(!j)return;const w={};hlRollen(j).forEach((r,i)=>{const jj={...hlRollenJob(j,i),teile:i===hlRollen(j).length-1?j.teile:[]};const ps=S.tiere.filter(p=>p.status==='frei'&&jobCheck(p,jj).ok).sort((a,b)=>(a.api?10:a.pT)-(b.api?10:b.pT));if(ps[0])w[i]=ps[0].uid;});hlAuswahl[jid]=w;zeigeAuftrag(jid);}
@@ -9181,8 +9271,9 @@ function hlTeamsTag(energie,bericht){
   const strom=ps.every(p=>p.api||hlVersorgung(p,energie)>=.98);
   const bereit=strom&&c.ok&&ps.length===c.ids.length;
   if(bereit){team.rest--;team.seg.push({anteil:c.anteil,erfolg:c.erfolg});
+   if(typeof hlProben==='function')hlProben(j,team,c,ps,bericht);   /* Ära 7 (Haupt-Session, Q5): tägliche Bewährungsproben je Rolle */
    if(j.kontrolle)buche(-8,'pflege','Kontrollpaket · '+j.t);
-   ps.forEach(p=>{if(p.api){const anteil=Object.values(team.wahl).filter(id=>id===p.uid).length/hlRollen(j).length;buche(-jobTagesKosten(p,{...j,mtokTag:j.mtokTag*anteil*(c.teamwork?1.12:1)}),'api','Team-Token · '+p.name);}p.rest=team.rest;});
+   ps.forEach(p=>{if(p.api){const anteil=Object.values(team.wahl).filter(id=>id===p.uid).length/hlRollen(j).length;buche(-jobTagesKosten(p,{...j,mtokTag:j.mtokTag*anteil*(c.uebF||(c.teamwork?1.12:1))}),'api','Team-Token · '+p.name);}p.rest=team.rest;});
   }else bericht.zeilen.push({t:'⏸ '+j.t+': '+(!strom?'Energie reicht für mindestens eine Stufe nicht.':'Team erfüllt die Anforderungen nicht mehr.')+' Lieferfrist: Tag '+team.frist+'.',art:'schlecht'});
   const spaet=S.tag>=team.frist&&team.rest>0;
   if(team.rest>0&&!spaet)continue;
