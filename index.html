@@ -3530,6 +3530,28 @@ const SKILLS = {
     ]}
 };
 
+/* ── Inferenz-Stacks: die Software-Schicht zwischen GPU und Modell (Ära 7, Q2) ──
+   Eigenschaft der BUCHT, nicht des Tiers. Heim-Stacks (llama.cpp-Familie) können in den RAM
+   ausweichen; Server-Stacks (vLLM/SGLang) verlangen das ganze Modell im VRAM und mindestens
+   q8/bf16 – dafür bedienen sie viele Nutzer (vLLM) oder beschleunigen Agenten-Ketten (SGLang). */
+const STACKS = {
+  llamacpp:{ n:"llama.cpp", z:"🦙", preis:0, server:false,
+    txt:"Der Heim-Standard: GGUF-Quantisierungen, robustes Ausweichen in den RAM. Ohne Komfort-Hülle ist nur EIN Tierwechsel je Bucht und Tag drin.",
+    lehre:"Das C++-Urgestein machte Heim-Inferenz möglich: GGUF-Quantisierung und CPU-Offload holen große Modelle auf kleine Karten." },
+  ollama:{ n:"Ollama", z:"📦", preis:60, server:false, komfort:true,
+    txt:"Komfort-Hülle über llama.cpp: Tiere beliebig oft am Tag umsetzen, ein Befehl genügt.",
+    lehre:"„ollama run“ machte lokale Modelle massentauglich – unter der Haube arbeitet llama.cpp weiter." },
+  lmstudio:{ n:"LM Studio", z:"🎛️", preis:60, server:false, komfort:true,
+    txt:"Grafische Komfort-Hülle: gleiche Freiheit wie Ollama, nur mit Knöpfen statt Befehlen.",
+    lehre:"Für alle, die Oberflächen mögen: dieselbe llama.cpp-Basis – im Spiel wirkungsgleich mit Ollama, reine Geschmacksfrage." },
+  vllm:{ n:"vLLM", z:"🚄", preis:0, server:true,
+    txt:"Server-Stack (nur Rack-Karten, min. q8): Continuous Batching bedient VIELE Nutzer gleichzeitig – kein RAM-Ausweichen.",
+    lehre:"PagedAttention + Continuous Batching: dieselbe Karte bedient ein Vielfaches an parallelen Anfragen – der Industriestandard fürs Serving." },
+  sglang:{ n:"SGLang", z:"🌿", preis:0, server:true,
+    txt:"Server-Stack (nur Rack-Karten, min. q8): RadixAttention-Prefix-Cache – spart Token und hebt die Qualität in Agenten-Ketten.",
+    lehre:"Agenten wiederholen große Prompt-Teile in jedem Schritt; SGLang verwertet diese Präfixe wieder – genau dort liegt sein Vorsprung." }
+};
+
 /* ── Saisonen: 30-Hoftage-Rhythmus über Nachfrage, Preise und Wetter-Ereignisse (Spielannahme) ──
    Reale Entsprechung: Auftragslagen im IT-/Agenturgeschäft sind saisonal (Q4-Budgetrunden,
    Sommerloch, Ausschreibungs-Frühjahr) – und Dunkelflauten treffen Rechenzentren im Winter.
@@ -4120,8 +4142,8 @@ EREIGNISSE.push({id:"gateway",n:"Offenes Gateway!",z:"🚪",art:"schlecht",
 
 /* Zusatz-Forschung & Erweiterungs-Wissen werden nach dem Laden eingehängt */
 Object.assign(FORSCHUNG,{
-  vllm:{n:"Serving-Turbo (vLLM/Batching)",z:"🚄",kosten:800,tage:2,braucht:["quant"],frei:"vllm",
-    txt:"Continuous Batching bedient viele Anfragen gleichzeitig: Der Tages-Durchsatz eines Schweins vervielfacht sich – die Antwortzeit pro Kunde bleibt gleich."},
+  vllm:{n:"Server-Stacks (vLLM & SGLang)",z:"🚄",kosten:800,tage:2,braucht:["quant"],frei:"vllm",
+    txt:"Schaltet die Server-Stacks frei, wählbar je Rack-Bucht im Stall: vLLM (Continuous Batching – viele Nutzer gleichzeitig) und SGLang (Prefix-Cache – stark für Agenten-Ketten). Beide brauchen min. q8 und das ganze Modell im VRAM."},
   openclaw:{n:"OpenClaw-Leitstand",z:"🦞",kosten:HOFTECH.openclaw.kosten,tage:HOFTECH.openclaw.tage,braucht:["geschirr"],frei:"openclaw",txt:HOFTECH.openclaw.kurz},
   hermes:{n:"Hermes-Schicht",z:"🪽",kosten:HOFTECH.hermes.kosten,tage:HOFTECH.hermes.tage,braucht:["openclaw"],frei:"hermes",txt:HOFTECH.hermes.kurz},
   secondbrain:{n:"Second-Brain-Erweiterung",z:"🧠",kosten:HOFTECH.secondbrain.kosten,tage:HOFTECH.secondbrain.tage,braucht:["hermes"],frei:"secondbrain",txt:HOFTECH.secondbrain.kurz},
@@ -4658,7 +4680,7 @@ let S=null;
 function frischerStand(){
   const stand={
     v:4, tag:1, kredit:2500, ruf:0, xp:0, hofname:"LLM FARM", co2:0,
-    skills:{}, meisterweg:null,
+    skills:{}, meisterweg:null, schwierig:"hofalltag",
     tierArt:"schwein", figurStil:"bild", einfFertig:false, spezial:null,
     eigenBild:null, eigenPosen:null, eigenFlip:false, eigenSatt:null,
     daten:{webmix:40, beispiele:10}, synthQ:0.8, synthGen:0,
@@ -4773,6 +4795,44 @@ function vramPig(p){
 function vramTeile(p){ const bpw=quantVon(p.quant).bpw;
   return {gewichte:Math.round(p.pT*bpw/8*10)/10, cache:ctxCacheGB(p), reserve:(typeof skillAktiv==="function"&&skillAktiv("speicherpfleger"))?1.0:1.5}; }
 
+/* ── Inferenz-Stacks (Ära 7): Software-Schicht der Bucht, siehe STACKS in content.js ── */
+function stackVon(b){ return STACKS[(b&&b.stack)||"llamacpp"]||STACKS.llamacpp; }
+function stackId(b){ return (b&&b.stack)||"llamacpp"; }
+function istRack(b){ return !!(b&&(b.rhSlot||"").startsWith("rack")); }
+function stackKaufen(id){
+  const s=STACKS[id];
+  if(!s||!s.preis||S.stacks&&S.stacks[id]) return;
+  if(S.kredit<s.preis||!kannZahlen(s.preis)){ melde("Zu wenig Geld für "+s.n,"schlecht"); return; }
+  buche(-s.preis,"kauf","Stack-Lizenz: "+s.n+" (hofweit)");
+  S.stacks=S.stacks||{}; S.stacks[id]=true;
+  melde(s.z+" "+s.n+" ist jetzt auf dem ganzen Hof installierbar!","gut");
+  sichern(); zeigeStall();
+}
+function stackZeileHtml(b){
+  const sid=stackId(b);
+  return '<div class="reihe" style="flex-wrap:wrap;gap:3px;margin-top:5px" title="Inferenz-Stack dieser Bucht">'+
+    Object.entries(STACKS).map(([id,s])=>{
+      const aktiv=sid===id;
+      const brauchtKauf=s.komfort&&!(S.stacks||{})[id];
+      const gesperrt=s.server&&(!forschungFrei("vllm")||!istRack(b));
+      const grund=gesperrt?(!forschungFrei("vllm")?"Forschung „Server-Stacks“ nötig":"nur auf Rack-Karten"):s.txt;
+      if(brauchtKauf) return '<button class="knopf s hell" style="font-size:10px" title="'+esc(s.txt)+'" onclick="stackKaufen(\''+id+'\')">'+s.z+' '+geld(s.preis)+'</button>';
+      return '<button class="knopf s '+(aktiv?"gewaehlt":"hell")+'" style="font-size:10px" '+((aktiv||gesperrt)?"disabled ":"")+'title="'+esc(grund)+'" onclick="stackWechsel(\''+b.id+'\',\''+id+'\')">'+s.z+(aktiv?" "+s.n:"")+'</button>';
+    }).join("")+((b.stackBereit||0)>S.tag?'<span class="merk">⏳ rüstet</span>':'')+'</div>';
+}
+function stackWechsel(bid,id){
+  const b=S.buchten.find(x=>x.id===bid), s=STACKS[id];
+  if(!b||!s||stackId(b)===id) return;
+  if(s.komfort&&!(S.stacks||{})[id]){ melde("Erst die "+s.n+"-Lizenz kaufen ("+geld(s.preis)+").","schlecht"); return; }
+  if(s.server&&!forschungFrei("vllm")){ melde("Server-Stacks brauchen die Forschung „Server-Stacks (vLLM & SGLang)“.","schlecht"); return; }
+  if(s.server&&!istRack(b)){ melde("Server-Stacks laufen nur auf Rack-Karten – der PC bleibt bei der llama.cpp-Familie.","schlecht"); return; }
+  const p=S.tiere.find(t=>t.uid===b.tier);
+  if(p&&p.status!=="frei"){ melde("Erst muss "+p.name+" mit der Arbeit fertig sein.","schlecht"); return; }
+  if(p&&s.server&&(quantVon(p.quant).bpw<8||vramPig(p)>GPUS[b.gpu].vram)){ melde(s.n+" lädt "+p.name+" so nicht: Server-Stacks brauchen min. q8 UND das ganze Modell im VRAM.","schlecht"); return; }
+  b.stack=id; b.stackBereit=S.tag+1;   /* Rüstzeit (R2c): Installation & Warmlaufen kosten den Rest des Tages */
+  melde(s.z+" "+s.n+" wird auf dieser Bucht eingerichtet – ab morgen einsatzbereit.","gut");
+  sichern(); zeigeStall();
+}
 /* Bucht & GPU eines Schweins */
 function buchtVon(p){ return p&&p.bucht?S.buchten.find(b=>b.id===p.bucht):null; }
 function gpuVon(p){ const b=buchtVon(p); return b?GPUS[b.gpu]:null; }
@@ -4824,7 +4884,9 @@ function mtokTagKapazitaet(p,j){
   if(quirkHat(p,"redselig")) f*=0.9;
   if(quirkHat(p,"knapp")) f*=1.08;
   (p.setups||[]).forEach(id=>{ const s=SETUPS[id]; if(s&&s.tokens) f/=s.tokens; });  // Best-of-N & Co: Mehr-Token senken die NUTZ-Kapazität (MH-016)
-  if(forschungFrei("vllm")) f*=(j&&j.parallel)?4:1.15;   // Continuous Batching: nur viele parallele Anfragen füllen den Batch
+  const _sid=stackId(buchtVon(p));                        // Ära 7: Serving-Gewinn hängt am Bucht-Stack
+  if(_sid==="vllm") f*=(j&&j.parallel)?4:1.15;            // Continuous Batching: nur viele parallele Anfragen füllen den Batch
+  if(_sid==="sglang"){ f*=(j&&j.parallel)?2.5:1.1; if(j&&(j.agent||j.team||j.rollen)) f*=1.14; }   // RadixAttention: Prefix-Cache liebt Agenten-Ketten
   return Math.round(tokps(p)*3600*14/1e6*denkFaktor*f*10)/10;
 }
 
@@ -4839,7 +4901,11 @@ function nutzerKapazitaet(p){
   if(p.api) return Infinity;
   if(!p.bucht||archVon(p)==="hrm") return 0;
   const roh=Math.floor(tokps(p)/TOK_JE_NUTZER);
-  return forschungFrei("vllm")?roh:Math.min((typeof skillAktiv==="function"&&skillAktiv("servingprofi"))?3:2,roh);   /* Skill: einfaches Request-Batching */
+  /* Ära 7: Der 👥-Multiplikator hängt am BUCHT-Stack, nicht mehr an der Forschung allein */
+  const sid=stackId(buchtVon(p));
+  if(sid==="vllm") return roh;                                            // Continuous Batching: volle Parallelität
+  if(sid==="sglang") return Math.min(Math.max(4,Math.floor(roh*0.6)),roh); // gutes Batching, Stärke liegt bei Agenten
+  return Math.min((typeof skillAktiv==="function"&&skillAktiv("servingprofi"))?3:2,roh);   /* Heim-Stack + Skill: einfaches Request-Batching */
 }
 function nutzerSchaetzungKatalog(m){
   const gs=(S.buchten||[]).map(b=>GPUS[b.gpu]); if(!gs.length) return 0;
@@ -4954,6 +5020,10 @@ function jobCheckBasis(p,j){
   }
   const t=tokps(p);
   if(t<j.latenz){ ok=false; gruende.push("zu langsam ("+t+" von "+j.latenz+" Token/s)"); }
+  /* Ära 7 – Stack-Regeln der Bucht */
+  const _b=buchtVon(p);
+  if(_b&&(_b.stackBereit||0)>S.tag){ ok=false; gruende.push("Bucht rüstet den neuen Stack ("+stackVon(_b).n+") – ab morgen einsatzbereit"); }
+  if(_b&&stackId(_b)==="sglang"&&j.agent) boni.push("SGLang-Prefix-Cache: Agenten-Ketten laufen spürbar günstiger");
   let kap=mtokTagKapazitaet(p,j);
   if(j.agent&&p.geschirr&&HARNESSE[p.geschirr]){                       // Prompt-Ballast des Geschirrs frisst echte Kapazität (MH-044)
     const ot=(HARNESSE[p.geschirr].funk||{}).overheadTok||4;
@@ -5049,12 +5119,41 @@ function jobOekonomie(p,j){
 function tierVerbesserung(p){
   return (p.historie||[]).filter(h=>h.delta).reduce((s,h)=>s+Object.values(h.delta).reduce((a,b)=>a+Math.max(0,b),0),0);
 }
+/* ── Effizienz-Index (Ära 7, Q6): Arbeitsleistung je Betriebskosten – der Nordstern der Zucht ──
+   Leistung = Tages-Kapazität (Mtok) × mittlere Kernfähigkeit. Kosten = Strom der besetzten
+   Karte (14 h) bzw. API-Token; Freiläufer werden auf der besten Hof-Karte gedacht.
+   Log-Skala 0–100: Verdopplung des Verhältnisses ≈ +9 Punkte. Zucht-Ziel: gleiche Leistung,
+   kleinerer Fußabdruck (Distillation/Quantisierung) ODER mehr Leistung zum gleichen Preis. */
+function effizienzIndex(p){
+  if(archVon(p)==="hrm") return 55;                       // Rätsel-Spezialisten: eigene Liga, fixer Richtwert
+  const w=effW(p);
+  const faehig=((w.wissen||0)+(w.treue||0)+(w.code||0)+(w.logik||0))/4;
+  let kap, kosten;
+  if(p.api){
+    const m=LEIHMODELLE[p.modell]||{};
+    kap=mtokTagKapazitaet(p);
+    kosten=kap*(((m.inTok||2)+(m.outTok||8))/2)*0.5+1;    // €-Schätzung je Mtok-Mix
+  } else {
+    const g=gpuVon(p)||[...S.buchten.map(b=>GPUS[b.gpu])].sort((a,b)=>b.bw-a.bw)[0];
+    if(!g) return 0;
+    const hatte=p.bucht;
+    if(!hatte){ const b=S.buchten.find(x=>GPUS[x.gpu]===g); if(b){ p.bucht=b.id; } }
+    kap=p.bucht?mtokTagKapazitaet(p):0;
+    if(!hatte) p.bucht=null;
+    kosten=g.watt/1000*14*strompreis()+0.5;
+  }
+  const roh=kap*faehig/Math.max(0.5,kosten);
+  return kl(Math.round(30*Math.log10(1+roh)),1,100);
+}
 function tierWert(p){
   if(p.api) return 0;
   const m=p.modell?MODELLE[p.modell]:null;
   const neupreis=m?m.preis:Math.round(300+p.pT*25);
   let v=neupreis*0.55+tierVerbesserung(p)*4+(p.adapters||[]).length*60;
   if(p.contaminated) v*=0.7;
+  /* Ära 7: Der Markt zahlt für Effizienz – Faktor 0,75–1,15 um den Index 50 herum (gedeckelt,
+     damit Kauf→Sofortverkauf ein Verlust bleibt; Wächter: T14) */
+  v*=kl(0.75+effizienzIndex(p)/125,0.75,1.15);
   v=Math.min(v,neupreis*1.1+tierVerbesserung(p)*4);
   return Math.round(endlich(v,0)*kl(nachfrageFaktor(),0.5,1.5));
 }
@@ -5114,6 +5213,17 @@ function meisterwegWaehlen(weg){
 
 /* ── Saison des aktuellen Hoftags (30-Tage-Rhythmus, siehe SAISONEN in content.js) ── */
 function saison(){ return SAISONEN[Math.floor(((S&&S.tag||1)-1)/30)%SAISONEN.length]; }
+
+/* ── Schwierigkeitsgrade (Ära 7, ADR 0002): NUR Hilfe & Polster – NIE andere Formeln ── */
+const SCHWIERIG={
+  behuetet:{n:"🐣 Behütet",kurz:"Folgen-Box vor riskanten Aktionen, Ereignis-Vorwarnung einen Tag vorher, +500 € Startpolster."},
+  hofalltag:{n:"🌾 Hofalltag",kurz:"Das normale Spiel – Hinweise ja, Händchenhalten nein."},
+  markt:{n:"⛈️ Marktwirtschaft",kurz:"Keine Warnboxen, Pacht +25 %. Die Simulation selbst bleibt exakt dieselbe."}
+};
+function schwierig(){ return (S&&S.schwierig)||"hofalltag"; }
+function schwierigSetzen(id){ if(!SCHWIERIG[id])return; S.schwierig=id; melde(SCHWIERIG[id].n+" – "+SCHWIERIG[id].kurz,"gut"); sichern(); zeigeHofhaus(); }
+/* Behütet-Folgenbox: erklärt VOR der Aktion, was passieren kann und was dagegen hilft */
+function warnBox(was,gegen){ if(schwierig()!=="behuetet") return true; return confirm("🐣 Behütet-Hinweis\n\n"+was+"\n\n👉 Gegenmittel: "+gegen+"\n\nTrotzdem fortfahren?"); }
 
 function xpDazu(n){
   S.xp=Math.max(0,(S.xp||0)+Math.round(n));
@@ -5667,6 +5777,7 @@ function ausfuehrenTagesWechsel(){
   if(aboKosten){ buche(-aboKosten,"abo","Geschirr-Abos ("+[...genutzteGeschirre].join(", ")+")"); bericht.ausgaben+=aboKosten; }
   rhTagBuchen(rechenTag,bericht);
   let pacht=10+hofLevel().i*3;                         // Balance-Kur: Fixkosten dürfen fordern, nicht erdrosseln (N7)
+  if(schwierig()==="markt") pacht=Math.round(pacht*1.25);   /* ⛈️ Marktwirtschaft: härtere Pacht – die einzige Zahlenänderung dieser Stufe (ADR 0002) */
   if(S.kredit<=KREDIT_LIMIT){ pacht=Math.round(pacht/2); bericht.zeilen.push({t:"🏛️ Die Gemeinde stundet die halbe Pacht, bis der Hof wieder über "+geld(KREDIT_LIMIT)+" steht.",art:"info"}); }
   buche(-pacht,"pacht","Pacht & Grundanschluss"); bericht.ausgaben+=pacht;
   /* Kreditzins & Bank-Bremse */
@@ -5726,6 +5837,19 @@ function ausfuehrenTagesWechsel(){
       const e=JSON.parse(JSON.stringify(zufall(kandidaten)));
       S.events.push(e);
       bericht.event=e;
+      /* 🐣 Behütet (ADR 0002): zu jedem Ereignis sofort das konkrete Gegenmittel – Schaden abwenden lernen */
+      if(schwierig()==="behuetet"){
+        const tipp={strompreis:"Trainings in die Nachtplanung legen (halber Tarif), stromhungrige Aufträge heute meiden, Akku-Strom nutzen.",
+          nachfrage:"Preise sind Marktpreise: bei Flaute kleine sichere Zettel nehmen, bei Welle die dicken – die Frist im Blick behalten.",
+          gpupreis:"Hardware-Käufe verschieben oder vorziehen, je nach Richtung – der Katalog zeigt den Tagesfaktor.",
+          injection:"Heute keine Agenten-Zettel von Unbekannten; Zaunbau (Guardrails) senkt Schaden dauerhaft – Immunität gibt es nie.",
+          klage:"Lizenzfelder der Tiere prüfen (nc = nicht kommerziell!), Datenherkunft sauber halten.",
+          audit:"DSGVO-Zettel nur mit lokalen Tieren fahren, Kassenbuch und Futterherkunft sind deine Nachweise.",
+          ausfall:"Cloud-Tiere pausieren lassen, lokale Tiere übernehmen – genau dafür lohnt eigene Hardware.",
+          ruf:"Ruf-Effekte verblassen von selbst – jetzt zählen saubere Lieferungen doppelt.",
+          daten:"Geschenkte Daten erst in der Datenlese kuratieren, bevor sie ins Training gehen."}[(e.effekt||{}).typ];
+        if(tipp) bericht.zeilen.push({t:"🐣 Was jetzt hilft: "+tipp,art:"info"});
+      }
       const ef=e.effekt||{};
       if(ef.typ==="ruf") rufBonusDazu(ef.wert);
       if(ef.typ==="daten") S.daten.webmix=(S.daten.webmix||0)+Math.max(0,ef.wert);
@@ -6524,7 +6648,8 @@ function zeigeStall(){
         (p?'<div class="insasse"><span class="mini">'+pigSvgVon(p)+'</span><span>'+esc(p.name)+'<br><small>'+tokps(p)+' tok/s'+(offloaded(p)?' ⚠️ quillt über!':'')+'</small></span></div>'+
           '<div class="reihe"><button class="knopf s hell" onclick="oeffne(\'tier\',\''+p.uid+'\')">Öffnen</button><button class="knopf s hell" onclick="ausBucht(\''+p.uid+'\')">Raus</button></div>'
          :'<div class="leer" style="padding:8px 4px;font-size:11px">leer</div>'+
-          '<div class="reihe"><button class="knopf s" onclick="buchtFuellen(\''+b.id+'\')">Belegen</button>'+(b.miete?'<button class="knopf s rot" onclick="mieteKuendigen(\''+b.id+'\')">Kündigen</button>':'<button class="knopf s hell" onclick="gpuVerkaufen(\''+b.id+'\')">Verkaufen</button>')+'</div>');
+          '<div class="reihe"><button class="knopf s" onclick="buchtFuellen(\''+b.id+'\')">Belegen</button>'+(b.miete?'<button class="knopf s rot" onclick="mieteKuendigen(\''+b.id+'\')">Kündigen</button>':'<button class="knopf s hell" onclick="gpuVerkaufen(\''+b.id+'\')">Verkaufen</button>')+'</div>')+
+        stackZeileHtml(b);
     }).join("")+'</div>'+
     '<div class="reihe abstand"><button class="knopf s" onclick="oeffne(\'markt\')">🏡 Hardwareplatz im Rechenhaus wählen</button></div></div>'+
     (frei.length?'<div class="karte"><h3>🏕️ Freiläufer ohne GPU</h3><p>Diese Schweine leben auf der Wiese: kein Stromverbrauch, aber auch keine Arbeit, kein Training.</p><div class="werteliste">'+
@@ -6557,11 +6682,17 @@ function inBucht(uid,bid){
   const p=S.tiere.find(t=>t.uid===uid), b=S.buchten.find(x=>x.id===bid);
   if(!p||!b||b.tier||p.status!=="frei") return;
   if(vramTeile(p).gewichte>(b.ssdTB||4)*1000){melde("Die Modelldatei passt nicht auf die NVMe dieses Rechners.","schlecht");return;}
+  /* Inferenz-Stack-Regeln (Ära 7): Server-Stacks kennen kein RAM-Ausweichen und kein tiefes GGUF */
+  const stk=stackVon(b);
+  if(stk.server&&vramPig(p)>GPUS[b.gpu].vram){ melde(stk.n+" lädt nicht: Server-Stacks brauchen das GANZE Modell im VRAM ("+vramPig(p)+" GB > "+GPUS[b.gpu].vram+" GB). Kleiner quantisieren geht hier nicht unter q8 – kleineres Modell oder Heim-Stack wählen.","schlecht"); return; }
+  if(stk.server&&quantVon(p.quant).bpw<8){ melde(stk.n+" mag kein "+p.quant+": Server-Stacks fahren mit bf16/q8 (GGUF-Tiefquantisierung ist dort Experimentalfall).","schlecht"); return; }
+  if(stackId(b)==="llamacpp"&&b._wechselTag===S.tag){ melde("Purer llama.cpp: nur EIN Tierwechsel je Bucht und Tag (Lade-/Rüstzeit). Ollama oder LM Studio machen das Umsetzen frei.","schlecht"); return; }
+  if((b.stackBereit||0)>S.tag){ melde("Diese Bucht rüstet gerade ihren neuen Stack – ab morgen wieder einsatzbereit.","schlecht"); return; }
   /* Offload ist ENDLICH: der Überhang muss ins Rechner-RAM passen (MH-019, T21) */
   const ueber=vramPig(p)-GPUS[b.gpu].vram;
   if(ueber>0&&ueber>ramFrei(p,b)){ melde("Passt nicht: "+Math.round(ueber)+" GB Überhang, aber nur "+Math.round(ramFrei(p,b))+" GB Rechner-RAM frei. Kleinere Quantisierung wählen oder andere Bucht!","schlecht"); return; }
-  if(p.bucht){ const alt=buchtVon(p); if(alt) alt.tier=null; }
-  b.tier=uid; p.bucht=bid;
+  if(p.bucht){ const alt=buchtVon(p); if(alt){ alt.tier=null; alt._wechselTag=S.tag; alt._hatteTier=true; } }
+  b.tier=uid; p.bucht=bid; b._wechselTag=S.tag; b._hatteTier=true;
   melde(p.name+" zieht in die "+GPUS[b.gpu].n+"-Bucht"+(passtInBucht(p,b)?"":" – "+Math.round(ueber)+" GB liegen im RAM: gleiche Gewichte, gleiches Wissen, aber zäher Trab"),passtInBucht(p,b)?"gut":"schlecht");
   questHook("zuweisung",null);
   alles(); sichern(); zeigeStall();
@@ -6619,7 +6750,8 @@ function zeigeTier(uid){
       '<div class="kacheln">'+
         '<div class="kachel"><b>'+tokps(p)+'</b><span>Token/s'+(offloaded(p)?" ⚠️":"")+'</span></div>'+
         '<div class="kachel"><b>'+mtokTagKapazitaet(p)+'</b><span>Mtok/Tag</span></div>'+
-        '<div class="kachel"><b>'+(p.api?"∞*":nutzerKapazitaet(p))+'</b><span>👥 gleichzeitig'+(p.api?" (*Anbieter skaliert)":(!p.api&&p.bucht&&!forschungFrei("vllm")?" – ohne Turbo max 2":""))+'</span></div>'+
+        '<div class="kachel"><b>'+(p.api?"∞*":nutzerKapazitaet(p))+'</b><span>👥 gleichzeitig'+(p.api?" (*Anbieter skaliert)":(p.bucht?" · "+stackVon(buchtVon(p)).z+" "+stackVon(buchtVon(p)).n:""))+'</span></div>'+
+        '<div class="kachel"><b>'+effizienzIndex(p)+'</b><span>⚙️ Effizienz-Index <small>(Leistung je Kosten – Zucht-Nordstern, siehe Hofbuch)</small></span></div>'+
         '<div class="kachel"><b>'+(p.api?"–":vramPig(p)+" GB")+'</b><span>Speicherbedarf</span></div>'+
         '<div class="kachel"><b>'+(p.api?geld((LEIHMODELLE[p.modell].inTok*0.4+LEIHMODELLE[p.modell].outTok*0.6)*0.92)+"/Mtok":(g?geld(g.watt/1000*14*strompreis())+"/Tag":"–"))+'</b><span>'+(p.api?"API-Kosten":"Stromkosten")+'</span></div>'+
       '</div>'+
@@ -6884,6 +7016,9 @@ function quantSetzen(uid,qid){
     melde("Geht nicht: "+p.name+" ist Eigenzucht – es gibt keine Originaldatei in höherer Präzision. Was beim Quantisieren verloren ging, lässt sich nicht zurückrechnen!","schlecht");
     return;
   }
+  const _sb=buchtVon(p);
+  if(_sb&&stackVon(_sb).server&&quantVon(qid).bpw<8){ melde("Die "+stackVon(_sb).n+"-Bucht fährt nur bf16/q8 – erst ausstallen oder Heim-Stack wählen, dann tiefer quantisieren.","schlecht"); return; }
+  if(quantVon(qid).bpw<=3&&!warnBox("q3/q2 sind HARTE Diäten: spürbarer Qualitätsverlust bei Wissen und Treue, das Tier wird fehleranfälliger.","Für Heimkarten reicht fast immer q4 – gleiche Platzersparnis-Klasse, deutlich weniger Verlust.")) return;
   if(S.kredit<25||!kannZahlen(25)){ melde("25 € Werkstattgebühr fehlen","schlecht"); return; }
   buche(-25,"kauf","Werkstatt: Umquantisierung "+p.name+(p.modell&&quantVon(qid).bpw>quantVon(p.quant).bpw?" (Original neu geladen)":""));
   const alt=quantVon(p.quant);
@@ -7155,7 +7290,7 @@ function zuchtStart(){
   for(let i=1;i<eltern.length;i++){ const k=mergeKompatibel(eltern[0],eltern[i],zuchtMethode); if(!k.ok){ melde(k.warum,"schlecht"); return; } }
   buche(-m.kredit,"zucht","Misch-Werkstatt: "+m.n);
   /* Der Merge KOSTET einen Hoftag und belegt die Eltern (MH-037, T39) – das Kind liegt morgen früh im Stroh */
-  const elternKopie=zuchtWahl.map(id=>{const e=S.tiere.find(t=>t.uid===id);return {name:e.name,w:{...e.w}};});
+  const elternKopie=zuchtWahl.map(id=>{const e=S.tiere.find(t=>t.uid===id);return {name:e.name,w:{...e.w},_effIdx:effizienzIndex(e)};});
   eltern.forEach(e=>{ e.status="zucht"; e.rest=m.tage||1; });
   eltern[0]._mergeAuftrag={eltern:[...zuchtWahl],methode:zuchtMethode,kopie:elternKopie};
   S.statistik.merges++;
@@ -7168,10 +7303,15 @@ function zeigeWurfKarte(uid){
   const kind=S.tiere.find(t=>t.uid===uid); if(!kind) return;
   const fall=kind.fall||{n:"Merge",art:"info",t:""};
   const elternTiere=(kind._elternKopie||[]);
+  /* Ära 7: Effizienz-Vergleich Kind vs. Eltern – hat die Zucht den Nordstern getroffen? */
+  const kidIdx=effizienzIndex(kind);
+  const elternIdx=elternTiere.length?Math.round(elternTiere.reduce((a,e2)=>a+(e2._effIdx||0),0)/elternTiere.length):null;
+  const effZeile=(elternIdx?'<p class="abstand"><b>⚙️ Effizienz-Index: '+kidIdx+'</b> (Eltern-Schnitt: '+elternIdx+') – '+(kidIdx>elternIdx?'die Zucht hat sich gelohnt: mehr Leistung je Kosten! 🎉':kidIdx===elternIdx?'gleichauf mit den Eltern.':'unter den Eltern – Training oder Diät können es noch drehen.')+'</p>':'<p class="abstand"><b>⚙️ Effizienz-Index: '+kidIdx+'</b> – Leistung je Kosten, der Nordstern der Zucht (Hofbuch → Effizienz).</p>');
   blattAuf("🍼 Frisch verschmolzen!",
     '<div class="karte"><div style="display:flex;gap:12px;align-items:center"><div style="flex:0 0 92px;width:92px">'+pigSvgVon(kind)+'</div>'+
     '<div style="flex:1"><h3>'+esc(kind.name)+'</h3><p style="font-size:12px">aus '+kind.eltern.namen.map(esc).join(" × ")+'</p>'+
     '<div class="reihe" style="margin-top:5px"><span class="merk '+(fall.art==="gut"?"gut":fall.art==="schlecht"?"schlecht":"info")+'">'+esc(fall.n)+'</span></div></div></div>'+
+    effZeile+
     '<p class="abstand">'+esc(fall.t)+'</p>'+
     (elternTiere.length?'<div class="abstand"><b style="font-size:13px">🧬 Vererbungstabelle – wer hat was weitergegeben?</b>'+
     '<table class="vergleich"><tr><th>Fähigkeit</th>'+elternTiere.map(e=>'<th>'+esc(e.name.split(" ")[0])+'</th>').join("")+'<th>Kind</th><th style="width:70px"></th></tr>'+
@@ -7271,6 +7411,7 @@ function futterKauf(id,gb){
   const f=FUTTER[id];
   const preis=Math.round(gb*f.preisGB*(id==="webmix"?(saison().webF||1):1));   /* Sommer: Web-Crawls 20 % günstiger (Saison) */
   if(S.kredit<preis||!kannZahlen(preis)){ melde("Zu wenig Geld","schlecht"); return; }
+  if(f.contamination&&!warnBox("Schwarzmarkt-Futter enthält Prüfungsfragen (Benchmark-Leak): Trainings damit machen Siege wertlos, riskieren Halluzinose, Klagen und Rufschaden.","Kuratierte Auslese oder Fachfutter kaufen – teurer je GB, aber jedes GB wirkt ehrlich.")) return;
   buche(-preis,"daten","Datenkauf: "+gb+" GB "+f.n);
   S.daten[id]=(S.daten[id]||0)+gb;
   if(f.contamination) melde("Psst… "+gb+" GB Prüfungsfragen unter der Ladefläche. Wenn das mal gut geht.","schlecht");
@@ -7798,7 +7939,8 @@ function zeigeHofhaus(){
     return '<img src="'+bild("hofhaus")+'" alt="" style="width:100%;max-height:150px;object-fit:cover;border-radius:14px;border:3px solid var(--holz-4)" onerror="this.remove()">'+
     '<div class="karte hell"><h3>⭐ '+esc(S.hofname)+' <button class="knopf s hell" onclick="hofUmbenennen()">umbenennen</button><button class="knopf s hell" onclick="oeffne(\'tierwahl\')">🐾 Wunschtier ändern</button></h3>'+
     '<p>Hofstufe '+l.i+' · <b>'+esc(l.aktuell.n)+'</b>'+(l.naechst?' · noch '+zahl(l.naechst.xp-S.xp)+' XP bis: '+esc(l.naechst.hinweis):"")+'</p>'+
-    '<div class="xprahmen"><i style="width:'+l.fort+'%"></i></div></div>'+
+    '<div class="xprahmen"><i style="width:'+l.fort+'%"></i></div>'+
+    '<div class="reihe" style="flex-wrap:wrap;margin-top:7px">'+Object.entries(SCHWIERIG).map(([id,s])=>'<button class="knopf s '+(schwierig()===id?"gewaehlt":"hell")+'" title="'+esc(s.kurz)+'" onclick="schwierigSetzen(\''+id+'\')">'+s.n+'</button>').join("")+'<span style="font-size:10.5px;color:var(--tinte-2)">Schwierigkeit = Hilfe & Polster, nie andere Formeln (Hofbuch)</span></div></div>'+
     '<div class="kacheln">'+
     '<div class="kachel"><b>'+geld(S.kredit)+'</b><span>Kontostand</span></div>'+
     '<div class="kachel"><b>'+zahl(st.einnahmen)+'</b><span>€ verdient gesamt</span></div>'+
@@ -7923,6 +8065,7 @@ function hbSpring(id){ const el=document.getElementById("hb_"+id); if(el) el.scr
 function hofbuchHtml(){
   const T=x=>typeof x!=="undefined", e=esc;
   const KAPITEL=[["start","🚀","Schnellstart"],["stufen","🏅","Stufen"],["forschung","🔬","Techtree"],["skills","⭐","Meisterschaften"],
+    ["stacks","🦙","Stacks"],["effizienz","⚙️","Effizienz"],
     ["training","🎓","Training & Zucht"],["ausruestung","🐴","Geschirre & Setups"],["krank","🤒","Krankheiten"],["events","⚡","Ereignisse"],
     ["saison","🌱","Saisonen"],["auftraege","📌","Aufträge & Kunden"],["hardware","🖥️","Hardware & Energie"],["futter","🌾","Futter"],
     ["modelle","🐷","Modell-Katalog"],["ehre","🎖️","Auszeichnungen"],["glossar","📜","Glossar"]];
@@ -7937,7 +8080,9 @@ function hofbuchHtml(){
     ["Was bringt die Nacht?","Halber Strompreis. Die Nachtplanung erlaubt Training, Synthetik-Erzeugung und Index-Pflege, ohne den Arbeitstag zu blockieren."],
     ["Wie funktioniert die Wissens-Pipeline (RAG)?","Als Kette: Vektordatenbank + Embedding-Modell ergeben Textsuche; OCR erschließt Scans; der Reranker prüft Treffer. Aufträge verlangen die Bausteine ausdrücklich – und der Index veraltet."],
     ["Kann ich verlieren?","Ja: Wer groß investiert ohne Einnahmen, landet in der Kreditklemme (unter −2.000 € sind Investitionen eingefroren). Vertrauens-Zettel der Nachbarn halten den Weg zurück offen."],
-    ["Was ist der Unterschied zwischen Hof-Fokus und Spezialist?","Der Hof-Fokus (Einführung) gibt +8 % auf EINE Auftragsart hofweit. Ein Spezialist ist EIN Tier mit +8 % auf seine Art (übers Marktlos). Beides stapelt."]
+    ["Was ist der Unterschied zwischen Hof-Fokus und Spezialist?","Der Hof-Fokus (Einführung) gibt +8 % auf EINE Auftragsart hofweit. Ein Spezialist ist EIN Tier mit +8 % auf seine Art (übers Marktlos). Beides stapelt."],
+    ["Was machen die Schwierigkeitsgrade?","🐣 Behütet erklärt Folgen vor riskanten Aktionen, liefert zu jedem Ereignis das Gegenmittel und gibt 500 € Startpolster. ⛈️ Marktwirtschaft streicht die Warnboxen und erhöht die Pacht um 25 %. Die Simulation selbst (Preise, Formeln, Wahrscheinlichkeiten) ist auf ALLEN Stufen identisch – Wechsel jederzeit im Hofhaus."],
+    ["Welchen Stack nehme ich wann?","Start: llama.cpp (gratis, kann in den RAM ausweichen). Ollama/LM Studio (60 €) erlauben beliebiges Umsetzen der Tiere. Auf Rack-Karten nach der Server-Stack-Forschung: vLLM für viele gleichzeitige Nutzer, SGLang für Agenten-Ketten – beide brauchen q8/bf16 und das ganze Modell im VRAM."]
   ].map(([q,a])=>'<p style="margin-bottom:7px"><b>'+q+'</b><br>'+a+'</p>').join(""));
   /* Stufen */
   if(T(LEVELS)) h+=hbKap("stufen","🏅","Hofstufen ("+LEVELS.length+")",'<div class="werteliste">'+LEVELS.map((l,i)=>hbZeile("🏅","Stufe "+(i+1)+" · "+e(l.n)+" <span class=\"merk\">"+l.xp+" XP</span>",(l.frei.length?"Schaltet frei: "+l.frei.join(", "):"—")+" · "+e(l.hinweis||""))).join("")+'</div>');
@@ -7945,6 +8090,11 @@ function hofbuchHtml(){
   if(T(FORSCHUNG)) h+=hbKap("forschung","🔬","Techtree – Forschung ("+Object.keys(FORSCHUNG).length+")",'<div class="werteliste">'+Object.entries(FORSCHUNG).map(([id,f])=>hbZeile(f.z,e(f.n)+' <span class="merk">'+geld(f.kosten)+' · '+f.tage+' Tag(e)</span>',((f.braucht||[]).length?"⬑ braucht: "+f.braucht.map(b=>(FORSCHUNG[b]||{}).n||b).join(", ")+" · ":"Wurzel · ")+e(f.txt||""))).join("")+'</div>');
   /* Meisterschaften */
   if(T(SKILLS)) h+=hbKap("skills","⭐","Meisterschaften – 3 Wege, 1 ⭐ je Hofstufe",Object.values(SKILLS).map(w=>'<p style="margin:8px 0 3px"><b>'+w.z+' '+e(w.n)+'</b> – '+e(w.motto)+'</p><div class="werteliste">'+w.skills.map(s=>hbZeile(s.z,e(s.n)+' <span class="merk">'+"⭐".repeat(s.p)+'</span>'+(s.capstone?' <span class="merk gold">MEISTER</span>':""),(s.braucht?"⬑ nach „"+e((skillDef(s.braucht)||{}).n||s.braucht)+"“ · ":"")+"<b>"+e(s.eff)+"</b><br>💡 "+e(s.lehre))).join("")+'</div>').join(""));
+  /* Effizienz */
+  h+=hbKap("effizienz","⚙️","Effizienz-Index – der Nordstern der Zucht",
+    '<p><b>Formel (offen):</b> Tages-Kapazität in Mtok × mittlere Kernfähigkeit (Wissen/Treue/Code/Logik) ÷ Tages-Betriebskosten (Strom der Karte bzw. API-Token), auf einer Log-Skala 0–100. Eine Verdopplung des Verhältnisses bringt ≈ +9 Punkte.</p>'+
+    '<p><b>Warum das real ist:</b> Genau dafür existieren Distillation, Quantisierung und MoE – gleiche Leistung mit kleinerem Fußabdruck ist der Wert eines Modells. Der Viehmarkt zahlt entsprechend: Der Verkaufswert schwankt mit dem Index (±15 %, gedeckelt).</p>'+
+    '<p><b>Zucht-Ziel:</b> Kinder mit höherem Index als der Eltern-Schnitt – die Wurf-Karte rechnet es dir vor. Rätsel-Architekturen (HRM/TRM) laufen außer Konkurrenz (fester Richtwert).</p>');
   /* Training & Zucht */
   let tz="";
   if(T(TECHNIKEN)) tz+='<p><b>Trainingsverfahren ('+Object.keys(TECHNIKEN).length+'):</b></p><div class="werteliste">'+Object.entries(TECHNIKEN).map(([id,t])=>hbZeile(t.z||"🎓",e(t.n),e(t.txt||t.kurz||"")+(t.risiko?" · Risiken: "+Object.entries(t.risiko).map(([k,v])=>k+" "+Math.round(v*100)+"%").join(", "):""))).join("")+'</div>';
@@ -7952,6 +8102,8 @@ function hofbuchHtml(){
   if(T(QUANTS)) tz+='<p style="margin-top:8px"><b>Diät-Stufen (Quantisierung):</b> '+Object.entries(QUANTS).map(([id,q])=>'<span class="merk">'+id+' · '+q.bpw+' Bit</span>').join(" ")+'</p>';
   tz+='<p style="margin-top:8px;font-size:12px">Eiserne Regeln: Daten werden beim Training NICHT verbraucht (Bibliothek) · wiederholtes Training auf demselben Satz sättigt · Adapter passen nur auf ihre eigene Basis · Übertraining und Vergessen sind echte Risiken mit echten Kuren.</p>';
   h+=hbKap("training","🎓","Training & Zucht",tz);
+  /* Stacks */
+  if(T(STACKS)) h+=hbKap("stacks","🦙","Inferenz-Stacks – die Software der Bucht",'<p>Jede GPU-Bucht fährt EINEN Stack; Wechsel kostet den Rest des Tages (Rüstzeit). Heim-Stacks weichen in den RAM aus; Server-Stacks (nur Rack-Karten, min. q8) halten alles im VRAM und glänzen beim Parallelbetrieb.</p><div class="werteliste">'+Object.entries(STACKS).map(([id,s])=>hbZeile(s.z,e(s.n)+(s.preis?' <span class="merk">'+geld(s.preis)+' hofweit</span>':'')+(s.server?' <span class="merk">Server</span>':''),e(s.txt)+"<br>💡 "+e(s.lehre))).join("")+'</div>');
   /* Geschirre & Setups */
   let ausr="";
   if(T(HARNESSE)) ausr+='<p><b>Geschirre ('+Object.keys(HARNESSE).length+'):</b> Arbeitsumgebung für Agenten-Aufträge – Eignung hängt an der Modellfamilie.</p><div class="reihe" style="flex-wrap:wrap;gap:4px">'+Object.entries(HARNESSE).map(([id,g])=>'<span class="merk">'+(g.z||"🐴")+' '+e(g.n)+'</span>').join("")+'</div>';
@@ -8327,6 +8479,9 @@ function zeigeWillkommen(){
       '<button class="listenzeile'+(_einf.spezial===id?" an":"")+'" onclick="einfSpezial(\''+id+'\')">'+
       '<span class="bild" style="font-size:34px;text-align:center">'+s.z+'</span>'+
       '<span class="txt"><b>'+(_einf.spezial===id?"✅ ":"")+s.n+'</b><span>'+s.txt+'</span></span></button>').join("")+'</div>'+
+    '<div class="karte abstand"><h3>🎚️ Wie fordernd soll es sein?</h3><div class="reihe" style="flex-wrap:wrap">'+
+      Object.entries(SCHWIERIG).map(([id,s])=>'<button class="knopf s '+((_einf.schwierig||"hofalltag")===id?"gewaehlt":"hell")+'" onclick="einfSchwierig(\''+id+'\')">'+s.n+'</button>').join("")+'</div>'+
+    '<p style="font-size:11px;color:var(--tinte-2);margin-top:4px">'+esc(SCHWIERIG[_einf.schwierig||"hofalltag"].kurz)+' Alle Stufen nutzen exakt dieselben Preise, Formeln und Wahrscheinlichkeiten – nur Hilfe und Polster unterscheiden sich. Jederzeit im Hofhaus wechselbar.</p></div>'+
     '<div class="reihe abstand"><button class="knopf hell" onclick="einfWeiter(2)">⟵ Zurück</button>'+
     '<button class="knopf gruen" onclick="willkommenFertig()">🌅 Hof übernehmen!</button></div>'+
     '<p class="abstand" style="font-size:11px;color:var(--tinte-2)">Illustrationen KI-erzeugt (Gemini 2.5 Flash Image via OpenRouter) – Details im Hofhaus unter „Mitwirkende".</p>';
@@ -8347,14 +8502,17 @@ function einfModell(id){
   zeigeWillkommen();
 }
 function einfSpezial(id){ _einf.spezial=id; zeigeWillkommen(); }
+function einfSchwierig(id){ _einf.schwierig=id; zeigeWillkommen(); }
 /* einfModus (Lernhof/Wirtschaftshof) ist Ära-7 ersatzlos entfallen (ADR 0003): der Schalter
-   wurde nie gelesen. Schwierigkeitsgrade & Geführte Woche kommen als ECHTE Systeme (Welle 2/3). */
+   wurde nie gelesen – ersetzt durch die ECHTEN Schwierigkeitsgrade (S.schwierig). */
 function willkommenFertig(){
   if(_einf.wahl.length!==2){ _einf.schritt=2; zeigeWillkommen(); melde("Bitte zwei Startmodelle auswählen!","schlecht"); return; }
   einfName();
   _einf.wahl.forEach(id=>S.tiere.push(neuesTier(id)));
   const sp=_einf.spezial||"gemischt";
   S.spezial=sp==="gemischt"?null:sp;
+  S.schwierig=_einf.schwierig||"hofalltag";
+  if(S.schwierig==="behuetet") buche(500,"foerderung","Behütet-Start: Anschubpolster der Gemeinde");
   const geschenk={code:{fach_code:20},wissen:{kuratiert:20},agent:{beispiele:15}}[sp];
   if(geschenk) for(const f in geschenk) S.daten[f]=(S.daten[f]||0)+geschenk[f];
   else buche(150,"foerderung","Startbonus: Gemischter Hof");
@@ -8842,7 +9000,7 @@ Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstal
   zuchtMethodeWahl,zuchtWaehle,zuchtLeer,zuchtStart,futterKauf,synthProduzieren,
   marktReiterWahl,marktFilter,modellKaufen,gpuKaufen,lizenzKaufen,jobAnnehmen,
   rennParcoursWahl,rennWaehlen,rennenStarten,rennenSchliessen,forschen,solarKaufen,
-  forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,
+  forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,stackKaufen,stackWechsel,einfSchwierig,schwierigSetzen,
   hofUmbenennen,standExport,standImport,neustart,willkommenFertig,kurieren,
   tierArtWahl,eigenGenerieren,eigenUebernehmen,eigenFlipWechsel,figurStilWahl,onboardWahl,onboardEigen,zeigeTierwahl,
   einfWeiter,einfModell,einfSpezial,
