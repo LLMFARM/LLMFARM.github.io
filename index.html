@@ -3481,7 +3481,7 @@ const SKILLS = {
         lehre:"Schon einfaches Request-Batching hebt den Durchsatz spürbar – Continuous Batching (vLLM) treibt es später auf die Spitze." },
       { id:"spotstrom", n:"Spotmarkt-Wecker", z:"⏰", p:1,
         eff:"Arbeitskosten lokaler Trainingsläufe −15 %",
-        lehre:"Börsenstrom schwankt täglich um ein Mehrfaches; Trainings in Solarmittag und Nacht zu legen ist gelebte Rechenzentrums-Praxis." },
+        lehre:"Effiziente Vorverarbeitung (Tokenizer-Cache, gepackte Sequenzen) spart echte GPU-Stunden – und zusammen mit dem halben Nachttarif der Nachtplanung wird jeder Lauf günstiger." },
       { id:"kernels", n:"Kernel-Schmied", z:"⚙️", p:1, braucht:"servingprofi",
         eff:"+10 % Token-Tempo auf allen eigenen Karten",
         lehre:"FlashAttention und getunte CUDA-Kernels holen real zweistellige Prozente – Software schlägt oft den Hardware-Neukauf." },
@@ -3529,6 +3529,45 @@ const SKILLS = {
         lehre:"Reputation ist Kapital: Ein gut behandelter Reklamationsfall macht Kunden nachweislich treuer als nie ein Problem." }
     ]}
 };
+
+/* ── Saisonen: 30-Hoftage-Rhythmus über Nachfrage, Preise und Wetter-Ereignisse (Spielannahme) ──
+   Reale Entsprechung: Auftragslagen im IT-/Agenturgeschäft sind saisonal (Q4-Budgetrunden,
+   Sommerloch, Ausschreibungs-Frühjahr) – und Dunkelflauten treffen Rechenzentren im Winter.
+   Wirkt NUR auf Zettel-Mix, Löhne, Web-Datenpreis und Ereignis-Gewichte – nie auf Modellwerte. */
+const SAISONEN = [
+  { id:"fruehling", z:"🌱", n:"Frühling", jobBias:["schreiben","wissen"], lohnF:1, webF:1,
+    hin:"Antragszeit im Dorf: Vereine und Ämter brauchen Texte und Wissensarbeit – Schreib- und Wissens-Zettel hängen öfter aus." },
+  { id:"sommer", z:"☀️", n:"Sommer", jobBias:[], lohnF:0.95, webF:0.8,
+    hin:"Sommerloch: Die Löhne sind etwas flauer – dafür sind frische Web-Crawls 20 % günstiger. Gute Zeit zum Trainieren." },
+  { id:"herbst", z:"🍂", n:"Herbst", jobBias:["code","agent"], lohnF:1.06, webF:1,
+    hin:"Messe- und Projektzeit: Code- und Agenten-Arbeit ist gefragt, die Budgets sitzen locker (+6 % Lohn)." },
+  { id:"winter", z:"❄️", n:"Winter", jobBias:["logik","wissen"], lohnF:1, webF:1, stromEventF:2,
+    hin:"Jahresabschluss: Tabellen- und Prüfarbeit häufen sich – und Dunkelflauten treffen den Hof doppelt so oft." }
+];
+
+/* ── Datenlese: tägliches Kuratier-Minispiel in der Futterscheune ──
+   8 Roh-Schnipsel einsortieren (sauber / Duplikat / Leak / Müll). Verbraucht 4 GB Web-Silage,
+   liefert je nach Trefferquote bis zu 3 GB Kuratiertes (perfekte Runde: 4) – Kuratieren SCHRUMPFT
+   die Datenmenge, das ist der Punkt. Reale Entsprechung: Dedup-, Qualitäts- und Leak-Filter
+   (FineWeb, Benchmark-Dekontamination) entscheiden über Trainingsqualität. */
+const DATENLESE = [
+  { t:"Für den Hefeteig 500 g Mehl, 250 ml lauwarme Milch und einen Würfel Hefe verkneten, 45 Minuten gehen lassen.", k:"sauber", e:"Vollständiger, korrekter Fachtext – genau daraus lernen Modelle Alltagswissen." },
+  { t:"Der Mietvertrag kann mit einer Frist von drei Monaten zum Monatsende gekündigt werden (§ 573c BGB).", k:"sauber", e:"Präzise Aussage mit Quelle – wertvolles Trainingsmaterial." },
+  { t:"def summe(liste):\n    return sum(x for x in liste if x > 0)  # nur positive Werte", k:"sauber", e:"Sauberer, kommentierter Code – Gold für Code-Fähigkeiten." },
+  { t:"Die Photosynthese wandelt Lichtenergie in chemische Energie: 6 CO₂ + 6 H₂O → C₆H₁₂O₆ + 6 O₂.", k:"sauber", e:"Korrektes Schulwissen mit Formel – behalten." },
+  { t:"Öffnungszeiten: Mo–Fr 8–18 Uhr, Sa 9–13 Uhr. Öffnungszeiten: Mo–Fr 8–18 Uhr, Sa 9–13 Uhr.", k:"doppel", e:"Exakte Wiederholung im selben Dokument – Duplikate verzerren das Training (Memorisierung)." },
+  { t:"Wie im vorherigen Absatz erwähnt: Der Server startet um 6 Uhr neu. (Absatz identisch weiter oben bereits enthalten)", k:"doppel", e:"Inhaltlich identische Passagen gehören dedupliziert – sonst lernt das Modell Häufigkeit statt Wahrheit." },
+  { t:"Copy of Copy of FAQ_final_v2: Unsere Lieferzeit beträgt 3 Werktage. — FAQ_final_v2: Unsere Lieferzeit beträgt 3 Werktage.", k:"doppel", e:"Versionskopien sind das klassische Dedup-Ziel jeder Datenpipeline." },
+  { t:"Abschlussprüfung Mathematik 2026, Aufgabe 4: Bestimmen Sie die Nullstellen. Musterlösung: x₁=2, x₂=−3.", k:"leak", e:"Prüfungs-/Benchmark-Material im Training = Kontamination: Das Modell 'kennt' den Test, statt zu können." },
+  { t:"Interner Zugang – bitte nicht weitergeben: Benutzer admin, Passwort Sommer2026!", k:"leak", e:"Zugangsdaten und Geheimnisse müssen raus – PII-/Secret-Filter sind Pflicht in echten Pipelines." },
+  { t:"Patientin M., geb. 12.03.1988, Diagnose F32.1, wohnhaft Lindenweg 4 – Befund im Anhang.", k:"leak", e:"Personenbezogene Gesundheitsdaten: rechtlich und ethisch tabu fürs Training." },
+  { t:"SimpleQA-Testfrage 118: Welche Stadt… Antwort: Reykjavik. (aus dem offiziellen Eval-Set)", k:"leak", e:"Eval-Sets gehören dekontaminiert – sonst sind Benchmark-Siege wertlos." },
+  { t:"!!!! GRATIS $$$ KLICKE HIER >>> bit.ly/xxxxx GEWINNE SOFORT iPhone !!!", k:"muell", e:"Spam trainiert Spam – Qualitätsfilter werfen so etwas als Erstes raus." },
+  { t:"<div><span style=…><a href=…>…</a></span></div> [script]var _0x4f=…[/script]", k:"muell", e:"Markup-Trümmer ohne Textwert – Boilerplate-Entfernung ist Standard (z. B. bei FineWeb)." },
+  { t:"asdkj hasdkjh qwe 8123 %%% lorem asdf yxcv – – – ???", k:"muell", e:"Zeichensalat verwässert jedes Training – weg damit." },
+  { t:"DIESES PRODUKT IST DAS BESTE BESTE BESTE KAUFEN KAUFEN bei uns uns uns…", k:"muell", e:"SEO-Müll: repetitiv und informationsarm – typischer Filterfall." },
+  { t:"Die Hauptstadt von Australien ist Sydney, das weiß doch jeder.", k:"muell", e:"Falsch UND selbstsicher (richtig: Canberra) – Fehlinformation ist Müll, auch wenn sie flüssig klingt." }
+];
 
 const QUESTS = [
   { id:"q01", t:"Kauf dein erstes Ferkel", hilfe:"Öffne den Viehmarkt und hole ein kleines Tier-0-Modell in den Stall.",
@@ -3613,7 +3652,7 @@ const WISSEN_ALLGEMEIN = [
   { kat:"betrieb", t:"Das MoE-Prinzip",
     txt:"Mixture-of-Experts-Modelle halten viele Experten im Speicher, rechnen pro Token aber nur mit wenigen. Kimi K2 hat rund 1000 Milliarden Parameter, aktiviert je Token aber nur etwa 32 Milliarden. Folge: Man braucht viel VRAM, bekommt dafür aber das Tempo eines viel kleineren Modells." },
   { kat:"betrieb", t:"Watt und Stromrechnung",
-    txt:"Eine RTX 4090 zieht bis zu etwa 450 Watt, eine H100 bis zu rund 700 Watt. Bei deutschen Strompreisen von grob 0,30 Euro je kWh für Haushalte und um 0,20 Euro für Industrie kostet eine H100 unter Volllast schnell 3 bis 5 Euro am Tag – nur für Strom." },
+    txt:"Eine RTX 4090 zieht bis zu etwa 450 Watt, eine H100 bis zu rund 700 Watt. Bei deutschen Strompreisen von grob 0,30 Euro je kWh für Haushalte und um 0,20 Euro für Industrie kostet eine H100 unter Volllast schnell 3 bis 5 Euro am Tag – nur für Strom. Im Spiel gilt als offene Vereinfachung: Tagstrom 0,48 €, Nachtstrom die Hälfte – darum lohnt die Nachtplanung." },
   { kat:"betrieb", t:"Kontext-Cache frisst Speicher",
     txt:"Für jedes Token im Kontext merkt sich das Modell Zwischenwerte im KV-Cache – und der liegt im VRAM. Sehr lange Kontexte können je nach Modell mehrere GB zusätzlich belegen. Wer 128k Kontext verspricht, muss den Speicher dafür wirklich frei haben." },
   { kat:"betrieb", t:"Katastrophales Vergessen und Replay",
@@ -5071,6 +5110,9 @@ function meisterwegWaehlen(weg){
   sichern(); zeigeForschung();
 }
 
+/* ── Saison des aktuellen Hoftags (30-Tage-Rhythmus, siehe SAISONEN in content.js) ── */
+function saison(){ return SAISONEN[Math.floor(((S&&S.tag||1)-1)/30)%SAISONEN.length]; }
+
 function xpDazu(n){
   S.xp=Math.max(0,(S.xp||0)+Math.round(n));
   questPruefe();
@@ -5668,9 +5710,15 @@ function ausfuehrenTagesWechsel(){
     S.tiere.forEach(p=>{ if(!p.api) p.zustand=kl(p.zustand+2,5,100); });
     bericht.zeilen.push({t:"🧠 Dream Pass: Das Second Brain hat über Nacht Notizen verdichtet – Sitzungen aufgeräumt (+2 Zustand; Gewichte unverändert).",art:"gut"});
   }
+  if((S.tag-1)%30===0&&S.tag>1){
+    const sw=saison();
+    bericht.zeilen.push({t:sw.z+" Saisonwechsel: "+sw.n+" beginnt. "+sw.hin,art:"info"});
+  }
   if(Math.random()<0.34){
-    const kandidaten=EREIGNISSE.filter(e=>!S.events.some(a=>a.id===e.id))
+    let kandidaten=EREIGNISSE.filter(e=>!S.events.some(a=>a.id===e.id))
       .filter(e=>!e.nurLeitstandOhneGuardrails||forschungFrei("openclaw"));   // Guardrails entfernen das Risiko NICHT aus der Welt (MH-043)
+    /* Winter: Strom-Ereignisse (Dunkelflaute & Co.) doppelt so wahrscheinlich – Saison-Gewicht */
+    if((saison().stromEventF||1)>1) kandidaten=kandidaten.concat(kandidaten.filter(e=>(e.effekt||{}).typ==="strompreis"));
     if(kandidaten.length){
       const e=JSON.parse(JSON.stringify(zufall(kandidaten)));
       S.events.push(e);
@@ -5772,13 +5820,16 @@ function jobNeu(wunschTier){
     const ag=pool.filter(v=>v.agent);
     if(ag.length&&Math.random()<0.5) pool=ag;
   }
-  const v=zufall(pool.length?pool:JOBVORLAGEN.filter(v=>v.tier===0));
+  /* Saison färbt die Nachfrage: mit 35 % Chance kommt der Zettel aus den Saison-Branchen */
+  const sb=saison(), basis=pool.length?pool:JOBVORLAGEN.filter(v=>v.tier===0);
+  const saisonPool=basis.filter(x=>(sb.jobBias||[]).includes(x.art));
+  const v=zufall(saisonPool.length&&Math.random()<0.35?saisonPool:basis);
   const j=JSON.parse(JSON.stringify(v));
   j.id="j"+(S.zaehler++);                                // Zähler-ID: eindeutig & reproduzierbar (Fund #12)
   j.frisch=S.tag;
   j.preisMtok=Math.round(j.preisMtok*z(0.85,1.25));
   j.mtokTag=Math.max(0.01,Math.round(j.mtokTag*z(0.8,1.3)*1000)/1000);   // Promille-genau: 0,03 Mtok darf nicht zu 0 runden (Fund #11)
-  if(j.lohnBasis) j.lohnBasis=Math.round(j.lohnBasis*z(1.05,1.35)*(sterne>=(skillAktiv("stammkunden")?4:4.5)?1.1:1));   // Balance-Kur: Dorfpreise tragen den Betrieb; Stammkunden-Aufschlag ab 4,5⭐ (Skill: schon ab 4⭐)
+  if(j.lohnBasis) j.lohnBasis=Math.round(j.lohnBasis*z(1.05,1.35)*(sterne>=(skillAktiv("stammkunden")?4:4.5)?1.1:1)*(sb.lohnF||1));   // Balance-Kur: Dorfpreise tragen den Betrieb; Stammkunden-Aufschlag ab 4,5⭐ (Skill: schon ab 4⭐) · Saison-Lohnfaktor
   j.stufe=j.tier;
   if(j.parallel) j.nutzerMin=Math.max(2,Math.ceil(j.mtokTag/MTOK_JE_NUTZER_TAG));   // Andrang: so viele Nutzer klopfen GLEICHZEITIG an (N7)
   return j;
@@ -6011,7 +6062,9 @@ function blattLive(titel,renderFn,id){
 /* --- Kopf --- */
 function kopfNeu(){
   const l=hofLevel();
-  document.getElementById("tagzahl").textContent="Tag "+S.tag;
+  const _sb=saison();
+  document.getElementById("tagzahl").textContent="Tag "+S.tag+" "+_sb.z;
+  document.getElementById("tagzahl").title=_sb.n+" (Tag "+(((S.tag-1)%30)+1)+"/30): "+_sb.hin;
   document.getElementById("rangtext").textContent="Stufe "+l.i+" · "+l.aktuell.n;
   const vramGes=S.buchten.reduce((n,b)=>n+GPUS[b.gpu].vram,0);
   const vramBel=S.tiere.filter(p=>p.bucht).reduce((n,p)=>n+vramPig(p),0);
@@ -7136,12 +7189,61 @@ function zeigeWurfKarte(uid){
    TEIL 15 · Futterscheune
    ═══════════════════════════════════════════════════════ */
 
+/* ── Datenlese: tägliches Kuratier-Minispiel (Schnipsel-Pool DATENLESE in content.js) ──
+   Ressourcen-UMWANDLUNG statt Geldquelle: 4 GB webmix rein, je nach Trefferquote 0–4 GB
+   kuratiert raus. Der Skill Datenhygiene markiert vorab zwei Verdachtsfälle. */
+let lese=null;
+function leseStart(){
+  if(S.leseTag===S.tag){ melde("Heute schon kuratiert – morgen liegt neue Web-Silage bereit.","schlecht"); return; }
+  if((S.daten.webmix||0)<4){ melde("Zu wenig Web-Silage im Lager (4 GB nötig).","schlecht"); return; }
+  const pool=[...DATENLESE].sort(()=>Math.random()-0.5).slice(0,8);
+  const hinweise=skillAktiv("datenhygiene")?pool.map((k,i)=>i).filter(i=>pool[i].k!=="sauber").slice(0,2):[];
+  lese={karten:pool,antworten:{},hinweise,fertig:null};
+  zeigeLese();
+}
+function leseAntwort(i,k){ if(!lese||lese.fertig||lese.antworten[i]!=null) return; lese.antworten[i]=k; zeigeLese(); }
+function leseFertig(){
+  if(!lese||lese.fertig) return;
+  if(Object.keys(lese.antworten).length<8){ melde("Erst alle 8 Schnipsel einsortieren!","schlecht"); return; }
+  const treffer=lese.karten.filter((k,i)=>lese.antworten[i]===k.k).length;
+  const ertrag=treffer===8?4:Math.floor(treffer*3/8);
+  S.daten.webmix=Math.round((S.daten.webmix-4)*10)/10;
+  if(ertrag>0) S.daten.kuratiert=Math.round(((S.daten.kuratiert||0)+ertrag)*10)/10;
+  S.leseTag=S.tag;
+  if(treffer>=6) xpDazu(8);
+  lese.fertig={treffer,ertrag};
+  melde("🧹 Datenlese: "+treffer+"/8 richtig – 4 GB Web-Silage → "+ertrag+" GB Kuratiertes"+(treffer>=6?" (+8 XP)":""),treffer>=5?"gut":"schlecht");
+  sichern(); kopfNeu(); zeigeLese();
+}
+function zeigeLese(){
+  if(!lese) return;
+  const KAT=[["sauber","✅ Sauber"],["doppel","🔁 Duplikat"],["leak","🔓 Leak/Tabu"],["muell","🗑️ Müll"]];
+  const alle=Object.keys(lese.antworten).length>=8;
+  blattAuf("🧹 Datenlese – kuratieren wie die Großen",
+    '<div class="notiz">Echte Trainingsdaten entstehen durch <b>Filtern</b>: Duplikate raus (Dedup), Prüfungs- und Geheimnis-Leaks raus (Dekontamination, PII-Filter), Müll raus (Qualitätsfilter). Sortiere die 8 Roh-Schnipsel – je besser die Quote, desto mehr Kuratiertes bleibt übrig. Kuratieren <b>schrumpft</b> die Datenmenge: Genau das macht sie wertvoll.</div>'+
+    lese.karten.map((k,i)=>{
+      const a=lese.antworten[i], f=lese.fertig;
+      return '<div class="karte'+(f?(a===k.k?' hell':''):'')+'" style="'+(f&&a!==k.k?'border-color:#a33':'')+'">'+
+      '<p style="font-family:ui-monospace,monospace;font-size:11.5px;white-space:pre-wrap;background:#f6f1e3;border-radius:8px;padding:7px 9px;margin-bottom:6px">'+esc(k.t)+'</p>'+
+      (lese.hinweise.includes(i)&&!f?'<span class="merk">🧼 Datenhygiene-Filter: Verdachtsfall!</span> ':'')+
+      '<div class="reihe" style="gap:6px;flex-wrap:wrap">'+KAT.map(([id,n])=>'<button class="knopf s '+(a===id?"gewaehlt":"hell")+'" '+(f?"disabled":"")+' onclick="leseAntwort('+i+',\''+id+'\')">'+n+'</button>').join("")+'</div>'+
+      (f?'<p style="font-size:11.5px;margin-top:6px">'+(a===k.k?'✅ Richtig':'❌ Das war: '+(KAT.find(x=>x[0]===k.k)||[])[1])+' – '+esc(k.e)+'</p>':'')+
+      '</div>';
+    }).join("")+
+    (lese.fertig?
+      '<div class="karte hell"><h3>Ergebnis: '+lese.fertig.treffer+'/8 · +'+lese.fertig.ertrag+' GB Kuratiertes</h3><button class="knopf gruen" onclick="zeigeFutter()">Zurück zur Futterscheune</button></div>':
+      '<div class="reihe abstand"><button class="knopf gruen" '+(alle?"":"disabled")+' onclick="leseFertig()">Auswerten ('+Object.keys(lese.antworten).length+'/8 sortiert)</button></div>'),
+  "lese");
+}
 function zeigeFutter(){
   blattLive("🌾 Futterscheune (Datenbibliothek)",()=>{
     const lvl=hofLevel().i;
     if(Object.values(S.daten).some(v=>v>0)) questHook("futter_kauf",null);   // q02: ins Lager schauen genügt – Daten sind schon da!
     return '<div class="notiz">Daten sind das Futter der Modelle – aber anders als Heu wird ein Datensatz beim Training <b>nicht verbraucht</b>: Er bleibt in der Bibliothek und ist wiederverwendbar. Bezahlt werden Beschaffung und Aufbereitung. <b>Qualität schlägt Menge</b> (1.000 handverlesene LIMA-Beispiele haben ganze Modelle geprägt) – und <b>wiederholtes Training auf demselben Satz sättigt</b>: beim zweiten Mal lernt das Tier deutlich weniger daraus.</div>'+
     '<img src="'+bild("futter")+'" alt="" style="width:100%;max-height:150px;object-fit:cover;border-radius:14px;border:3px solid var(--holz-4)" onerror="this.remove()">'+
+    '<div class="karte hell"><h3>🧹 Datenlese – das tägliche Kuratier-Minispiel</h3>'+
+    '<p style="font-size:12px">8 Roh-Schnipsel einsortieren (sauber / Duplikat / Leak / Müll): 4 GB Web-Silage werden je nach Trefferquote zu bis zu 4 GB Kuratiertem. So funktioniert echte Datenpipeline-Arbeit.'+(saison().id==="sommer"?' <b>☀️ Sommer: Web-Silage gerade 20 % günstiger.</b>':'')+'</p>'+
+    '<button class="knopf s '+(S.leseTag===S.tag||((S.daten.webmix||0)<4)?"hell":"gruen")+'" '+(S.leseTag===S.tag||((S.daten.webmix||0)<4)?"disabled":"")+' onclick="leseStart()">'+(S.leseTag===S.tag?"✔️ Heute schon kuratiert – morgen wieder":((S.daten.webmix||0)<4?"Braucht 4 GB Web-Silage":"Runde starten (kostet 4 GB Web-Silage)"))+'</button></div>'+
     '<div class="karte"><h3>🛒 Einkaufen & Lager</h3><div class="werteliste">'+
     Object.entries(FUTTER).map(([id,f])=>{
       if(f.lvl&&lvl<f.lvl) return '<div class="listenzeile dim"><span style="font-size:22px;flex:0 0 28px;text-align:center">'+f.z+'</span><span class="txt"><b>'+esc(f.n)+'</b><span>ab Hofstufe '+f.lvl+'</span></span></div>';
@@ -7162,7 +7264,7 @@ function zeigeFutter(){
 }
 function futterKauf(id,gb){
   const f=FUTTER[id];
-  const preis=gb*f.preisGB;
+  const preis=Math.round(gb*f.preisGB*(id==="webmix"?(saison().webF||1):1));   /* Sommer: Web-Crawls 20 % günstiger (Saison) */
   if(S.kredit<preis||!kannZahlen(preis)){ melde("Zu wenig Geld","schlecht"); return; }
   buche(-preis,"daten","Datenkauf: "+gb+" GB "+f.n);
   S.daten[id]=(S.daten[id]||0)+gb;
@@ -8646,7 +8748,7 @@ Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstal
   zuchtMethodeWahl,zuchtWaehle,zuchtLeer,zuchtStart,futterKauf,synthProduzieren,
   marktReiterWahl,marktFilter,modellKaufen,gpuKaufen,lizenzKaufen,jobAnnehmen,
   rennParcoursWahl,rennWaehlen,rennenStarten,rennenSchliessen,forschen,solarKaufen,
-  forschReiterWahl,skillKaufen,meisterwegWaehlen,
+  forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,
   hofUmbenennen,standExport,standImport,neustart,willkommenFertig,kurieren,
   tierArtWahl,eigenGenerieren,eigenUebernehmen,eigenFlipWechsel,figurStilWahl,onboardWahl,onboardEigen,zeigeTierwahl,
   einfWeiter,einfModell,einfSpezial,einfModus,
