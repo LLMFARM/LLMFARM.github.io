@@ -100,6 +100,16 @@ small{font-size:.82em}
 .skillkarte.dim{opacity:.6}
 .skilleff{font-weight:800}
 .skilllehre{font-size:10.5px;color:var(--tinte-2)}
+/* Meilenstein-Feier (Ära 7): kurzer Stempel, respektiert reduzierte Bewegung */
+#feier{position:fixed;inset:0;z-index:900;pointer-events:none;display:grid;place-items:center;opacity:0}
+#feier.an{opacity:1}
+#feier .feierstempel{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 30px;
+  background:var(--papier,#fffdf5);border:5px solid var(--holz-4,#4a2c15);border-radius:22px;
+  box-shadow:0 10px 34px rgba(0,0,0,.35);transform:rotate(-4deg)}
+#feier .feierstempel span{font-size:52px;line-height:1}
+#feier .feierstempel b{font-size:16px}
+#feier.an .feierstempel{animation:feierstempel 1.9s ease-out forwards}
+@keyframes feierstempel{0%{transform:rotate(-4deg) scale(2.4);opacity:0}14%{transform:rotate(-4deg) scale(1);opacity:1}80%{opacity:1}100%{opacity:0}}
 .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
 .chips::-webkit-scrollbar{display:none}
 .chip{display:flex;align-items:center;gap:5px;flex:0 0 auto;background:#2f1d0e;
@@ -4680,7 +4690,7 @@ let S=null;
 function frischerStand(){
   const stand={
     v:4, tag:1, kredit:2500, ruf:0, xp:0, hofname:"LLM FARM", co2:0,
-    skills:{}, meisterweg:null, schwierig:"hofalltag", fuehrung:"gefuehrt", geselle:false,
+    skills:{}, meisterweg:null, schwierig:"hofalltag", fuehrung:"gefuehrt", geselle:false, chronik:[], liga:[],
     tierArt:"schwein", figurStil:"bild", einfFertig:false, spezial:null,
     eigenBild:null, eigenPosen:null, eigenFlip:false, eigenSatt:null,
     daten:{webmix:40, beispiele:10}, synthQ:0.8, synthGen:0,
@@ -5269,6 +5279,7 @@ function wocheTick(bericht){
     if(alle){
       S.geselle=true;
       buche(150,"foerderung","Gesellenprüfung bestanden – Prämie der Gemeinde");
+      feier("🎓","Gesellenbrief erhalten!",true);
       bericht.zeilen.push({t:"🎓 GESELLENPRÜFUNG BESTANDEN! Das Abzeichen „Geselle“ hängt jetzt am Hofhaus (+150 € Prämie). Von hier an gehört der Hof ganz dir.",art:"gut"});
     } else if(gestern<10){
       bericht.zeilen.push({t:"🎓 Gesellenprüfung: noch nicht alle drei Ziele geschafft – heute zählt ein neuer Versuch (kein Malus).",art:"info"});
@@ -5281,6 +5292,58 @@ function wocheTick(bericht){
 function hlUebergabeF(tiere){
   const fams=[...new Set((tiere||[]).filter(p=>p&&!p.api).map(p=>p.fam))];
   return fams.length===1?1.08:1.12;   /* Team-Chemie: ein Tokenizer, weniger Übersetzungsverlust */
+}
+/* ── Hof-Chronik & Meilenstein-Feiern (Ära 7, Q8: Juice) ── */
+function chronikEintrag(z,t){ S.chronik=S.chronik||[]; S.chronik.push({tag:S.tag,z,t}); if(S.chronik.length>200) S.chronik=S.chronik.slice(-180); }
+function feier(z,titel,still){
+  chronikEintrag(z,titel);
+  if(!still) melde(z+" "+titel,"gut");
+  try{
+    if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let f=document.getElementById("feier");
+    if(!f){ f=document.createElement("div"); f.id="feier"; document.body.appendChild(f); }
+    f.innerHTML='<div class="feierstempel"><span>'+z+'</span><b>'+esc(titel)+'</b></div>';
+    f.classList.remove("an"); void f.offsetWidth; f.classList.add("an");
+    setTimeout(()=>{ f.classList.remove("an"); },1900);
+  }catch(e){}
+}
+const FEIER_QUESTS={q19:["🧬","Erste Zucht vollbracht!"],q21:["🏆","Der erste Pokal!"],q35:["⭐","Erste 5-Sterne-Bewertung!"],q30:["🎉","25 Aufträge geliefert!"],q34:["👑","Das 50.000-€-Imperium!"]};
+
+/* ── 🏅 Dorfmeisterschaft (Ära 7, Q7/R7): Liga am Saisonende ──
+   5 Tage vor Saisonende hängt EIN Team-Großzettel aus (mind. 2 Rollen, ohne Lohn);
+   die Abrechnung vergleicht Qualität × Team-Effizienz mit 3 simulierten Konkurrenzhöfen.
+   Prämie als Förderung, Ruf, Chronik – Auslassen kostet nichts. */
+function ligaSaisonNr(){ return Math.floor((S.tag-1)/30); }
+function ligaSpawn(){
+  if(S.tag%30!==25||S.ligaZettelSaison===ligaSaisonNr()) return;
+  if(hofLevel().i<3) return;                                   /* Liga ab Stufe 3 – vorher fehlen Teammittel */
+  S.ligaZettelSaison=ligaSaisonNr();
+  const sb=saison(), art=(sb.jobBias&&sb.jobBias[0])||"text";
+  const stufe=hofLevel().i;
+  const anf1={},anf2={}; anf1.treue=30+stufe*3; anf2[art==="code"?"code":art==="logik"?"logik":"stil"]=32+stufe*3;
+  S.jobs.push({id:"j"+(S.zaehler++),liga:true,t:"🏅 Dorfmeisterschaft: "+sb.z+" "+sb.n+"s-Ausschreibung",
+    b:"Das Dorf sucht den besten Hof der Saison: ein mehrtägiger Gemeinschaftsauftrag, gewertet nach Qualität UND Effizienz. Drei Nachbarhöfe treten ebenfalls an.",
+    tier:Math.min(2,Math.max(0,stufe-3)),art,anf:anf1,ctxMin:8,agent:false,dsgvo:false,
+    mtokTag:Math.round((0.25+stufe*0.1)*100)/100,preisMtok:0,tage:3,puffer:2,latenz:0,
+    einheit:"Wertungslauf",einheiten:12,lohnBasis:0,kunde:null,frisch:S.tag,
+    rollen:[{n:"Vorarbeiten",anf:anf1},{n:"Meisterstück",anf:anf2}]});
+  melde("🏅 Die Dorfmeisterschaft hängt an der Pinnwand – Team-Pflicht, Wertung am Saisonende!","gut");
+}
+function hlLigaErgebnis(j,team,gut,anteil,ps,bericht){
+  const nr=ligaSaisonNr(), stufe=hofLevel().i;
+  const effØ=ps.length?Math.round(ps.reduce((a,p)=>a+effizienzIndex(p),0)/ps.length):40;
+  const score=Math.round(kl(anteil,0,1)*100*(0.55+0.45*effØ/100)*(gut?1:0.7));
+  const basis=34+stufe*5;
+  const sim=[0.78,0.95,1.12].map((f,i)=>Math.round(basis*f*(0.9+rhSeed(nr+1,42+i)*0.25)));
+  const alle=[{n:S.hofname,score,du:true},{n:"Hof Nebelbach",score:sim[0]},{n:"Gut Silberweide",score:sim[1]},{n:"Datenhof Brunner",score:sim[2]}].sort((a,b)=>b.score-a.score);
+  const rang=alle.findIndex(x=>x.du)+1;
+  const praemie=[300,180,80,0][rang-1]*Math.max(1,Math.round(stufe/2));
+  if(praemie) buche(praemie,"foerderung","Dorfmeisterschaft: Platz "+rang);
+  rufBonusDazu(rang===1?6:rang===2?3:1);
+  S.liga=S.liga||[]; S.liga.push({saison:nr+1,rang,score});
+  bericht.zeilen.push({t:"🏅 DORFMEISTERSCHAFT – Ergebnis: "+alle.map((x,i)=>(i+1)+". "+(x.du?"<b>"+esc(x.n)+"</b>":esc(x.n))+" ("+x.score+")").join(" · ")+(praemie?" – Prämie "+geld(praemie)+"!":""),art:rang<=2?"gut":"info"});
+  if(rang===1) feier("🏅","Dorfmeister der Saison "+(nr+1)+"!",true);
+  else chronikEintrag("🏅","Dorfmeisterschaft Saison "+(nr+1)+": Platz "+rang+" ("+score+" Punkte)");
 }
 /* Bewährungsproben (Q5): einmal je ~3. Rolle und Arbeitstag ein Eignungs-Ereignis mit erklärter Ursache */
 function hlProben(j,team,c,ps,bericht){
@@ -5350,6 +5413,7 @@ function questPruefe(){
     if(!questErfuellt(q)) break;
     S.questsDone[q.id]=true; buche(q.pr,"foerderung","Hofziel erreicht: "+q.t); S.questIdx++;
     melde("Hofziel geschafft: "+tierText(q.t)+" (+"+geld(q.pr)+")","gut");
+    const fq=FEIER_QUESTS[q.id]; if(fq) feier(fq[0],fq[1],true);   /* Meilenstein-Feier + Chronik */
     S.xp+=q.xp;
   }
   questBusy=false;
@@ -5358,6 +5422,7 @@ function questPruefe(){
     S.levelGemeldet=l.i;
     melde("Hofstufe "+l.i+": "+l.aktuell.n+" – "+l.aktuell.hinweis,"gut");
     melde("⭐ +1 Meisterpunkt! Ausgeben in der Forschungshütte unter „Meisterschaften“.","gut");
+    feier("🏅","Hofstufe "+l.i+": "+l.aktuell.n,true);
     dockNeu();
   }
   zieleNeu(); kopfNeu(); sichern();
@@ -5909,6 +5974,7 @@ function ausfuehrenTagesWechsel(){
     bericht.zeilen.push({t:sw.z+" Saisonwechsel: "+sw.n+" beginnt. "+sw.hin,art:"info"});
   }
   wocheTick(bericht);   /* Geführte Woche: Kapitel-Fortschritt & Gesellenprüfung */
+  ligaSpawn();          /* Dorfmeisterschaft: 5 Tage vor Saisonende aushängen */
   if(Math.random()<0.34){
     let kandidaten=EREIGNISSE.filter(e=>!S.events.some(a=>a.id===e.id))
       .filter(e=>!e.nurLeitstandOhneGuardrails||forschungFrei("openclaw"));   // Guardrails entfernen das Risiko NICHT aus der Welt (MH-043)
@@ -6716,7 +6782,8 @@ function zeigeStall(){
   blattLive("🐖 Stall & GPU-Gehege",()=>{
     const frei=S.tiere.filter(p=>!p.api&&!p.bucht);
     return '<div class="notiz">Jede Bucht ist eine <b>GPU in einem konkreten Rechner im Rechenhaus</b>. RAM gehört diesem Rechner; mehrere GPUs ergeben nicht automatisch gemeinsamen Speicher. Ein Tier passt nur hinein, wenn sein Speicherbedarf (Gewichte + Kontext-Cache + Reserve) in den Grafikspeicher passt. Was überquillt, lagert ins RAM aus (Offloading): das Wissen bleibt, aber je größer der ausgelagerte Anteil, desto zäher der Trab.</div>'+
-    '<div class="karte"><h3>🏠 Buchten <span class="merk info">'+S.buchten.length+' GPU'+(S.buchten.length===1?"":"s")+'</span></h3>'+
+    '<div class="karte"><h3>🏠 Buchten <span class="merk info">'+S.buchten.length+' GPU'+(S.buchten.length===1?"":"s")+'</span>'+
+    (S.buchten.length>12?' <span class="merk">'+S.buchten.filter(b=>!istRack(b)).length+' PC · '+S.buchten.filter(istRack).length+' Rack · '+S.buchten.filter(b=>b.tier).length+' belegt · '+S.buchten.filter(b=>stackVon(b).server).length+'× Server-Stack</span>':"")+'</h3>'+
     '<div class="buchten abstand">'+S.buchten.map(b=>{
       const g=GPUS[b.gpu];
       const p=S.tiere.find(t=>t.uid===b.tier);
@@ -7384,6 +7451,7 @@ function zeigeWurfKarte(uid){
   const kind=S.tiere.find(t=>t.uid===uid); if(!kind) return;
   const fall=kind.fall||{n:"Merge",art:"info",t:""};
   const elternTiere=(kind._elternKopie||[]);
+  if(!(S.flags||{}).erster_wurf){ questHook("erster_wurf",null); feier("🍼","Der erste eigene Wurf!",true); }
   /* Ära 7: Effizienz-Vergleich Kind vs. Eltern – hat die Zucht den Nordstern getroffen? */
   const kidIdx=effizienzIndex(kind);
   const elternIdx=elternTiere.length?Math.round(elternTiere.reduce((a,e2)=>a+(e2._effIdx||0),0)/elternTiere.length):null;
@@ -7742,6 +7810,8 @@ function zeigeArena(){
     const startklar=S.tiere.filter(p=>p.status==="frei"&&(p.bucht||p.api));
     const rekord=BENCH_PAARE[zi(0,Math.min(4,BENCH_PAARE.length-1))];
     return '<div class="notiz">Benchmarks sind die <b>Dorfwettbewerbe</b>: Sie zeigen Spitzenleistung, nicht Alltagstauglichkeit. Deine Gegner werden nach Größenklasse ausgelost und laufen mit ihren <b>eigenen Katalogwerten</b> – niemand wird künstlich an dein Tier angepasst. Und wer Prüfungsfragen ins Futter mischt, fliegt irgendwann auf …</div>'+
+    '<div class="karte hell"><h3>🏅 Dorfmeisterschaft</h3><p style="font-size:12px">'+(hofLevel().i<3?'Ab Hofstufe 3: Am 25. Tag jeder Saison hängt die Team-Großausschreibung an der Pinnwand.':(S.tag%30<25?'Nächste Ausschreibung: Tag '+(Math.floor((S.tag-1)/30)*30+25)+' an der Pinnwand (Team-Pflicht, Wertung = Qualität × Effizienz).':'Die Ausschreibung hängt JETZT an der Pinnwand – Wertung am Saisonende!'))+'</p>'+
+    ((S.liga||[]).length?'<div class="reihe" style="flex-wrap:wrap">'+(S.liga||[]).map(l=>'<span class="merk'+(l.rang===1?" gold":"")+'">'+(l.rang===1?"🥇":l.rang===2?"🥈":l.rang===3?"🥉":"4.")+' Saison '+l.saison+' ('+l.score+' P.)</span>').join("")+'</div>':"")+'</div>'+
     '<div class="karte"><h3>Parcours wählen</h3><div class="reihe abstand">'+
     Object.entries(PARCOURS).map(([id,x])=>'<button class="knopf s '+(rennParcours===id?"gewaehlt":"hell")+(hofLevel().i<x.lvl?" aus":"")+'" onclick="rennParcoursWahl(\''+id+'\')">'+x.z+' '+esc(x.n.split(" (")[0])+'</button>').join("")+'</div>'+
     '<p class="abstand">'+esc(pc.txt)+' Siegprämie: <b>'+geld(pc.preis+S.ruf*2)+'</b> + Ruf.</p>'+
@@ -8149,7 +8219,7 @@ function hofbuchHtml(){
     ["stacks","🦙","Stacks"],["effizienz","⚙️","Effizienz"],
     ["training","🎓","Training & Zucht"],["ausruestung","🐴","Geschirre & Setups"],["krank","🤒","Krankheiten"],["events","⚡","Ereignisse"],
     ["saison","🌱","Saisonen"],["auftraege","📌","Aufträge & Kunden"],["hardware","🖥️","Hardware & Energie"],["futter","🌾","Futter"],
-    ["modelle","🐷","Modell-Katalog"],["ehre","🎖️","Auszeichnungen"],["glossar","📜","Glossar"]];
+    ["modelle","🐷","Modell-Katalog"],["ehre","🎖️","Auszeichnungen"],["chronik","🗞️","Hof-Chronik"],["glossar","📜","Glossar"]];
   let h='<div class="notiz">Das <b>Hofbuch</b> ist direkt aus den Spieldaten erzeugt – was hier steht, gilt; was hier fehlt, gibt es nicht. Für die Grundlagen: <button class="knopf s hell" onclick="zeigeHilfe()">🐷 Anleitung</button> <button class="knopf s hell" onclick="oeffne(\'kompendium\')">📚 Wissenskarten</button></div>'+
   '<div class="reihe" style="flex-wrap:wrap;gap:5px;position:sticky;top:0;background:var(--papier);z-index:5;padding:4px 0">'+KAPITEL.map(([id,z,t])=>'<button class="knopf s hell" onclick="hbSpring(\''+id+'\')">'+z+' '+t+'</button>').join("")+'</div>';
   /* Schnellstart-FAQ */
@@ -8222,8 +8292,11 @@ function hofbuchHtml(){
   /* Auszeichnungen */
   let ehre='<p><b>Kopfbedeckungen:</b> '+(T(HUT_NAMEN)?Object.entries(HUT_NAMEN).map(([s,n])=>'<span class="merk">'+e(n)+' ab Tier-Level '+(s==="1"?3:s==="2"?5:7)+'</span>').join(" "):"Strohhut (Level 3) · Zylinder (Level 5) · Krone (Level 7)")+'</p>';
   if(T(HL_PROJEKTE)) ehre+='<p style="margin-top:6px"><b>Wochen-Hofprojekte:</b> '+HL_PROJEKTE.map(p=>'<span class="merk">🗓️ '+e(p.n)+'</span>').join(" ")+'</p>';
-  ehre+='<p style="margin-top:6px"><b>Abzeichen:</b> Kleine Helfer · Vielseitiger Hof · Qualitätshof · Wissenshof · Nachtmeister (Fortschritt an der Pinnwand).</p>';
+  ehre+='<p style="margin-top:6px"><b>Abzeichen:</b> Kleine Helfer · Vielseitiger Hof · Qualitätshof · Wissenshof · Nachtmeister (Fortschritt an der Pinnwand)'+(S.geselle?' · <span class="merk gut">🎓 Geselle ✓</span>':' · 🎓 Geselle (Geführte Woche, Tag 7)')+'.</p>';
+  ehre+='<p style="margin-top:6px"><b>🏅 Dorfmeisterschaft:</b> Am 25. Tag jeder Saison (ab Hofstufe 3) hängt die Team-Großausschreibung aus – mind. 2 Rollen, Wertung = Qualität × Effizienz-Index gegen drei Nachbarhöfe, Prämie als Förderung. Bestenliste: '+((S.liga||[]).length?(S.liga||[]).map(l=>'<span class="merk'+(l.rang===1?" gold":"")+'">Saison '+l.saison+': Platz '+l.rang+'</span>').join(" "):"noch keine Teilnahme.")+'</p>';
   h+=hbKap("ehre","🎖️","Auszeichnungen",ehre);
+  /* Chronik */
+  h+=hbKap("chronik","🗞️","Hof-Chronik – deine Meilensteine",((S.chronik||[]).length?'<div class="werteliste">'+[...S.chronik].reverse().map(c=>hbZeile(c.z,"Tag "+c.tag,e(c.t))).join("")+'</div>':'<p>Noch leer – große Momente (erste Zucht, Pokale, Stufen, Meisterschaften) landen automatisch hier.</p>'));
   /* Glossar */
   h+=hbKap("glossar","📜","Glossar – die kanonischen Begriffe",[
     ["Hof-Fokus","Auftragsart des Hofs aus der Einführung, +8 % Erlös auf diese Art."],
@@ -9289,7 +9362,9 @@ function hlTeamsTag(energie,bericht){
     ps.forEach(p=>{const meine=Object.values(team.wahl).filter(id=>id===p.uid).length;
      tierXp(p,Math.round(Math.max(gesamt*0.25,gesamt*meine/rollenN)));});
     xpDazu(14+j.tier*8);questHook('job_fertig',null);questHook('jobs_fertig',S.statistik.jobs);if(j.agent)questHook('job_agent_fertig',null);if(j.dsgvo)questHook('dsgvo_job',null);}}
-  kundeBewerten(j,{fail:spaet,rekla:!gut,anteil:akzeptiert},bericht);hlQualitaet(j,gut&&anteil>=.95,bericht);
+  /* Ära 7 (Haupt-Session, Q7): Liga-Zettel werden nicht kundenbewertet, sondern gewertet */
+  if(j.liga){ if(typeof hlLigaErgebnis==='function')hlLigaErgebnis(j,team,gut,akzeptiert,ps,bericht); }
+  else { kundeBewerten(j,{fail:spaet,rekla:!gut,anteil:akzeptiert},bericht);hlQualitaet(j,gut&&anteil>=.95,bericht); }
   ps.forEach(p=>{p.status='frei';p.job=null;p.rest=0;p.zustand=kl(p.zustand-4,5,100);});S.jobs=S.jobs.filter(x=>x.id!==j.id);
  }
 }
