@@ -110,6 +110,40 @@ small{font-size:.82em}
 #feier .feierstempel b{font-size:16px}
 #feier.an .feierstempel{animation:feierstempel 1.9s ease-out forwards}
 @keyframes feierstempel{0%{transform:rotate(-4deg) scale(2.4);opacity:0}14%{transform:rotate(-4deg) scale(1);opacity:1}80%{opacity:1}100%{opacity:0}}
+/* Ada-Sprechblase (Ära 7): erscheint oben links, liest Erklärungen vor, Ziel-Knopf blinkt rot */
+#adaBox{position:fixed;top:74px;left:10px;z-index:410;width:min(330px,calc(100vw - 20px));
+  background:var(--papier,#fffdf5);border:4px solid var(--holz-4,#4a2c15);border-radius:16px 16px 16px 4px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);padding:10px 12px;display:none;font-size:13px;line-height:1.45}
+#adaBox.auf{display:block;animation:adaAuf .25s ease-out}
+@keyframes adaAuf{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+#adaBox::before{content:"";position:absolute;top:-14px;left:22px;border:7px solid transparent;border-bottom-color:var(--holz-4,#4a2c15)}
+.adaKopf{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.adaKopf img{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--holz-4);object-fit:cover;flex:0 0 40px}
+.adaKopf .adaWer{flex:1;min-width:0}
+.adaKopf b{font-family:var(--titel);font-size:15px;display:block;line-height:1.1}
+.adaKopf small{font-size:10.5px;color:var(--tinte-2);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adaKn{flex:0 0 auto;width:30px;height:30px;border-radius:10px;border:2.5px solid var(--holz-4);background:#fff7e0;
+  cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center;padding:0}
+.adaKn:hover{background:#ffefc2}
+.adaKn.an{background:#e8f4d9}
+#adaText{max-height:34vh;overflow-y:auto;white-space:pre-line}
+#adaExtra{margin-top:7px;border-top:2px dashed var(--holz-3,#a8845f);padding-top:7px;display:none}
+#adaExtra.auf{display:block}
+#adaExtra .adaChips{display:flex;flex-wrap:wrap;gap:4px;max-height:120px;overflow-y:auto;margin-top:4px}
+#adaExtra .adaChips button{font:inherit;font-size:10.5px;font-weight:800;border:2px solid var(--holz-4);border-radius:9px;
+  background:#fff7e0;padding:2px 7px;cursor:pointer}
+#adaExtra .adaChips button:hover{background:#ffefc2}
+#adaExtra input,#adaExtra select{font:inherit;font-size:12px;border:2px solid var(--holz-4);border-radius:9px;padding:4px 7px;background:#fffdf5;width:100%;box-sizing:border-box;margin-top:4px}
+.adaFuss{margin-top:7px;font-size:9.5px;color:var(--tinte-2);text-align:right}
+.adaZiel{animation:adaPuls 1s ease-in-out infinite;outline:3px solid #d43b2a !important;outline-offset:2px;border-radius:12px;position:relative;z-index:5}
+@keyframes adaPuls{0%,100%{box-shadow:0 0 0 0 rgba(212,59,42,.8)}50%{box-shadow:0 0 0 13px rgba(212,59,42,0)}}
+#adaKnopf{position:relative;padding:0;overflow:hidden}
+#adaKnopf img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+#adaKnopf.spricht{animation:adaPuls 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  .adaZiel,#adaKnopf.spricht{animation:none;box-shadow:0 0 0 5px rgba(212,59,42,.55)}
+  #adaBox.auf{animation:none}
+}
 .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
 .chips::-webkit-scrollbar{display:none}
 .chip{display:flex;align-items:center;gap:5px;flex:0 0 auto;background:#2f1d0e;
@@ -638,6 +672,7 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
       </div>
     </div>
     <div class="chips" id="chips"></div>
+    <button class="knopfrund" id="adaKnopf" onclick="adaMenue()" aria-label="Ada sprechen – Erklärungen anhören und Fragen stellen" title="Ada sprechen"><span aria-hidden="true">👩‍🌾</span></button>
     <button class="knopfrund" onclick="oeffne('kompendium')" aria-label="Kompendium">📖</button>
     <button class="knopfrund" onclick="zeigeHofbuch()" aria-label="Hofbuch – Regelwerk und Hilfe">📖</button>
   </div>
@@ -653,6 +688,19 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
 <nav id="dock" class="holz"></nav>
 
 <div id="zielmodus"><span id="zielmodustext"></span><button class="knopf s hell" onclick="zielModusAus()">Abbrechen</button></div>
+
+<div id="adaBox" role="dialog" aria-label="Ada erklärt">
+  <div class="adaKopf">
+    <img id="adaBild" src="" alt="" onerror="this.style.display='none'">
+    <span class="adaWer"><b>Ada</b><small id="adaTitel"></small></span>
+    <button class="adaKn" id="adaPauseKn" onclick="adaPause()" aria-label="Vorlesen pausieren oder fortsetzen" title="Pause / Weiter">⏸</button>
+    <button class="adaKn" id="adaStummKn" onclick="adaStummToggle()" aria-label="Ada stummschalten" title="Ada stumm / laut">🔊</button>
+    <button class="adaKn" onclick="adaZu()" aria-label="Sprechblase schließen" title="Schließen">✕</button>
+  </div>
+  <div id="adaText"></div>
+  <div id="adaExtra"></div>
+  <div class="adaFuss">🤖 Alles mit KI erstellt – auch Adas Stimme (Bilder, Texte &amp; Code)</div>
+</div>
 
 <div id="schirm"><div id="dunkel" onclick="blattZu()"></div>
   <section id="blatt" class="papier" role="dialog" aria-modal="true">
@@ -2911,7 +2959,7 @@ const GPUS = {
   rtx4080: {
     n: "RTX 4080 16GB", vram: 16, watt: 320, bw: 716.8,
     preis: 1100, miete: 5, tier: 0, gebraucht: false,
-    txt: "Startkarte im Rechenhaus: 16 GB GDDR6X, 320 W maximale Grafikleistung. Der ganze PC braucht zusätzlich Strom. Kaufpreise sind Spielannahmen."
+    txt: "Solider Allrounder: 16 GB GDDR6X, 320 W maximale Grafikleistung. Der ganze PC braucht zusätzlich Strom. Kaufpreise sind Spielannahmen."
   },
   rtx3060: {
     n: "RTX 3060 12GB (gebraucht)", vram: 12, watt: 170, bw: 360,
@@ -2926,7 +2974,7 @@ const GPUS = {
   rtx4090: {
     n: "RTX 4090 24GB (gebraucht)", vram: 24, watt: 450, bw: 1008,
     preis: 2270, miete: 8, tier: 1, gebraucht: true,
-    txt: "Die Legende aus zweiter Hand – seit der Speicherkrise 2026 teurer als je zuvor, aber immer noch das Arbeitstier fuer 7 bis 32B."
+    txt: "Die Legende aus zweiter Hand – seit der Speicherkrise 2026 teurer als je zuvor, aber immer noch das Arbeitstier fuer 7 bis 32B. Genau so eine steckt in deinem geerbten Start-PC."
   },
   rtx5090: {
     n: "RTX 5090 32GB", vram: 32, watt: 575, bw: 1792,
@@ -3714,6 +3762,79 @@ const WISSEN_ALLGEMEIN = [
   { kat:"betrieb", t:"Drei Arten von Zahlen",
     txt:"In LLM FARM gibt es Quellenfakten (belegt, z. B. Preise und Parameter), Referenzmessungen (mit Bedingungen) und Simulationsannahmen (Spielbalance). Fähigkeitsbalken und Erfolgsquoten sind Simulationsannahmen – sie ordnen ein, sie beweisen nichts." }
 ];
+
+/* ══════════ ADA – gesprochene Erklärungen (Ära 7) ══════════
+   Eine Quelle für Sprechblase UND Audio-Erzeugung (dev/ada_audio.cjs liest dieses Objekt
+   aus dem Build und vertont es mit einer deutschen Neural-Stimme nach ada/<id>.mp3).
+   t     = Anzeige- und Sprechtext (bewusst ohne Emoji, damit die Stimme nichts Komisches liest)
+   sag   = optionale Aussprache-Variante nur für die Stimme (Fachwörter)
+   ziel  = Gebäude-Id aus GEBAEUDE oder ein #Selektor – dieser Knopf blinkt rot, solange Ada spricht
+   titel = Überschrift der Sprechblase */
+const ADA_TEXTE={
+  hallo:{titel:"Ich bin Ada!",ziel:null,
+    t:"Hallo, ich bin Ada und begleite dich auf deiner LLM FARM. Wenn ich etwas erkläre, blinkt der passende Knopf rot – dann weißt du genau, wo es weitergeht. Über meinen Kopf oben rechts kannst du mich jederzeit rufen, jede Erklärung noch einmal anhören oder mich stummschalten. Und keine Sorge: Ich rede nur, wenn es wirklich hilft."},
+  intro1:{titel:"Willkommen auf deinem Hof!",ziel:null,
+    t:"Schön, dass du da bist! Du hast einen Hof geerbt – und der hat es in sich: Im Schuppen steht ein Rechner mit einer RTX 4090 und 24 Gigabyte Grafikspeicher. Das ist wichtig, denn KI-Modelle wohnen komplett im Speicher der Grafikkarte, wenn sie schnell antworten sollen. 24 Gigabyte reichen für erstaunlich große Modelle. Such dir in Ruhe einen Hofnamen und dein Lieblingstier aus – das ist reine Optik, gerechnet wird für alle gleich."},
+  intro2:{titel:"Deine zwei Startmodelle",ziel:null,
+    t:"Jetzt ziehen deine ersten zwei Modelle ein – echte, offene KI-Modelle bis vier Milliarden Parameter. Parameter sind die Stellschrauben, in denen das Gelernte steckt: mehr Parameter heißt meistens klüger, aber auch hungriger nach Speicher. Für den Anfang sind kleine Modelle genau richtig: Sie sind flink, sparsam und verdienen dir das erste Geld. Wähle einfach zwei, die dir sympathisch sind."},
+  intro3:{titel:"Fokus, Schwierigkeit, Begleitung",ziel:null,
+    t:"Fast geschafft! Der Hof-Fokus gibt dir dauerhaft acht Prozent mehr Erlös auf eine Auftragsart – wie ein Betrieb, der sich einen Ruf in seinem Fachgebiet aufbaut. Bei der Schwierigkeit gilt: Alle Stufen rechnen mit exakt denselben Regeln, nur die Hilfe unterscheidet sich. Im behüteten Modus warne ich dich vor riskanten Aktionen und sage dir bei jedem Ereignis, was jetzt hilft. Und wenn du magst, führe ich dich mit der geführten Woche Tag für Tag durch alle Grundlagen."},
+  tag1:{titel:"Tag 1: Ankommen",ziel:"stall",
+    t:"Los geht es! Öffne den Stall und setz eines deiner Tiere in die Rechner-Bucht – erst wenn ein Modell im Grafikspeicher geladen ist, kann es arbeiten. Danach schau an die Pinnwand im Dorf und nimm einen kleinen Auftragszettel an. So verdient dein Hof sein erstes Geld: Ein Modell beantwortet Anfragen, der Kunde bezahlt dafür."},
+  tag2:{titel:"Tag 2: Daten sind Futter",ziel:"futter",
+    t:"Heute geht es um Daten, das Futter deiner Tiere. In der Futterscheune siehst du deinen Vorrat – und dort wartet auch die Datenlese: Du sortierst gute von schlechten Textschnipseln und machst aus Rohdaten wertvolles, kuratiertes Futter. Genau so ist es im echten Leben: Die Qualität der Trainingsdaten entscheidet mehr über ein Modell als fast alles andere."},
+  tag3:{titel:"Tag 3: Lernen lassen",ziel:"forschung",
+    t:"Zeit fürs Lernen! Geh in die Forschungshütte und erforsche das Feintuning – die Fachleute sagen S F T, überwachtes Nachtrainieren. Danach kannst du auf dem Trainingsplatz den ersten Lauf starten: Dein Tier übt an Beispielen und wird messbar besser. Training kostet Strom und Zeit – aber es ist die ehrlichste Art, ein Modell wertvoller zu machen.",
+    sag:"Zeit fürs Lernen! Geh in die Forschungshütte und erforsche das Feintuning – die Fachleute sagen Es-Ef-Te, überwachtes Nachtrainieren. Danach kannst du auf dem Trainingsplatz den ersten Lauf starten: Dein Tier übt an Beispielen und wird messbar besser. Training kostet Strom und Zeit – aber es ist die ehrlichste Art, ein Modell wertvoller zu machen."},
+  tag4:{titel:"Tag 4: Werkstatt-Tag",ziel:"forschung",
+    t:"Heute wird geschrumpft! Erforsche die Quantisierung und setz ein Tier in der Werkstatt auf Q4. Dabei werden die Zahlen im Modell gröber gerundet: halber Speicherbedarf, fast doppeltes Tempo, dafür ein kleines bisschen weniger Genauigkeit. Q4 ist draußen in der Community der Standard – der beste Tausch zwischen Platz und Können.",
+    sag:"Heute wird geschrumpft! Erforsche die Quantisierung und setz ein Tier in der Werkstatt auf Ku-vier. Dabei werden die Zahlen im Modell gröber gerundet: halber Speicherbedarf, fast doppeltes Tempo, dafür ein kleines bisschen weniger Genauigkeit. Ku-vier ist draußen in der Community der Standard – der beste Tausch zwischen Platz und Können."},
+  tag5:{titel:"Tag 5: Agenten-Tag",ziel:"forschung",
+    t:"Jetzt wird es spannend: Erforsche die Sattlerei und leg einem Tier ein Geschirr an. Ein Geschirr ist eine Arbeitsumgebung mit Werkzeugen – damit kann ein Modell nicht nur reden, sondern handeln: Dateien lesen, Schritte planen, Aufgaben abarbeiten. Solche Modelle nennt man Agenten, und an der Pinnwand öffnen sich dafür die Agenten-Zettel mit besserer Bezahlung."},
+  tag6:{titel:"Tag 6: Nacht und Wissen",ziel:"#tagknopf",
+    t:"Zwei Geheimtipps heute. Erstens: Wenn du den Tag beendest, öffnet sich die Nachtplanung – nachts kostet Strom nur die Hälfte, perfekt für lange Trainingsläufe. Auch echte Rechenzentren planen ihre Lasten nach dem Strompreis. Zweitens: Oben rechts wartet das Hofbuch, unser Regelwerk. Da steht wirklich jede Regel des Spiels drin – schlag einmal kurz hinein."},
+  tag7:{titel:"Tag 7: Gesellenprüfung",ziel:"jobs",
+    t:"Heute zeigst du, was du gelernt hast! Die Gesellenprüfung hat drei Ziele: Schließe heute einen Auftrag ab, halte die Kasse im Plus und nutze die Nachtplanung. Schaffst du alle drei bis zur Abendabrechnung, bekommst du das Gesellen-Abzeichen und hundertfünfzig Euro Prämie. Und falls es heute nicht klappt: Du darfst die Prüfung an den nächsten Tagen wiederholen, ganz ohne Strafe."},
+  geselle:{titel:"Gesellenbrief!",ziel:null,
+    t:"Ich bin so stolz auf dich! Die Gesellenprüfung ist bestanden, das Abzeichen hängt am Hofhaus. Du kennst jetzt alle Grundlagen: Modelle einsetzen, Daten pflegen, trainieren, quantisieren, Agenten anspannen und mit dem Strompreis planen. Ab hier gehört der Hof ganz dir – ich bin da, wenn du mich brauchst. Über meinen Kopf oben rechts kannst du mich jederzeit fragen."},
+  ort_stall:{titel:"Der Stall",ziel:null,
+    t:"Willkommen im Stall! Hier siehst du alle deine Tiere und die Buchten – jede Bucht ist ein Rechner mit einer Grafikkarte. Ein Modell in der Bucht ist geladen und einsatzbereit; Tiere auf der Wiese ruhen sich aus und kosten fast nichts. Tippe ein Tier an, dann zeige ich dir seine Werte, seine Ausrüstung und was ihm gerade am meisten helfen würde."},
+  ort_futter:{titel:"Die Futterscheune",ziel:null,
+    t:"Das hier ist die Futterscheune – dein Datenlager. Es gibt verschiedene Sorten: einfache Webdaten, sauber kuratierte Daten, Fachtexte für Programmierer und Beispielsammlungen für Agenten. Gutes Futter macht Trainings wirksamer, schlechtes kann sogar schaden. Probier auch die Datenlese aus: Damit veredelst du Rohdaten von Hand – so wie echte Datenteams jeden Tag."},
+  ort_jobs:{titel:"Die Pinnwand",ziel:null,
+    t:"An der Pinnwand hängen die Aufträge aus dem Dorf. Jeder Zettel zeigt dir die Art der Arbeit, die Bezahlung und wie viele Tage Zeit du hast. Die Ampel auf dem Zettel verrät ehrlich, wie gut dein Tier dafür geeignet ist – mit Gründen zum Nachlesen. Nimm anfangs lieber kleine Zettel mit grüner Ampel: pünktlich und gut abgeliefert bringt Sterne, und ein guter Ruf bringt bessere Aufträge."},
+  ort_forschung:{titel:"Die Forschungshütte",ziel:null,
+    t:"In der Forschungshütte schaltest du neue Verfahren frei – vom Feintuning über die Quantisierung bis zu Server-Techniken für viele Nutzer gleichzeitig. Alles hier ist einem echten Verfahren nachempfunden. Tiefer im Baum warten die Meisterschaften: drei Wege, auf denen dein Hof sich spezialisieren kann, mit Meisterpunkten aus jeder Hofstufe. Es lohnt sich, hier regelmäßig vorbeizuschauen."},
+  ort_training:{titel:"Der Trainingsplatz",ziel:null,
+    t:"Hier wird gelernt! Beim Training übt dein Modell an Futterdaten und verbessert dauerhaft seine Werte. Wähle ein Verfahren, gutes Futter und ein paar Tage Laufzeit. Merk dir die goldene Regel: Training ändert die Gewichte des Modells, also sein Können. Ein Geschirr dagegen gibt nur Werkzeuge dazu. Und plane Trainings gern in die Nacht – der halbe Strompreis macht sich schnell bezahlt."},
+  ort_werkstatt:{titel:"Die Diät-Werkstatt",ziel:null,
+    t:"In der Werkstatt setzt du Modelle auf Diät: Quantisierung rundet ihre Gewichte auf weniger Bit. Halber Speicher, fast doppeltes Tempo – dafür ein wenig Genauigkeit. Bei Katalogmodellen kannst du das Original jederzeit neu laden, die Diät ist also umkehrbar. Vorsicht nur bei eigener Zucht: Die Kinder haben keine Originaldatei – was ihre Quantisierung verliert, ist für immer weg."},
+  ort_zucht:{titel:"Die Zuchtstation",ziel:null,
+    t:"Hier entsteht etwas ganz Besonderes: Aus zwei Elterntieren wird per Modell-Merging ein Kind – die Gewichte beider Eltern werden wirklich miteinander verschmolzen, das machen Bastler draußen genauso. Das Kind erbt Stärken beider Seiten, mit etwas Würfelglück. Schau auf den Effizienz-Index: Wenn das Kind mehr Leistung pro Euro Betriebskosten schafft als seine Eltern, hat sich die Zucht gelohnt. Genau das ist das Ziel."},
+  ort_geschirr:{titel:"Die Geschirrkammer",ziel:null,
+    t:"In der Geschirrkammer rüstest du deine Tiere zu Agenten aus. Ein Geschirr ist eine Arbeitsumgebung: Sie gibt dem Modell Werkzeuge, ein festes Format und die Erlaubnis, mehrere Schritte hintereinander zu arbeiten. Wichtig zu wissen: Das Geschirr macht ein Modell nicht klüger – es macht sein Können nutzbar. Kluges Tier plus passendes Geschirr, das ist die Formel für die gut bezahlten Agenten-Aufträge."},
+  ort_markt:{titel:"Der Viehmarkt",ziel:null,
+    t:"Auf dem Viehmarkt kaufst du neue Modelle und neue Hardware. Alle Tiere hier sind echten, offenen KI-Modellen nachempfunden, mit ihren echten Größen und Lizenzen. Achte beim Kauf auf den Speicherbedarf: Das Modell muss in den Grafikspeicher deiner Rechner passen, sonst wird es zäh. Und wirf einen Blick auf den Effizienz-Index – er verrät, wie viel Leistung ein Tier für seine Betriebskosten liefert."},
+  ort_cloud:{titel:"Die Cloud-Voliere",ziel:null,
+    t:"Hier mietest du Modelle über eine Programmier-Schnittstelle, kurz API. Das Prinzip: kein eigener Grafikspeicher nötig, dafür zahlst du für jedes einzelne Wort, das rein- und rausgeht – abgerechnet in Token. Cloud-Tiere sind sofort einsatzbereit und stark, aber bei viel Arbeit summieren sich die Kosten. Eigene Tiere brauchen Strom statt Token. Dieses Abwägen kennt jede echte Firma: mieten oder selbst betreiben.",
+    sag:"Hier mietest du Modelle über eine Programmier-Schnittstelle, kurz Ah-Peh-Ih. Das Prinzip: kein eigener Grafikspeicher nötig, dafür zahlst du für jedes einzelne Wort, das rein- und rausgeht – abgerechnet in Token. Cloud-Tiere sind sofort einsatzbereit und stark, aber bei viel Arbeit summieren sich die Kosten. Eigene Tiere brauchen Strom statt Token. Dieses Abwägen kennt jede echte Firma: mieten oder selbst betreiben."},
+  ort_leitstand:{titel:"Der Hof-Leitstand",ziel:null,
+    t:"Der Leitstand ist die Betriebsschicht deines Hofes – hier siehst du, mit welchen Arbeitsumgebungen deine Tiere arbeiten und welche Ausbaustufen es gibt. Von einfachen Geschirren bis zu Systemen, die ganze Aufgabenketten selbstständig verwalten. Schau hier vorbei, wenn du wissen willst, wie aus einzelnen Helfern ein eingespielter Betrieb wird."},
+  ort_energie:{titel:"Strom und Energie",ziel:null,
+    t:"Strom ist auf einem KI-Hof ein echter Kostenfaktor – im Spiel wie im Leben. Hier siehst du Verbrauch, Preise und deine eigene Erzeugung. Tagsüber kostet die Kilowattstunde achtundvierzig Cent, nachts die Hälfte. Mit Solar auf dem Dach, Windrädern oder einem Kraftwerk machst du dich unabhängiger – jede Quelle hat ihre Eigenheiten: Sonne braucht gutes Wetter, Wind kann flauen, das Kraftwerk ist stabil, aber teuer im Unterhalt."},
+  ort_rechenhaus:{titel:"Das Rechenhaus",ziel:null,
+    t:"Das Rechenhaus ist das Herz deiner Technik: Hier stehen deine Rechner und Serverschränke, hier planst du Stromanschluss, Solar, Wind, Akku und Kühlung. Jede Ausbaustufe öffnet mehr Plätze – vom Geräteschuppen bis zum richtigen Rechenzentrum mit vierundsechzig Racks. Wichtig: Neue Hardware braucht immer beides, einen freien Platz und genug zugesicherte Anschlussleistung. Genau daran scheitern auch echte Rechenzentren am häufigsten."},
+  ort_arena:{titel:"Die Festwiese",ziel:null,
+    t:"Auf der Festwiese misst sich dein Hof mit anderen: In Wettbewerben treten deine Tiere in Disziplinen wie Wissen, Rechnen oder Programmieren an – das sind die Benchmarks der KI-Welt. Und einmal pro Saison, am fünfundzwanzigsten Tag, lädt das Dorf zur Dorfmeisterschaft: ein Teamauftrag ohne Lohn, aber mit Prämie, Ruhm und einem Platz in der Bestenliste. Ein guter Anlass, dein bestes Team zusammenzustellen."},
+  ort_agentenwelt:{titel:"Die Agenten-Welt",ziel:null,
+    t:"Das hier ist das Übungsgelände für Agenten – nachgebaut nach echten Trainingsumgebungen. Dein Tier übt richtige Arbeitsgriffe: E-Mails lesen, Formulare ausfüllen, Dateien sortieren. Ein Lehrer-Modell prüft jede Übung und belohnt nur, was nachweisbar richtig ist. So wächst die Werkzeug-Fähigkeit Tag für Tag. Das kostet Strom und Lehrer-Token, lohnt sich aber für jedes Tier, das viel im Geschirr arbeitet."},
+  ort_hofhaus:{titel:"Das Hofhaus",ziel:null,
+    t:"Im Hofhaus verwaltest du alles Drumherum: den Hofnamen, dein Wappentier, die Schwierigkeit, deine Abzeichen und die Hof-Chronik mit allen großen Momenten. Hier kannst du den Spielstand auch exportieren – als Datei zum Sichern oder Mitnehmen. Und falls du mich mal leiser haben willst: Auch meine Stimme stellst du hier oder direkt in meiner Sprechblase ab."},
+  ort_hofbuch:{titel:"Das Hofbuch",ziel:null,
+    t:"Das Hofbuch ist unser Regelwerk – und es hat eine Besonderheit: Es wird direkt aus den Spieldaten erzeugt. Jedes Modell, jede Forschung, jeder Preis und jede Formel, die du hier liest, ist exakt die, mit der das Spiel wirklich rechnet. Wenn dir irgendwo etwas unklar ist: Die Antwort steht hier, versprochen. Und die häufigsten Fragen habe ich dir ganz vorne zusammengestellt."},
+  ort_kompendium:{titel:"Das Kompendium",ziel:null,
+    t:"Das Kompendium ist die Landwirtschaftsschule des Hofes: kleine Wissenskarten über die echte KI-Welt – von Trainingsverfahren über Grafikkarten bis zu Strompreisen. Alles in Ruhe zum Nachlesen, ohne Spielregeln. Wenn du wissen willst, wie die Dinge draußen wirklich funktionieren, bist du hier richtig."}
+};
 
 // quirks.js - Modellfamilien-Eigenheiten fuer das Spiel LLM FARM
 // Recherche-Stand: 30.08.2026. Alle Quirks real und belegt.
@@ -4691,10 +4812,11 @@ function frischerStand(){
   const stand={
     v:4, tag:1, kredit:2500, ruf:0, xp:0, hofname:"LLM FARM", co2:0,
     skills:{}, meisterweg:null, schwierig:"hofalltag", fuehrung:"gefuehrt", geselle:false, chronik:[], liga:[],
+    ada:{stumm:false, gehoert:{}},
     tierArt:"schwein", figurStil:"bild", einfFertig:false, spezial:null,
     eigenBild:null, eigenPosen:null, eigenFlip:false, eigenSatt:null,
     daten:{webmix:40, beispiele:10}, synthQ:0.8, synthGen:0,
-    buchten:[{id:"b1", gpu:"rtx4080", cpu:"Ryzen 7", ramGB:32, ssdTB:2, rhSlot:"pc:0", miete:false, tier:null}],
+    buchten:[{id:"b1", gpu:"rtx4090", cpu:"Ryzen 7", ramGB:32, ssdTB:2, rhSlot:"pc:0", miete:false, tier:null}],
     tiere:[], jobs:[], lizenzen:[],
     cloudAngebot:{tag:0, ids:[]},
     forschung:{}, forschungAktiv:null,
@@ -5281,6 +5403,7 @@ function wocheTick(bericht){
       buche(150,"foerderung","Gesellenprüfung bestanden – Prämie der Gemeinde");
       feier("🎓","Gesellenbrief erhalten!",true);
       bericht.zeilen.push({t:"🎓 GESELLENPRÜFUNG BESTANDEN! Das Abzeichen „Geselle“ hängt jetzt am Hofhaus (+150 € Prämie). Von hier an gehört der Hof ganz dir.",art:"gut"});
+      if(typeof adaAuto==="function") try{ adaAuto("geselle"); }catch(e){}
     } else if(gestern<10){
       bericht.zeilen.push({t:"🎓 Gesellenprüfung: noch nicht alle drei Ziele geschafft – heute zählt ein neuer Versuch (kein Malus).",art:"info"});
     } else {
@@ -6317,6 +6440,7 @@ function blattAuf(titel,html,id,vonZurueck){
   leib.scrollTop=pos;
 }
 function blattZu(){ schirm.classList.remove("auf"); blattStack=[];
+  if(typeof adaTagCheck==="function") try{ adaTagCheck(); }catch(e){}
   if(S&&S._tagFaellig&&(S.tagMs||0)>=TAG_MS){ S._tagFaellig=false; setTimeout(()=>tagBeenden(),350); } }
 function blattZurueck(){
   blattStack.pop();
@@ -6687,7 +6811,7 @@ function oeffne(was,arg){
     leitstand:zeigeLeitstand,energie:zeigeEnergie,jobs:zeigeJobs,markt:zeigeMarkt,arena:zeigeArena,hof:zeigeHof,tierwahl:zeigeTierwahl,
     agentenwelt:zeigeAgentenWelt,
     hofhaus:zeigeHofhaus,kompendium:zeigeKompendium,news:zeigeNews,tier:()=>zeigeTier(arg),hilfe:zeigeHilfe,hofbuch:zeigeHofbuch}[was];
-  if(f) f();
+  if(f){ f(); if(typeof adaOrt==="function") try{ adaOrt(was); }catch(e){} }
 }
 
 /* ═════════════════════════════════════════════════════════
@@ -7634,13 +7758,13 @@ function zeigeMarkt(){
       }).join("")+'</div>';
     }else{
       inhalt='<div class="notiz">Neue Hardware braucht einen Platz und einen ausreichenden Stromanschluss im <b>Rechenhaus</b>. PCs werden als vollständige Systeme gekauft, Serverknoten in einen vorhandenen Schrank eingebaut. Die Preise sind Spielannahmen. Vorhandene Mietgeräte aus alten Spielständen bleiben erhalten.</div>'+
-      '<div class="werteliste abstand">'+Object.entries(GPUS).filter(([id,g])=>["rtx4080","rtx5090"].includes(id)||g.tier>=2).sort((a,b)=>a[1].preis-b[1].preis).map(([id,g])=>{
+      '<div class="werteliste abstand">'+Object.entries(GPUS).filter(([id,g])=>["rtx4080","rtx4090","rtx5090"].includes(id)||g.tier>=2).sort((a,b)=>a[1].preis-b[1].preis).map(([id,g])=>{
         const preis=Math.round(g.preis*gpupreisFaktor());
         const frei=g.tier<2||rh().stufe>=1;
         return '<div class="listenzeile'+(frei?"":" dim")+'"><span class="bild" style="width:56px">'+gpuSvg(g.tier)+'</span>'+
         '<span class="txt"><b>'+esc(g.n)+(g.gebraucht?' <span class="merk">gebraucht</span>':"")+'</b>'+
         '<span>'+g.vram+' GB VRAM · '+g.watt+' W · Bandbreite '+zahl(g.bw)+' GB/s</span>'+
-        '<span>'+(id==="rtx4080"?"Komplett-PC: Ryzen 7, 32 GB DDR5, 2 TB NVMe · 2.100 €":id==="rtx5090"?"Komplett-PC: Ryzen 9, 64 GB DDR5, 4 TB NVMe · 5.700 €":"Serverknoten: GPU + 256 GB RAM + 8 TB NVMe · "+geld(preis+3500))+'</span>'+(frei?"":'<span class="merk">Serverplätze ab Nerdtempel</span>')+'</span>'+
+        '<span>'+(id==="rtx4080"?"Komplett-PC: Ryzen 7, 32 GB DDR5, 2 TB NVMe · 2.100 €":id==="rtx4090"?"Gebraucht-PC (wie dein Start-Rechner): Ryzen 7, 32 GB DDR5, 2 TB NVMe · 2.800 €":id==="rtx5090"?"Komplett-PC: Ryzen 9, 64 GB DDR5, 4 TB NVMe · 5.700 €":"Serverknoten: GPU + 256 GB RAM + 8 TB NVMe · "+geld(preis+3500))+'</span>'+(frei?"":'<span class="merk">Serverplätze ab Nerdtempel</span>')+'</span>'+
         '<span><button class="knopf s" onclick="gpuKaufen(\''+id+'\',false)">Hardwareplatz wählen</button></span></div>';
       }).join("")+'</div>';
     }
@@ -8354,6 +8478,8 @@ function start(){
   if(S.eigenBild&&S.eigenPosen&&!S.eigenSk) eigenSkMessen();   /* Alt-Spielstände: Posen-Ausgleich nachmessen */
   rhHintergrundKey='';rhHintergrundNeu();
   alles();
+  try{ adaInit(); }catch(e){}
+  if(S.einfFertig) setTimeout(()=>{ try{ adaTagCheck(); }catch(e){} },900);
   questPruefe();
   requestAnimationFrame(lauf);
   _uhrLetzte=Date.now();
@@ -8602,7 +8728,7 @@ function zeigeWillkommen(){
   if(_einf.schritt===1){
     inhalt='<img src="'+bild("titel")+'" alt="" style="width:100%;border-radius:14px;border:3px solid var(--holz-4)" onerror="this.remove()">'+
     '<div class="karte hell"><h3>Du hast einen Hof geerbt!</h3>'+
-    '<p>Im Nachlass: ein Rechner mit einer <b>'+esc(GPUS[S.buchten[0].gpu].n)+'</b> ('+GPUS[S.buchten[0].gpu].vram+' GB Grafikspeicher; '+esc(S.buchten[0].cpu||'Bestands-CPU')+', '+(S.buchten[0].ramGB||32)+' GB RAM, '+(S.buchten[0].ssdTB||2)+' TB NVMe), '+geld(S.kredit)+' Startkapital, 50 GB angestaubte Web-Daten – und <b>zwei kleine KI-Modelle</b>, die du gleich aussuchst! Dein neuer Hof beginnt mit einer RTX 4080, Ryzen 7, 32 GB DDR5 und 2 TB NVMe im Geräteschuppen.</p>'+
+    '<p>Im Nachlass: ein Rechner mit einer <b>'+esc(GPUS[S.buchten[0].gpu].n)+'</b> ('+GPUS[S.buchten[0].gpu].vram+' GB Grafikspeicher; '+esc(S.buchten[0].cpu||'Bestands-CPU')+', '+(S.buchten[0].ramGB||32)+' GB RAM, '+(S.buchten[0].ssdTB||2)+' TB NVMe), '+geld(S.kredit)+' Startkapital, 50 GB angestaubte Web-Daten – und <b>zwei kleine KI-Modelle</b>, die du gleich aussuchst! Die 24 GB Grafikspeicher der geerbten RTX 4090 geben dir von Tag 1 an Spielraum – bis etwa 32-Milliarden-Modelle in Q4.</p>'+
     '<p class="abstand">Hier leben KI-Modelle als Hoftiere: Du fütterst sie mit Datensätzen, trainierst sie mit echten Verfahren, spannst sie in echte Agent-Geschirre und verdienst Geld mit Aufträgen. <b>Technische Grundprinzipien folgen der KI-Praxis; Preise, Erträge und viele Leistungswerte sind gekennzeichnete Spielannahmen (Stand August 2026).</b></p>'+
     '<div class="abstand"><b>Wie soll dein Hof heißen?</b><br><input id="hofnameInput" value="'+esc(S.hofname)+'" maxlength="24" style="margin-top:6px;width:100%;padding:9px 12px;border:3px solid var(--holz-4);border-radius:12px;font:inherit;font-weight:800;background:#fffdf5"></div>'+
     '<div class="abstand"><b>Und wer soll bei dir leben? Wähl dein Wunschtier:</b>'+
@@ -8645,6 +8771,7 @@ function zeigeWillkommen(){
     '<p class="abstand" style="font-size:11px;color:var(--tinte-2)">Illustrationen KI-erzeugt (Gemini 2.5 Flash Image via OpenRouter) – Details im Hofhaus unter „Mitwirkende".</p>';
   }
   blattAuf("🌅 Willkommen auf deiner LLM FARM!",punkte+inhalt,"willkommen");
+  if(typeof adaIntro==="function") try{ adaIntro(_einf.schritt); }catch(e){}
 }
 function einfWeiter(z){
   if(_einf.schritt===1) einfName();
@@ -8692,6 +8819,218 @@ function onboardEigen(){
 function inBuchtStumm(uid,bid){
   const p=S.tiere.find(t=>t.uid===uid), b=S.buchten.find(x=>x.id===bid);
   if(p&&b&&!b.tier){ b.tier=uid; p.bucht=bid; }
+}
+
+/* ══════════ ADA – die sprechende Begleiterin (Ära 7) ══════════
+   Texte: ADA_TEXTE (content.js). Audio: ada/<id>.mp3 (mit dev/ada_audio.cjs vertont);
+   fehlt eine Datei, liest die Browserstimme (speechSynthesis, de-DE) denselben Text.
+   Während Ada spricht, blinkt der Ziel-Knopf rot (.adaZiel). */
+let _adaAudio=null,_adaTts=null,_adaId=null,_adaPausiert=false,_adaWartet=false,
+    _adaBlinkZiel=null,_adaBlinkIv=null,_adaBlinkStop=null,
+    _adaKey="",_adaModell="google/gemini-2.5-flash-lite",_adaDenkt=false;
+function adaAn(){ return !(S&&S.ada&&S.ada.stumm); }
+function adaLaueft(){
+  if(_adaAudio&&!_adaAudio.paused) return true;
+  try{ return !!(window.speechSynthesis&&speechSynthesis.speaking&&!speechSynthesis.paused); }catch(e){ return false; }
+}
+function adaInit(){
+  try{
+    const src=bild("ada"), b=document.getElementById("adaBild"), k=document.getElementById("adaKnopf");
+    if(src&&b) b.src=src;
+    if(src&&k) k.innerHTML='<img src="'+src+'" alt="" onerror="this.outerHTML=\'<span>👩‍🌾</span>\'">';
+  }catch(e){}
+  adaKnopfNeu();
+}
+function adaFinde(ziel){
+  try{
+    if(ziel[0]==="#") return document.querySelector(ziel);
+    return [...document.querySelectorAll("#dock [onclick]")].find(b=>String(b.getAttribute("onclick")||"").includes("'"+ziel+"'"))||null;
+  }catch(e){ return null; }
+}
+function adaBlinkMal(){
+  if(!_adaBlinkZiel) return;
+  if(document.querySelector(".adaZiel")) return;      /* Dock wird oft neu gerendert – Klasse ggf. neu setzen */
+  const el=adaFinde(_adaBlinkZiel);
+  if(el) el.classList.add("adaZiel");
+}
+function adaBlinkAus(){
+  _adaBlinkZiel=null;
+  if(_adaBlinkIv){ clearInterval(_adaBlinkIv); _adaBlinkIv=null; }
+  if(_adaBlinkStop){ clearTimeout(_adaBlinkStop); _adaBlinkStop=null; }
+  document.querySelectorAll(".adaZiel").forEach(e=>e.classList.remove("adaZiel"));
+}
+function adaBlinkAn(ziel){
+  adaBlinkAus();
+  if(!ziel) return;
+  _adaBlinkZiel=ziel; adaBlinkMal();
+  _adaBlinkIv=setInterval(adaBlinkMal,700);
+  _adaBlinkStop=setTimeout(adaBlinkAus,45000);        /* Sicherheitsnetz, falls kein Audio-Ende feuert */
+}
+document.addEventListener("pointerdown",e=>{
+  if(e.target&&e.target.closest&&e.target.closest(".adaZiel")) adaBlinkAus();  /* Ziel gefunden – Blinken erledigt */
+  if(_adaWartet){ _adaWartet=false; if(_adaAudio&&_adaAudio.paused){ _adaPausiert=false; _adaAudio.play().catch(()=>{}); } adaKnopfNeu(); }
+},true);
+function adaKnopfNeu(){
+  try{
+    const p=document.getElementById("adaPauseKn"), s=document.getElementById("adaStummKn"), k=document.getElementById("adaKnopf");
+    const laeuft=adaLaueft();
+    if(p) p.textContent=laeuft?"⏸":"▶";
+    if(s){ s.textContent=adaAn()?"🔊":"🔇"; s.classList.toggle("an",adaAn()); }
+    if(k) k.classList.toggle("spricht",laeuft);
+  }catch(e){}
+}
+function adaTtsStopp(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} _adaTts=null; }
+function adaStopp(){
+  if(_adaAudio){ try{ _adaAudio.pause(); }catch(e){} _adaAudio=null; }
+  adaTtsStopp(); _adaPausiert=false; _adaWartet=false; adaKnopfNeu();
+}
+function adaTTSText(txt,blink){
+  adaTtsStopp();
+  try{
+    if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){ if(blink!==false)_adaBlinkStop=setTimeout(adaBlinkAus,9000); return; }
+    const u=new SpeechSynthesisUtterance(String(txt));
+    u.lang="de-DE"; u.rate=0.98;
+    const stimmen=(speechSynthesis.getVoices()||[]).filter(v=>String(v.lang||"").toLowerCase().startsWith("de"));
+    for(const n of ["Seraphina","Katja","Amala","Google Deutsch","Anna","Hedda"]){
+      const v=stimmen.find(x=>String(x.name).includes(n)); if(v){ u.voice=v; break; }
+    }
+    if(!u.voice&&stimmen[0]) u.voice=stimmen[0];
+    u.onend=()=>{ _adaTts=null; adaBlinkAus(); adaKnopfNeu(); };
+    _adaTts=u; _adaPausiert=false;
+    speechSynthesis.speak(u); adaKnopfNeu();
+  }catch(e){}
+}
+function adaSpiele(id){
+  adaStopp();
+  const d=ADA_TEXTE[id]||{};
+  let a=null; try{ a=new Audio("ada/"+id+".mp3"); }catch(e){}
+  if(!a){ adaTTSText(d.sag||d.t); return; }
+  _adaAudio=a;
+  a.onended=()=>{ if(_adaAudio===a)_adaAudio=null; adaBlinkAus(); adaKnopfNeu(); };
+  a.onerror=()=>{ if(_adaAudio===a){ _adaAudio=null; adaTTSText(d.sag||d.t); } };  /* Datei fehlt → Browserstimme */
+  a.play().then(adaKnopfNeu).catch(err=>{
+    if(err&&err.name==="NotAllowedError"){ _adaPausiert=true; _adaWartet=true; adaKnopfNeu(); }  /* Autoplay: wartet auf 1. Klick */
+  });
+}
+function adaSprich(id,manuell){
+  const d=ADA_TEXTE[id]; if(!d) return;
+  _adaId=id;
+  if(S){ S.ada=S.ada||{stumm:false,gehoert:{}}; S.ada.gehoert=S.ada.gehoert||{}; S.ada.gehoert[id]=1; try{ sichern(); }catch(e){} }
+  try{
+    const box=document.getElementById("adaBox"); if(!box) return;
+    document.getElementById("adaTitel").textContent=d.titel||"";
+    document.getElementById("adaText").textContent=d.t;
+    const ex=document.getElementById("adaExtra"); if(ex&&!manuell){ ex.classList.remove("auf"); ex.innerHTML=""; }
+    box.classList.add("auf");
+    adaBlinkAn(d.ziel);
+    if(adaAn()||manuell) adaSpiele(id); else adaKnopfNeu();
+  }catch(e){}
+}
+function adaAuto(id){
+  if(!adaAn()||!ADA_TEXTE[id]) return;
+  if(S){ S.ada=S.ada||{stumm:false,gehoert:{}}; if((S.ada.gehoert||{})[id]) return; }
+  adaSprich(id,false);
+}
+function adaIntro(schritt){
+  const id="intro"+schritt;
+  if(!ADA_TEXTE[id]||_adaId===id||!adaAn()) return;
+  adaSprich(id,false);
+}
+function adaOrt(was){
+  if(!S||!S.einfFertig) return;
+  adaAuto("ort_"+was);
+}
+function adaTagCheck(){
+  if(!S||!S.einfFertig) return;
+  if(typeof wocheAktiv==="function"&&wocheAktiv()) adaAuto("tag"+Math.min(S.tag,7));
+}
+function adaPause(){
+  if(_adaAudio){
+    if(_adaAudio.paused){ _adaPausiert=false; _adaAudio.play().catch(()=>{}); }
+    else { _adaPausiert=true; _adaAudio.pause(); }
+  } else {
+    let s=null; try{ s=window.speechSynthesis; }catch(e){}
+    if(s&&(s.speaking||s.paused)){ if(s.paused){ s.resume(); _adaPausiert=false; } else { s.pause(); _adaPausiert=true; } }
+    else if(_adaId) adaSpiele(_adaId);
+  }
+  setTimeout(adaKnopfNeu,60);
+}
+function adaZu(){
+  adaStopp(); adaBlinkAus();
+  const box=document.getElementById("adaBox"); if(box) box.classList.remove("auf");
+}
+function adaStummToggle(){
+  if(!S) return;
+  S.ada=S.ada||{stumm:false,gehoert:{}};
+  S.ada.stumm=!S.ada.stumm;
+  if(S.ada.stumm){ adaStopp(); melde("Ada ist jetzt stumm – über ihren Kopf oben rechts hörst du sie bei Bedarf trotzdem.","info"); }
+  else melde("Ada spricht wieder mit dir.","gut");
+  try{ sichern(); }catch(e){}
+  adaKnopfNeu();
+}
+function adaMenue(){
+  const box=document.getElementById("adaBox"), ex=document.getElementById("adaExtra");
+  if(!box||!ex) return;
+  if(box.classList.contains("auf")&&ex.classList.contains("auf")){ adaZu(); return; }
+  if(!_adaId) adaSprich("hallo",true);
+  else if(!box.classList.contains("auf")){
+    const d=ADA_TEXTE[_adaId];
+    document.getElementById("adaTitel").textContent=d.titel||"";
+    document.getElementById("adaText").textContent=d.t;
+    box.classList.add("auf");
+  }
+  adaExtraNeu(); ex.classList.add("auf");
+}
+function adaExtraNeu(){
+  const ex=document.getElementById("adaExtra"); if(!ex) return;
+  const kap=Object.keys(ADA_TEXTE);
+  ex.innerHTML='<b style="font-size:11px">Noch mal anhören:</b>'+
+    '<div class="adaChips">'+kap.map(k=>'<button onclick="adaSprich(\''+k+'\',true)">'+esc(ADA_TEXTE[k].titel||k)+'</button>').join("")+'</div>'+
+    '<div style="margin-top:8px"><b style="font-size:11px">💬 Ada fragen (eigener Schlüssel):</b>'+
+    (_adaKey
+      ?'<input id="adaFrageFeld" placeholder="Deine Frage zum Spiel…" onkeydown="if(event.key===\'Enter\')adaFrage()">'+
+       '<div class="reihe" style="gap:4px;margin-top:4px"><button class="knopf s" onclick="adaFrage()">Fragen</button>'+
+       '<button class="knopf s hell" onclick="adaKeyWeg()">Schlüssel vergessen</button></div>'
+      :'<div style="font-size:10.5px;color:var(--tinte-2);margin-top:3px">Mit einem eigenen OpenRouter-Schlüssel beantworte ich freie Fragen – mein Wissen kommt direkt aus dem Hofbuch. Der Schlüssel bleibt nur bis zum Neuladen im Arbeitsspeicher und geht ausschließlich an OpenRouter. Live-Antworten liest die Browserstimme.</div>'+
+       '<input id="adaKeyFeld" type="password" placeholder="OpenRouter-Schlüssel (sk-or-…)" autocomplete="off">'+
+       '<input id="adaModellFeld" value="'+esc(_adaModell)+'" placeholder="Modell-Id (z. B. google/gemini-2.5-flash-lite)">'+
+       '<div class="reihe" style="margin-top:4px"><button class="knopf s" onclick="adaKeyMerken()">Ada verbinden</button></div>')+
+    '<div id="adaAntwort" style="margin-top:6px;font-size:12px;white-space:pre-line"></div></div>';
+}
+function adaKeyMerken(){
+  const k=((document.getElementById("adaKeyFeld")||{}).value||"").trim();
+  const m=((document.getElementById("adaModellFeld")||{}).value||"").trim();
+  if(!k){ melde("Bitte zuerst einen OpenRouter-Schlüssel eintragen.","schlecht"); return; }
+  _adaKey=k; if(m)_adaModell=m; adaExtraNeu();
+  const f=document.getElementById("adaFrageFeld"); if(f)f.focus();
+}
+function adaKeyWeg(){ _adaKey=""; adaExtraNeu(); }
+function adaWissen(){
+  let t="";
+  try{ t=hofbuchHtml().replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&[a-zA-Z#0-9]+;/g," ").replace(/\s+/g," "); }catch(e){}
+  return t.slice(0,30000);
+}
+async function adaFrage(){
+  const feld=document.getElementById("adaFrageFeld"), aus=document.getElementById("adaAntwort");
+  const frage=((feld||{}).value||"").trim();
+  if(!frage||_adaDenkt||!_adaKey||!aus) return;
+  _adaDenkt=true; aus.textContent="Ada denkt nach…";
+  try{
+    const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+_adaKey},
+      body:JSON.stringify({model:_adaModell,max_tokens:420,messages:[
+        {role:"system",content:"Du bist Ada, die herzliche Beraterin des Lern-Browserspiels LLM FARM. Du bist Anfang 30 und erklärst Technik einfach, treffend und geduldig – auf Deutsch, per Du, in zwei bis fünf kurzen Sätzen. Antworte NUR auf Basis des folgenden Regelwerks. Steht die Antwort dort nicht, sag ehrlich, dass du es nicht sicher weißt, und empfiehl das Hofbuch (Knopf oben rechts). REGELWERK: "+adaWissen()},
+        {role:"user",content:frage}]})});
+    const j=await r.json();
+    const antwort=(j&&j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||
+      ("Hm, da kam keine Antwort an"+(j&&j.error&&j.error.message?" ("+j.error.message+")":"")+" – stimmen Schlüssel und Modell-Id?");
+    aus.textContent=antwort;
+    if(feld) feld.value="";
+    if(adaAn()) adaTTSText(antwort,false);
+  }catch(e){
+    aus.textContent="Das hat nicht geklappt: "+((e&&e.message)||e)+" – bitte Schlüssel und Internetverbindung prüfen.";
+  }
+  _adaDenkt=false;
 }
 
 /* Eigenständige SVG-Objekte in der ursprünglichen Hof-Zeichenweise.
@@ -8745,7 +9084,9 @@ const RH_STUFEN=[
 ];
 const RH_WIND=[{kw:5,preis:750},{kw:20,preis:2400},{kw:50,preis:5500}];
 const RH_GEN=[{kw:15,preis:10000},{kw:45,preis:27000},{kw:120,preis:60000},{kw:240,preis:110000},{kw:400,preis:170000}];
-const RH_PC={basis:{gpu:"rtx4080",cpu:"Ryzen 7",ramGB:32,ssdTB:2,preis:2100},max:{gpu:"rtx5090",cpu:"Ryzen 9",ramGB:64,ssdTB:4,preis:5700}};
+/* Ära 7 (Haupt-Session): Start-PC ist jetzt der RTX-4090-Gebraucht-PC ("gebraucht"); als PC gelten alle drei Varianten. */
+const RH_PC={basis:{gpu:"rtx4080",cpu:"Ryzen 7",ramGB:32,ssdTB:2,preis:2100},gebraucht:{gpu:"rtx4090",cpu:"Ryzen 7",ramGB:32,ssdTB:2,preis:2800},max:{gpu:"rtx5090",cpu:"Ryzen 9",ramGB:64,ssdTB:4,preis:5700}};
+const RH_PC_GPUS=["rtx4080","rtx4090","rtx5090"];
 const RH_EVS={
  1:[{ab:1,kw:25,preis:2500,n:"Eine Leitung für die ersten Racks",txt:"25-kW-Anschluss für Rack 1–2."},
     {ab:3,kw:63,preis:4500,n:"Ein eigener Energiemix",txt:"Für Rack 3–5: 63 kW Anschluss und mindestens 3,6 kWp Solar ODER ein Windrad ODER 15 kW Kraftwerk."},
@@ -8771,7 +9112,7 @@ function rhMigration(s){
  // Vorhandene Anlagen werden als Bestandsanbau weiterbetrieben, nie verschenkt oder gelöscht.
  r.legacySolar=Math.max(0,(s.solar||0)*4);s.solar=0;
  bs.forEach((b,i)=>{b.rhSlot="bestand:"+i;b.cpu=b.cpu||"Bestands-CPU";b.ramGB=b.ramGB||s.ramGB||64;b.ssdTB=b.ssdTB||4;});
- if(bs.length===1&&bs[0].gpu==="rtx4080"&&bs[0].id==="b1"){
+ if(bs.length===1&&["rtx4080","rtx4090"].includes(bs[0].gpu)&&bs[0].id==="b1"){ /* Ära 7: Start-PC kann 4080 (alt) oder 4090 (neu) sein */
    Object.assign(bs[0],{rhSlot:"pc:0",cpu:"Ryzen 7",ramGB:32,ssdTB:2});
  }else if(bs.length){r.bestandHinweis=true;r.netzKW=Math.max(6,Math.ceil(bs.reduce((n,b)=>n+((GPUS[b.gpu]||{}).watt||1000)+180,0)*1.2/1000));}
  return r;
@@ -8951,7 +9292,7 @@ function rhInstall(kind,i,wahl="basis",node=0,lagerId=null){
  const slot=kind==="pc"?"pc:"+i:"rack:"+i+":"+node;
  if(S.buchten.some(b=>b.rhSlot===slot))return;
  let b,preis;
- if(lagerId){const old=r.lager.find(b=>b.id===lagerId);if(!old||kind!=="pc"||!["rtx4080","rtx5090"].includes(old.gpu))return;b={...old,rhSlot:slot};preis=0;}
+ if(lagerId){const old=r.lager.find(b=>b.id===lagerId);if(!old||kind!=="pc"||!RH_PC_GPUS.includes(old.gpu))return;b={...old,rhSlot:slot};preis=0;}
  else if(kind==="pc"){const p=RH_PC[wahl];if(!p)return;b={...p,rhSlot:slot,miete:false,tier:null};preis=p.preis;delete b.preis;}
  else{const g=GPUS[wahl];if(!g||g.tier<2)return;b={gpu:wahl,cpu:"Server-CPU",ramGB:256,ssdTB:8,rhSlot:slot,miete:false,tier:null};preis=Math.round(g.preis*gpupreisFaktor())+3500;}
  if(rhLast()+rhPeak(b)*rhCfg().pue>r.netzKW+1e-6){melde("Die zugesicherte Anschlussleistung reicht nicht für diesen Rechner. Erst den Anschluss ausbauen; Sonnen- und Windspitzen ersetzen keine gesicherte Leistung.","schlecht");return;}
@@ -8960,10 +9301,12 @@ function rhInstall(kind,i,wahl="basis",node=0,lagerId=null){
  S.buchten.push(b);if(lagerId)r.lager=r.lager.filter(x=>x.id!==lagerId);
  questHook("kauf_gpu",null);rhRefresh();
 }
-function rhPCUpgrade(id){const b=S.buchten.find(x=>x.id===id);if(!b||b.gpu!=="rtx4080"||!b.rhSlot.startsWith("pc:"))return;
+function rhPCUpgrade(id){const b=S.buchten.find(x=>x.id===id);if(!b||!["rtx4080","rtx4090"].includes(b.gpu)||!b.rhSlot.startsWith("pc:"))return;
  if(b.tier||S.tiere.some(t=>t.training&&t.training.bucht===id)){melde("Den PC vor dem Umbau im Stall freimachen.","schlecht");return;}
  const neu={...b,...RH_PC.max};if(rhLast()+(rhPeak(neu)-rhPeak(b))*rhCfg().pue>rh().netzKW)return;
- if(!rhSpend(3900,"PC-Aufrüstung: RTX 5090, Ryzen 9, 64 GB, 4 TB; Altteile in Zahlung"))return;Object.assign(b,neu);delete b.preis;rhRefresh();
+ /* Ära 7: 4090-Altteile sind mehr wert – Umbau darum günstiger als vom 4080-PC. */
+ const preis=b.gpu==="rtx4090"?3400:3900;
+ if(!rhSpend(preis,"PC-Aufrüstung: RTX 5090, Ryzen 9, 64 GB, 4 TB; Altteile in Zahlung"))return;Object.assign(b,neu);delete b.preis;rhRefresh();
 }
 function rhLagern(id){const b=S.buchten.find(x=>x.id===id);if(!b)return;
  if(b.tier||S.tiere.some(t=>t.training&&t.training.bucht===id)){melde("Erst das Modell im Stall herausnehmen.","schlecht");return;}
@@ -9013,8 +9356,8 @@ function rhPlatzDetails(){
  const {kind,i}=rhSelected,slot=kind+":"+i,b=S.buchten.find(b=>b.rhSlot===slot),why=rhSlotGrund(kind,i);
  let s='<h3>'+(kind==="pc"?'PC-Platz ':'Serverschrank ')+(i+1)+'</h3>';
  if(why&&(kind==="pc"?!b:!r.racks.includes(i)))return s+'<p class="rhWarn">'+esc(why)+'</p>'+rhBtn("Zum Ausbauplan","zeigeRechenhaus('ausbau')");
- if(kind==="pc"&&b)return s+rhHardwareDetails(b)+rhBtn("Modell zuweisen","buchtFuellen('"+b.id+"')",!!b.tier)+rhBtn("Im Stall öffnen","oeffne('stall')")+(b.gpu==="rtx4080"?rhBtn("Aufrüsten · 3.900 €","rhPCUpgrade('"+b.id+"')",rhCash()<3900):'')+rhBtn("Einlagern","rhLagern('"+b.id+"')",!!b.tier);
- if(kind==="pc")return s+'<p>Ein Rechner, eine GPU. Stromanschluss und freies Guthaben werden beim Einbau erneut geprüft.</p>'+Object.entries(RH_PC).map(([id,p])=>'<div class="rhAngebot"><b>'+GPUS[p.gpu].n+'</b><span>'+p.cpu+' · '+p.ramGB+' GB DDR5 · '+p.ssdTB+' TB NVMe</span>'+rhBtn("Einbauen · "+rhEuro(p.preis),"rhInstall('pc',"+i+",'"+id+"')",rhCash()<p.preis)+'</div>').join('')+r.lager.filter(b=>["rtx4080","rtx5090"].includes(b.gpu)).map(b=>rhBtn("Aus Lager: "+GPUS[b.gpu].n,"rhInstall('pc',"+i+",'basis',0,'"+b.id+"')")).join('');
+ if(kind==="pc"&&b)return s+rhHardwareDetails(b)+rhBtn("Modell zuweisen","buchtFuellen('"+b.id+"')",!!b.tier)+rhBtn("Im Stall öffnen","oeffne('stall')")+(["rtx4080","rtx4090"].includes(b.gpu)?rhBtn("Aufrüsten · "+(b.gpu==="rtx4090"?"3.400":"3.900")+" €","rhPCUpgrade('"+b.id+"')",rhCash()<(b.gpu==="rtx4090"?3400:3900)):'')+rhBtn("Einlagern","rhLagern('"+b.id+"')",!!b.tier);
+ if(kind==="pc")return s+'<p>Ein Rechner, eine GPU. Stromanschluss und freies Guthaben werden beim Einbau erneut geprüft.</p>'+Object.entries(RH_PC).map(([id,p])=>'<div class="rhAngebot"><b>'+GPUS[p.gpu].n+'</b><span>'+p.cpu+' · '+p.ramGB+' GB DDR5 · '+p.ssdTB+' TB NVMe</span>'+rhBtn("Einbauen · "+rhEuro(p.preis),"rhInstall('pc',"+i+",'"+id+"')",rhCash()<p.preis)+'</div>').join('')+r.lager.filter(b=>RH_PC_GPUS.includes(b.gpu)).map(b=>rhBtn("Aus Lager: "+GPUS[b.gpu].n,"rhInstall('pc',"+i+",'basis',0,'"+b.id+"')")).join('');
  if(!r.racks.includes(i))return s+'<p>Ein leerer Schrank kostet 1.800 €. Vier getrennte Serverknoten passen hinein. Erst eingebaute Knoten rechnen.</p>'+rhBtn("Schrank aufstellen · 1.800 €","rhInstall('rack',"+i+")",rhCash()<1800);
  return s+'<p>Vier Serverknoten, jeweils eigene GPU, 256 GB RAM und 8 TB NVMe. Kein automatisches Zusammenlegen von VRAM.</p>'+Array.from({length:4},(_,n)=>{const b=S.buchten.find(b=>b.rhSlot===slot+":"+n);return '<div class="rhNode"><b>Knoten '+(n+1)+'</b>'+(b?rhHardwareDetails(b)+rhBtn("Belegen","buchtFuellen('"+b.id+"')",!!b.tier)+rhBtn("Einlagern","rhLagern('"+b.id+"')",!!b.tier):'<label>GPU wählen <select id="rhGpu'+n+'">'+Object.entries(GPUS).filter(([id,g])=>g.tier>=2).map(([id,g])=>'<option value="'+id+'">'+g.n+' · '+rhEuro(g.preis*gpupreisFaktor()+3500)+'</option>').join('')+'</select></label>'+rhBtn("Serverknoten installieren","rhInstall('rack',"+i+",document.getElementById('rhGpu"+n+"').value,"+n+")"))+'</div>';}).join('');
 }
@@ -9027,7 +9370,7 @@ function rhRaum(){
  return '<div class="rhRaumLayout"><div><div class="rhGrundriss stufe'+r.stufe+'" style="background-image:url(\''+bild('rh_raum')+'\')">'+
  (c.pc?'<div class="rhPcGrid">'+Array.from({length:c.pc},(_,i)=>slot('pc',i)).join('')+'</div>':'')+
  (c.racks?'<div class="rhRackGrid '+(r.stufe===2?'gross':'')+'">'+Array.from({length:c.racks},(_,i)=>slot('rack',i)).join('')+'</div>':'')+'</div><p class="rhLegende">Draufsicht · '+c.pc+' PC-Plätze'+(c.racks?' · '+c.racks+' Schrankplätze':'')+' · Auswahl auch mit Tab und Enter</p></div><aside class="rhInspector" aria-live="polite">'+rhPlatzDetails()+'</aside></div>'+
- (r.lager.length?'<details class="rhInfo"><summary>Lager · '+r.lager.length+' Geräte bleiben dein Eigentum</summary>'+r.lager.map(b=>'<div>'+esc(GPUS[b.gpu].n)+' · '+b.ramGB+' GB RAM · '+b.ssdTB+' TB NVMe'+(!['rtx4080','rtx5090'].includes(b.gpu)?rhBtn('Server aus Lager einsetzen',"rhServerAusLager('"+b.id+"')"):'')+'</div>').join('')+'</details>':'')+
+ (r.lager.length?'<details class="rhInfo"><summary>Lager · '+r.lager.length+' Geräte bleiben dein Eigentum</summary>'+r.lager.map(b=>'<div>'+esc(GPUS[b.gpu].n)+' · '+b.ramGB+' GB RAM · '+b.ssdTB+' TB NVMe'+(!RH_PC_GPUS.includes(b.gpu)?rhBtn('Server aus Lager einsetzen',"rhServerAusLager('"+b.id+"')"):'')+'</div>').join('')+'</details>':'')+
  (S.buchten.some(b=>(b.rhSlot||'').startsWith('bestand:'))?'<details class="rhInfo"><summary>Bestandsanbau aus deinem bisherigen Spielstand</summary><p>Bestehende Geräte, Mieten und Modelle bleiben aktiv. Der Anbau belegt keine neuen Plätze, wird aber vollständig mit Strom versorgt. Neue Käufe unterliegen den neuen Grenzen.</p>'+S.buchten.filter(b=>b.rhSlot.startsWith('bestand:')).map(rhHardwareDetails).join('')+'</details>':'');
 }
 function rhServerAusLager(id){const r=rh(),b=r.lager.find(x=>x.id===id);if(!b||r.stufe===0)return;
@@ -9162,6 +9505,7 @@ Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstal
   rennParcoursWahl,rennWaehlen,rennenStarten,rennenSchliessen,forschen,solarKaufen,
   forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,stackKaufen,stackWechsel,einfSchwierig,schwierigSetzen,einfFuehrung,
   hofUmbenennen,standExport,standImport,neustart,willkommenFertig,kurieren,
+  adaMenue,adaPause,adaZu,adaStummToggle,adaSprich,adaFrage,adaKeyMerken,adaKeyWeg,
   tierArtWahl,eigenGenerieren,eigenUebernehmen,eigenFlipWechsel,figurStilWahl,onboardWahl,onboardEigen,zeigeTierwahl,
   einfWeiter,einfModell,einfSpezial,
   zeigeWurfKarte,marktLosKaufen,awWaehle,awLos,awStop});
@@ -9499,7 +9843,11 @@ function hlProfile(s=S){const teile={},nacht={},base=Array(24).fill(rhCfg(s).gru
  }
  return {teile,nacht,base,last:base.map((x,i)=>x+Object.values(teile).reduce((a,v)=>a+v[i],0)),modi:h.energie};
 }
-function hlVersorgung(p,a,nacht=false){if(p.api)return 1;const m=(a.modelle||{})[p.uid];if(!m)return 1;return nacht?(m.nachtLast?m.nachtGeliefert/m.nachtLast:1):(m.tagLast?m.tagGeliefert/m.tagLast:1);}
+function hlVersorgung(p,a,nacht=false){if(p.api)return 1;const m=(a.modelle||{})[p.uid];if(!m)return 1;
+ const q=nacht?(m.nachtLast?m.nachtGeliefert/m.nachtLast:1):(m.tagLast?m.tagGeliefert/m.tagLast:1);
+ /* Ära 7 (Haupt-Session): Float-Epsilon – volle Deckung ist exakt 1 (die 24 summierten Stunden
+    runden mit dem 450-W-Start-PC sonst auf 0.99999…, was fälschlich als Lücke zählen würde). */
+ return q>1-1e-9?1:q;}
 function zeigeEnergieplan(){const h=hlStand(),a=rhVorschau();blattAuf('⚡ Einsatz & Energie',hlNavigation()+hlBriefingHtml()+
  '<div class="karte hell"><h3>Eigenstrom dort einsetzen, wo er sich lohnt</h3><p><b>Automatisch:</b> Sonne, Wind und Akku zuerst, fehlenden Strom vom Netz/Kraftwerk beziehen. <b>Nur Eigenstrom:</b> Dieses Modell erhält erneuerbare Energie zuerst und pausiert bei Unterdeckung; das Netz wird dafür nicht belastet. Mehrere Eigenstrom-Modelle teilen sich den Ertrag in der angezeigten Reihenfolge. Grundlast und Standby bleiben automatisch versorgt.</p><p>Akkus starten leer, haben Ladeverluste und eine Leistungsgrenze. Nur Eigenstrom ist ohne genug Erzeugung oder Speicher riskant.</p></div>'+
  '<div class="hlTests"><div class="karte"><b class="hlZahl">'+rhN(a.direkt+a.entladung)+' kWh</b><p>Eigenenergie eingesetzt</p></div><div class="karte"><b class="hlZahl">'+rhN(a.netz+a.nachbar)+' kWh</b><p>Netz / Nachbar</p></div><div class="karte"><b class="hlZahl">'+rhEuro(a.kosten)+'</b><p>Energie gesamt · '+rhN(a.fehl)+' kWh fehlen</p></div></div>'+
