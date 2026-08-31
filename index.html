@@ -85,6 +85,21 @@ small{font-size:.82em}
 #rechenhausWelt i>svg,.rhMiniHof i>svg,.rhEnergieKarten i>svg,.rhAussen i>svg{width:100%;height:100%;display:block}
 .rhObj{width:100%;height:100%}
 .rhSchild{display:none}   /* Wiesen-Plakette „Rechenhaus/Stufe" ausgeblendet (User-Wunsch) – das Gebäude bleibt klickbar */
+/* Techtree & Skill-Trees (Forschungshütte) */
+.baumzeile{display:flex;flex-wrap:wrap;gap:8px}
+.baumkarte{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:4px;padding:9px 11px;border:3px solid var(--holz-4);border-radius:13px;background:#fffdf5;font-size:12px}
+.baumkarte.fertig{background:#eef7e4;border-color:#5aa348}
+.baumkarte.dim{opacity:.55}
+.baumpfad{font-size:10.5px;font-weight:800;color:var(--tinte-2)}
+.skillwege{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:start}
+@media(max-width:720px){.skillwege{grid-template-columns:1fr}}
+.skillkarte{display:flex;flex-direction:column;gap:4px;padding:9px 11px;margin-top:8px;border:3px solid var(--holz-4);border-radius:13px;background:#fffdf5;font-size:12px}
+.skillkarte.folge{margin-left:14px;position:relative}
+.skillkarte.folge::before{content:"";position:absolute;left:-11px;top:-12px;bottom:55%;width:8px;border-left:3px solid var(--holz-4);border-bottom:3px solid var(--holz-4);border-radius:0 0 0 8px}
+.skillkarte.fertig{background:#eef7e4;border-color:#5aa348}
+.skillkarte.dim{opacity:.6}
+.skilleff{font-weight:800}
+.skilllehre{font-size:10.5px;color:var(--tinte-2)}
 .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
 .chips::-webkit-scrollbar{display:none}
 .chip{display:flex;align-items:center;gap:5px;flex:0 0 auto;background:#2f1d0e;
@@ -583,6 +598,10 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
 .rhShop>article>img{float:right;width:80px;height:85px;object-fit:contain;margin:0 0 8px 9px}
 .rhHintergrundWahl{display:grid;grid-template-columns:1fr 1fr;gap:14px}.rhHintergrundWahl button{cursor:pointer;padding:8px;border:2px solid #b59569;border-radius:10px;background:#f9ebcb;color:#66472b;font:inherit}.rhHintergrundWahl button.aktiv{outline:3px solid #528775;outline-offset:2px}.rhHintergrundWahl span{display:block;aspect-ratio:16/9;overflow:hidden;border-radius:5px}.rhHintergrundWahl svg{display:block;width:100%;height:100%}.rhHintergrundWahl b{display:block;margin:8px 0 2px}
 @media(max-width:700px){.rhTabs button:last-child{flex-basis:100%}.rhHintergrundWahl{gap:10px}.rhHintergrundWahl b{font-size:11px}}
+
+/* Bestehende Hof-Illustrationen und warme Papieroptik bleiben erhalten. */
+.hlNav{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0 12px}.hlNav .knopf{min-height:42px}.hlKopf{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.hlKopf>b{color:#427439;white-space:nowrap;font-size:21px}.hlBausteine,.hlTests{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.hlTests{grid-template-columns:repeat(3,minmax(0,1fr))}.hlBausteine .karte{display:flex;flex-direction:column;gap:9px}.hlBausteine .knopf{margin-top:auto}.hlBesitz{box-shadow:inset 0 0 0 2px #6b934e}.hlIcon{font-size:30px}.hlZahl{display:block;font-size:25px;color:#426f47;line-height:1.3}.hlBriefing{border-left:5px solid #ca9c4c;background:#fff7df!important}.hlBriefing>.reihe{margin-top:10px}.hlBriefing .hlIcon{float:left;margin-right:12px}.hlStufen{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.hlStufen>span{flex:1;min-width:140px;background:#f2ead7;border:1px solid #dfcbaa;border-radius:10px;padding:9px;font-weight:700}.hlStufen small,.hlKandidat small,.hlVertrag small,.hlTabelle small{display:block;font-size:12px;font-weight:400;line-height:1.5;margin-top:4px}.hlKandidat{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 3px;border-bottom:1px solid #dacdb5}.hlKandidat>div{flex:1;min-width:0}.hlAusgewaehlt{background:#eaf2da;border-radius:10px;padding:12px;box-shadow:inset 0 0 0 2px #7f9f5d}.hlGut{color:#3b702f}.hlRot,.hlWarn{color:#9e412d}.hlWarn{padding-left:20px;line-height:1.6}.hlVertrag{display:grid;gap:6px;padding:12px 0;border-bottom:1px solid #dcc8a8}.hlVertrag progress{width:100%;height:12px;accent-color:#679252}.hlErfolge{background:#f1efd9!important}.hlErfolge .merk{margin:3px}.hlFelder{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.hlFelder label{flex:1;min-width:130px}.hlFelder label,.hlKandidat label,.hlNachtKarte label{display:grid;gap:5px;font-size:12px;font-weight:700}#blatt select,#blatt input{max-width:100%}.hlFelder input,.hlFelder select,.hlKandidat select,.hlNachtKarte select{box-sizing:border-box;padding:10px;border:1px solid #bba07d;border-radius:8px;background:#fffbf0;color:#4a2c15;min-height:44px;font:inherit;width:100%}.hlTabelle{overflow:auto;max-width:100%;margin-top:16px;border:1px solid #d6c5aa;border-radius:8px}.hlTabelle table{border-collapse:collapse;min-width:850px;width:100%;font-size:13px}.hlTabelle th,.hlTabelle td{padding:12px 10px;text-align:left;border-bottom:1px solid #dacbb4}.hlTabelle thead{background:#ede3c9}.hlTabelle th:first-child{position:sticky;left:0;background:#fff8e9;z-index:1;min-width:165px;max-width:230px}.hlTabelle td small{color:#8d806b}.hlZusagen{border:2px solid #789956!important}.hlHinweis{font-size:12px;color:var(--tinte-2);line-height:1.5}.hlNachtKopf{display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,#1e3446,#30485e);border-radius:16px;padding:22px;color:#fff1d5;margin-bottom:12px}.hlNachtKopf>span{font-size:65px;color:#ffe3a0}.hlNachtKopf h3{color:#ffe3a0!important;font-size:24px;margin:5px 0}.hlNachtKopf small{letter-spacing:1.4px;font-size:10px}.hlNachtKopf p{color:#c4d2dc!important}.hlNachtKarte{border-left:4px solid #687f9d!important}#hlLeiste{position:fixed;right:12px;top:118px;display:flex;gap:6px;z-index:16;max-width:calc(100vw - 24px)}#hlLeiste .knopf{font-size:11px;min-height:38px;padding:7px 10px;background:#fff3d7eF;box-shadow:0 3px 8px #4a2c1526}#nachtschatten{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(ellipse at 50% 20%,#294861ee,#0b1629f5);color:#fff1d2;padding:24px;text-align:center}#nachtschatten.auf{display:flex}#nachtschatten h3{color:#ffe2a0;font-size:26px}#nachtschatten p{color:#b6c9db;max-width:320px}.hlMondbahn{position:relative;width:min(320px,80vw);height:140px}.hlMondbahn>span{position:absolute;left:40%;font-size:68px;filter:drop-shadow(0 0 20px #f7d78c70);animation:hlMond 3.3s ease-in-out both}@keyframes hlMond{0%{transform:translate(-120px,45px) scale(.7);opacity:0}25%,75%{opacity:1}100%{transform:translate(120px,-35px) scale(1.05);opacity:0}}@media(max-width:600px){.hlBausteine{grid-template-columns:1fr}.hlTests{gap:6px}.hlTests .karte{padding:10px}.hlZahl{font-size:19px}.hlTests p{font-size:11px}.hlKandidat{align-items:flex-start;flex-wrap:wrap}.hlKandidat>div{flex-basis:65%}.hlKandidat>.knopf{flex-shrink:0}.hlKopf{flex-direction:column;gap:4px}.hlNachtKopf{padding:16px;gap:12px}.hlNachtKopf h3{font-size:20px}.hlNav{gap:6px}.hlNav .knopf{flex:1;font-size:11px}#hlLeiste{top:110px;right:8px;gap:4px}#hlLeiste .knopf{font-size:10px;padding:6px 8px}.hlTabelle th:first-child{min-width:130px;max-width:150px}}@media(prefers-reduced-motion:reduce){.hlMondbahn>span{animation:none}}
+.hlNav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:8px;min-width:0}.hlNav .knopf{flex:0 0 auto!important;white-space:nowrap;min-width:100px;word-break:normal;overflow-wrap:normal}.hlErfolge summary,.hlProjekt summary{cursor:pointer;font-weight:700;min-height:28px;line-height:1.5}.hlErfolge[open] summary,.hlProjekt[open] summary{margin-bottom:12px}.hlFelder input:focus,.hlFelder select:focus,.hlKandidat select:focus{outline:3px solid #d0a758;outline-offset:2px}
 
 </style>
 </head>
@@ -3449,6 +3468,68 @@ const LEVELS = [
     hinweis:"Man erzählt sich Geschichten über deinen Hof – von hier an zählt nur noch die Ehre." }
 ];
 
+/* ── Meisterschaften: drei Skill-Trees als dritte Progressionsebene ──
+   Meisterpunkte: genau 1 je erreichter Hofstufe (rückwirkend, keine versteckten Quellen).
+   Alle drei Bäume voll kosten 18 Punkte, erreichbar sind maximal 11 – wer alles will, muss wählen.
+   JEDER Skill dockt an eine echte Formel an (im Code auffindbar als skillAktiv("id")) und nennt
+   seine reale Entsprechung aus dem LLM-Betrieb. Capstones (2 P) nur auf dem gewählten Meisterweg. */
+const SKILLS = {
+  betreiber:{ n:"Betreiber", z:"🔧", motto:"Strom, Speicher, Tempo – wer den Maschinenraum meistert, senkt jede Rechnung.",
+    skills:[
+      { id:"servingprofi", n:"Serving-Profi", z:"👥", p:1,
+        eff:"Ohne Serving-Turbo bedient jede Karte 3 statt 2 Sitzungen gleichzeitig",
+        lehre:"Schon einfaches Request-Batching hebt den Durchsatz spürbar – Continuous Batching (vLLM) treibt es später auf die Spitze." },
+      { id:"spotstrom", n:"Spotmarkt-Wecker", z:"⏰", p:1,
+        eff:"Arbeitskosten lokaler Trainingsläufe −15 %",
+        lehre:"Börsenstrom schwankt täglich um ein Mehrfaches; Trainings in Solarmittag und Nacht zu legen ist gelebte Rechenzentrums-Praxis." },
+      { id:"kernels", n:"Kernel-Schmied", z:"⚙️", p:1, braucht:"servingprofi",
+        eff:"+10 % Token-Tempo auf allen eigenen Karten",
+        lehre:"FlashAttention und getunte CUDA-Kernels holen real zweistellige Prozente – Software schlägt oft den Hardware-Neukauf." },
+      { id:"speicherpfleger", n:"Speicher-Pfleger", z:"🧹", p:1, braucht:"spotstrom",
+        eff:"VRAM-Laufzeitreserve je Tier sinkt von 1,5 auf 1,0 GB",
+        lehre:"Paged-KV-Cache und saubere Allokation senken den Speicher-Overhead – genau dafür wurde vLLM erfunden." },
+      { id:"nachtschicht", n:"Nachtschicht-Vertrag", z:"🌙", p:2, capstone:true, braucht:"kernels",
+        eff:"Cloud-Trainings kosten −15 % Miete",
+        lehre:"Spot-/Preemptible-Instanzen sind oft 60–90 % billiger als On-Demand – wer Unterbrechungen einplant, trainiert fast zum halben Preis." }
+    ]},
+  trainer:{ n:"Trainer", z:"🎓", motto:"Bessere Daten, klügere Läufe – die Zuchtschule für nachhaltiges Lernen.",
+    skills:[
+      { id:"datenhygiene", n:"Datenhygiene", z:"🧼", p:1,
+        eff:"Risiko-Nachwirkung von schlechtem Futter: 1 statt 3 Tage Krankheitsgefahr",
+        lehre:"Deduplizieren und Filtern ist der halbe Trainingserfolg – Pipelines wie FineWeb existieren genau deshalb." },
+      { id:"fruehstopp", n:"Frühstopp", z:"🛑", p:1,
+        eff:"Übertraining-Risiko halbiert",
+        lehre:"Early Stopping auf dem Validierungsverlust ist die älteste Versicherung des Deep Learning." },
+      { id:"replaymeister", n:"Replay-Meister", z:"🔁", p:1, braucht:"datenhygiene",
+        eff:"Risiko von katastrophalem Vergessen halbiert",
+        lehre:"Alt-Daten beimischen (Replay/Rehearsal) ist das Standardrezept gegen das Vergessen beim Nachtrainieren." },
+      { id:"curriculum", n:"Curriculum-Plan", z:"📅", p:1, braucht:"fruehstopp",
+        eff:"Trainings ab 3 Tagen dauern einen Tag kürzer",
+        lehre:"Gutes Lernraten-Schema und geordnete Daten konvergieren messbar schneller – Zeit ist Strom und Geld." },
+      { id:"lehrmeister", n:"Lehrmeister", z:"🏫", p:2, capstone:true, braucht:"replaymeister",
+        eff:"Agenten-Welt: Zöglinge lernen +25 % schneller",
+        lehre:"Präzise Prüf-Rubriken und Belohnungsdesign beschleunigen RL-Lernen enorm – schlechte Rewards lehren das Falsche (RLVR-Prinzip)." }
+    ]},
+  haendler:{ n:"Händler", z:"🤝", motto:"Ruf, Preise, Beziehungen – der Dorfmeister verdient am Vertrauen.",
+    skills:[
+      { id:"feilschen", n:"Feilschen", z:"🪙", p:1,
+        eff:"Viehmarkt: alle Modell-Kaufpreise −5 %",
+        lehre:"Der KI-Markt ist ein Käufermarkt: H100-Mieten haben sich 2024–2026 mehr als halbiert – wer verhandelt, spart real." },
+      { id:"vertragskunst", n:"Vertragskunst", z:"📜", p:1,
+        eff:"Vertragsstrafen bei gescheiterten Aufträgen −30 %",
+        lehre:"Saubere SLAs mit Haftungsdeckel sind im KI-Dienstleistungsgeschäft überlebenswichtig." },
+      { id:"werbetafel", n:"Werbetafel", z:"📢", p:1, braucht:"feilschen",
+        eff:"Jeden Morgen hängt 1 Zettel mehr an der Pinnwand",
+        lehre:"Sichtbarkeit erzeugt Nachfrage – ohne Pipeline an Anfragen hilft das beste Modell nichts." },
+      { id:"stammkunden", n:"Stammkundenpflege", z:"💌", p:1, braucht:"vertragskunst",
+        eff:"Stammkunden-Aufschlag (+10 % Lohn) schon ab 4★ Hof-Ruf; Event-Ruf verblasst langsamer",
+        lehre:"Bestandskunden sind um ein Mehrfaches günstiger als Neukunden – Beziehungspflege ist Marge." },
+      { id:"dorfliebling", n:"Dorfliebling", z:"💖", p:2, capstone:true, braucht:"werbetafel",
+        eff:"Vergrätzte Kunden kommen nach 1 statt 3 Tagen zurück und geben leichter eine zweite Chance",
+        lehre:"Reputation ist Kapital: Ein gut behandelter Reklamationsfall macht Kunden nachweislich treuer als nie ein Problem." }
+    ]}
+};
+
 const QUESTS = [
   { id:"q01", t:"Kauf dein erstes Ferkel", hilfe:"Öffne den Viehmarkt und hole ein kleines Tier-0-Modell in den Stall.",
     pr:80, xp:30, check:"kauf_modell" },
@@ -4397,6 +4478,7 @@ function krankRisiken(p){
   let u=0;
   if(letzte3>=2) u+=0.35;
   if((p.historie||[]).some(x=>x.delta&&x.tag===S.tag-1)&&p.zustand<55) u+=0.2;
+  if(skillAktiv("fruehstopp")) u*=0.5;                  /* Skill: Early Stopping auf dem Validierungsverlust */
   if(u>0) r.push({id:"uebertrainiert",p:u});
   /* Schleifenfieber */
   let s=0;
@@ -4498,7 +4580,7 @@ function endlich(n,ersatz){ return Number.isFinite(n)?n:(ersatz??0); }
 
 /* Strompreis €/kWh (Basis DE 2026, Netzbezug; Solar wird im Tagesabschluss als Erzeugung verrechnet, nicht als Preisrabatt) */
 function strompreis(){
-  let p=0.30;
+  let p=0.48*hlStromFaktor(); // Spieltarif, kein realer Stromvertrag
   aktiveEffekte("strompreis").forEach(e=>p*=Math.max(0.1,1+e.wert));   // effekt.wert ist relativ: +0.5 → ×1.5
   return endlich(Math.max(0.06,p),0.30);
 }
@@ -4533,8 +4615,9 @@ function kannZahlen(preis){
 let S=null;
 
 function frischerStand(){
-  return {
+  const stand={
     v:4, tag:1, kredit:2500, ruf:0, xp:0, hofname:"LLM FARM", co2:0,
+    skills:{}, meisterweg:null,
     tierArt:"schwein", figurStil:"bild", einfFertig:false, spezial:null,
     eigenBild:null, eigenPosen:null, eigenFlip:false, eigenSatt:null,
     daten:{webmix:40, beispiele:10}, synthQ:0.8, synthGen:0,
@@ -4550,17 +4633,19 @@ function frischerStand(){
     journal:[], kunden:{}, tagMs:0, marktLos:null, marktStempel:0,
     agentenWelt:null, ramGB:32, synthChargen:[], modus:"lern", rechenhaus:rhNeu()
   };
+  hlStand(stand);return stand;
 }
 /* Fehlende Felder alter Stände auffüllen + Zahlen härten (Migration ohne Datenverlust) */
 function standAuffuellen(o){
   const f=frischerStand();
-  for(const k in f) if(k!=="rechenhaus"&&o[k]===undefined) o[k]=f[k];
+  for(const k in f) if(k!=="rechenhaus"&&k!=="hofloop"&&o[k]===undefined) o[k]=f[k];
   o.kredit=endlich(o.kredit,0); o.xp=endlich(o.xp,0); o.ruf=endlich(o.ruf,0); o.co2=endlich(o.co2,0);
   for(const k in (o.daten||{})) o.daten[k]=Math.max(0,endlich(o.daten[k],0));
   for(const k in (o.statistik||{})) o.statistik[k]=endlich(o.statistik[k],0);
   (o.tiere||[]).forEach(t=>{ t.xp=endlich(t.xp,0); t.zustand=endlich(t.zustand,100);
     for(const k in (t.w||{})) t.w[k]=endlich(t.w[k],40); });
   rhMigration(o);
+  hlStand(o);
   return o;
 }
 function standGueltig(o){
@@ -4641,10 +4726,11 @@ function vramPig(p){
   if(archVon(p)==="hrm") return 0.5;                    // Winzlinge: passt überall
   const bpw=quantVon(p.quant).bpw;
   const gewichte=p.pT*bpw/8;
-  return Math.round((gewichte+ctxCacheGB(p)+1.5)*10)/10;
+  const reserve=(typeof skillAktiv==="function"&&skillAktiv("speicherpfleger"))?1.0:1.5;   /* Skill: Paged-KV-Cache senkt den Overhead */
+  return Math.round((gewichte+ctxCacheGB(p)+reserve)*10)/10;
 }
 function vramTeile(p){ const bpw=quantVon(p.quant).bpw;
-  return {gewichte:Math.round(p.pT*bpw/8*10)/10, cache:ctxCacheGB(p), reserve:1.5}; }
+  return {gewichte:Math.round(p.pT*bpw/8*10)/10, cache:ctxCacheGB(p), reserve:(typeof skillAktiv==="function"&&skillAktiv("speicherpfleger"))?1.0:1.5}; }
 
 /* Bucht & GPU eines Schweins */
 function buchtVon(p){ return p&&p.bucht?S.buchten.find(b=>b.id===p.bucht):null; }
@@ -4683,6 +4769,7 @@ function tokps(p){
     t*=1/(1+7*ramAnteil);
   }
   if(p.setups.includes("spek")){ const d=spekPartner(p); if(d) t*=1.9; }  // OHNE kompatibles Draft-Modell kein Turbo (MH-025); Familien-Tokenizer = Spielannahme
+  if(typeof skillAktiv==="function"&&skillAktiv("kernels")) t*=1.10;                     /* Skill: FlashAttention & getunte Kernels */
   return Math.max(0.4,Math.round(t*10)/10);
 }
 
@@ -4711,7 +4798,7 @@ function nutzerKapazitaet(p){
   if(p.api) return Infinity;
   if(!p.bucht||archVon(p)==="hrm") return 0;
   const roh=Math.floor(tokps(p)/TOK_JE_NUTZER);
-  return forschungFrei("vllm")?roh:Math.min(2,roh);
+  return forschungFrei("vllm")?roh:Math.min((typeof skillAktiv==="function"&&skillAktiv("servingprofi"))?3:2,roh);   /* Skill: einfaches Request-Batching */
 }
 function nutzerSchaetzungKatalog(m){
   const gs=(S.buchten||[]).map(b=>GPUS[b.gpu]); if(!gs.length) return 0;
@@ -4754,7 +4841,7 @@ function effW(p,opt={}){
   /* LoRA-Adapter */
   (p.adapters||[]).forEach(a=>{ for(const k in a.w) w[k]=(w[k]||40)+a.w[k]; });
   /* Setup-Bausteine */
-  (p.setups||[]).forEach(id=>{ const s=SETUPS[id]; if(s&&s.mod) for(const k in s.mod) w[k]=(w[k]||40)+s.mod[k]; });
+  (p.setups||[]).forEach(id=>{ const mod=hlSetupMod(id); for(const k in mod) w[k]=(w[k]||40)+mod[k]; });
   /* Krankheit */
   if(p.krank&&KRANKHEITEN[p.krank]){ const kw=KRANKHEITEN[p.krank].wirkung; for(const k in kw) w[k]=(w[k]||40)+kw[k]; }
   /* Sitzungs-/Cache-Zustand (KEINE Modellermüdung: Gewichte bleiben unverändert, MH-039) */
@@ -4796,7 +4883,7 @@ function agentScore(p){
 }
 
 /* Job-Eignung – inkl. Bauform, Eigenheiten, RAG-Passung und Hof-Betriebsschicht */
-function jobCheck(p,j){
+function jobCheckBasis(p,j){
   const w=effW(p), gruende=[], boni=[];
   let quote=[], ok=true;
   const wissensArt=["wissen","support","recht","medizin"].includes(j.art);
@@ -4845,7 +4932,7 @@ function jobCheck(p,j){
   const min=quote.length?Math.min(...quote):1;
   let erfolg=kl(46+min*34+((w.treue||50)-50)*0.25+(j.agent?((agentScore(p)-55)*0.2):0),4,97);
   /* RAG wirkt aufgabenabhängig: stark bei Wissen, kaum bei Code/Logik */
-  if(p.setups.includes("rag")){
+  if(p.setups.includes("rag")&&hlRagBereit()){
     if(wissensArt){
       let plus=forschungFrei("secondbrain")?11:7;
       if(quirkHat(p,"grounding")) plus+=4;
@@ -4884,6 +4971,7 @@ function jobCheck(p,j){
    bezahlt wird pro AKZEPTIERTER Arbeitseinheit, nicht pro erzeugtem Token. ─ */
 function jobEinheiten(j){ return Math.max(1,Math.round(j.einheiten||j.tage*3)); }
 function jobLohnGesamt(j){
+  if(Number.isFinite(j.vereinbart)) return j.vereinbart;
   const basis=j.lohnBasis||Math.round(j.preisMtok*j.mtokTag*j.tage);   // Alt-Aufträge: Token-Näherung als Übergang
   return Math.round(basis*nachfrageFaktor());
 }
@@ -4954,6 +5042,35 @@ function forschungFrei(key){
 }
 function setupSlots(p){ return 2+(istFrei("slot3")?1:0)+(istFrei("slot4")?1:0); }
 
+/* ── Meisterschaften (Skill-Trees): dritte Progressionsebene neben Stufen und Forschung ──
+   Meisterpunkte: genau 1 je erreichter Hofstufe – rückwirkend aus hofLevel().i berechnet,
+   dadurch automatisch migrationssicher für alte Spielstände. Jede Wirkung steht als
+   skillAktiv("id") direkt in der betroffenen Formel. */
+function skillDef(id){ for(const w of Object.values(SKILLS)){ const s=w.skills.find(x=>x.id===id); if(s) return s; } return null; }
+function skillAktiv(id){ return !!(S&&S.skills&&S.skills[id]); }
+function skillAusgegeben(){ let n=0; for(const id in (S.skills||{})){ const d=skillDef(id); if(d&&S.skills[id]) n+=d.p; } return n; }
+function skillPunkteGesamt(){ return Math.max(0,hofLevel().i-1); }   /* Stufe 1 = 0 Punkte, jede weitere Stufe +1 */
+function skillPunkteFrei(){ return Math.max(0,skillPunkteGesamt()-skillAusgegeben()); }
+function skillKaufen(weg,id){
+  S.skills=S.skills||{};
+  const w=SKILLS[weg], d=skillDef(id);
+  if(!w||!d||S.skills[id]||!w.skills.some(x=>x.id===id)) return;
+  if(d.capstone&&S.meisterweg!==weg){ melde("Die Meister-Fertigkeit gibt es nur auf deinem gewählten Meisterweg!","schlecht"); return; }
+  if(d.braucht&&!S.skills[d.braucht]){ melde("Erst „"+skillDef(d.braucht).n+"“ lernen!","schlecht"); return; }
+  if(skillPunkteFrei()<d.p){ melde("Nicht genug Meisterpunkte – jede neue Hofstufe bringt einen.","schlecht"); return; }
+  S.skills[id]=true;
+  melde(d.z+" „"+d.n+"“ gemeistert – wirkt ab sofort: "+d.eff,"gut");
+  sichern(); kopfNeu(); zeigeForschung();
+}
+function meisterwegWaehlen(weg){
+  if(S.meisterweg||!SKILLS[weg]) return;
+  if(hofLevel().i<3){ melde("Der Meisterweg öffnet ab Hofstufe 3.","schlecht"); return; }
+  if(!confirm("Meisterweg „"+SKILLS[weg].n+"“ einschlagen? Die Wahl ist endgültig – nur auf diesem Weg ist später die Meister-Fertigkeit (2⭐) lernbar. Die Grundfertigkeiten aller Wege bleiben frei wählbar.")) return;
+  S.meisterweg=weg;
+  melde(SKILLS[weg].z+" Meisterweg „"+SKILLS[weg].n+"“ eingeschlagen!","gut");
+  sichern(); zeigeForschung();
+}
+
 function xpDazu(n){
   S.xp=Math.max(0,(S.xp||0)+Math.round(n));
   questPruefe();
@@ -5006,6 +5123,7 @@ function questPruefe(){
   if(l.i>(S.levelGemeldet||1)){
     S.levelGemeldet=l.i;
     melde("Hofstufe "+l.i+": "+l.aktuell.n+" – "+l.aktuell.hinweis,"gut");
+    melde("⭐ +1 Meisterpunkt! Ausgeben in der Forschungshütte unter „Meisterschaften“.","gut");
     dockNeu();
   }
   zieleNeu(); kopfNeu(); sichern();
@@ -5020,7 +5138,8 @@ function trainingsVramNoetig(p,t){ return Math.max(4,Math.round(p.pT*t.vramTrain
 function trainingsDauer(p,t,gpu){
   const stunden=t.gpuStdProB*p.pT;
   const speed=gpu?gpu.bw/3350:1;                       // relativ zu H100
-  return Math.max(1,Math.ceil(stunden/(22*Math.max(0.08,speed))));
+  const tage=Math.max(1,Math.ceil(stunden/(22*Math.max(0.08,speed))));
+  return tage>=3&&skillAktiv("curriculum")?tage-1:tage;   /* Skill: Curriculum & LR-Schedule konvergieren schneller */
 }
 /* Cloud-Training ist ein KONKRETES Mehr-GPU-Profil, kein Zauberrechner (MH-006):
    8×H100 mit FSDP-Sharding – Gesamtspeicher zählt nur, weil das Verfahren ihn verteilen kann. */
@@ -5028,8 +5147,8 @@ const CLOUD_PROFIL={n:"Wolkenstall (8×H100, FSDP-Sharding)", geraete:8, vramJe:
 function trainingsKosten(p,t,futterId,cloud){
   const gb=Math.max(2,Math.round(t.gbFaktor*p.pT));           // benötigte Datenmenge – bleibt im Lager erhalten! (MH-026)
   const stunden=t.gpuStdProB*p.pT;                            // GPU-Stunden gesamt
-  const arbeit=Math.round(gb*1.2+12);                          // Datenaufbereitung/Läufe – DAS ist der Verbrauch, nicht die Beispiele
-  const miete=cloud?Math.round(stunden*CLOUD_PROFIL.preisStdGpu*0.92):0;   // GPU-Stunden × Mietpreis
+  const arbeit=Math.round((gb*1.2+12)*(skillAktiv("spotstrom")?0.85:1));    // Datenaufbereitung/Läufe – DAS ist der Verbrauch, nicht die Beispiele (Skill: Billigstunden)
+  const miete=cloud?Math.round(stunden*CLOUD_PROFIL.preisStdGpu*0.92*(skillAktiv("nachtschicht")?0.85:1)):0;   // GPU-Stunden × Mietpreis (Skill: Spot-Instanzen)
   const stromKwhSchaetz=cloud?0:Math.round(stunden*0.7);       // nur VORSCHAU – abgerechnet wird täglich nach echter GPU (MH-008)
   return {gb, stunden:Math.round(stunden), arbeit, miete, stromKwhSchaetz,
     strom:Math.round(stromKwhSchaetz*strompreis()), gesamt:arbeit+miete};
@@ -5108,14 +5227,14 @@ function trainingAbschliessen(p,bericht){
   p.status="frei"; p.rest=0;
   if(!t){ p.training=null; return; }
   /* ── LoRA/QLoRA: Adapter-Pfad läuft durch DENSELBEN Abschluss inkl. Risiken (MH-034) ── */
-  if(q.adapter){ adapterAbschliessen(p,bericht,q,t); return; }
+  if(q.adapter||q.id==="lora"||q.id==="qlora"){ adapterAbschliessen(p,bericht,q,t); return; }
   const vorher={...p.w};
   const f=FUTTER[q.futter]||{q:0.6};
   let qual=q.futter==="synth"?synthQualitaet():f.q;
   qual*=futterRelevanz(q.fokus||"logik",q.futter);                       // Domänen-Passung (MH-027)
   const nutz=datenNutzungZaehle(p,q.futter);
   if(nutz>1) qual*=Math.pow(0.6,nutz-1);                                  // Wiederholung sättigt (MH-033)
-  if((f.q||0.6)<0.55||q.futter==="bench_leak") p.schlechtFutterTage=3;    // dreckiges Futter erhöht das Halluzinose-Risiko (belebt das tote Feld)
+  if((f.q||0.6)<0.55||q.futter==="bench_leak") p.schlechtFutterTage=skillAktiv("datenhygiene")?1:3;    // dreckiges Futter erhöht das Halluzinose-Risiko (Skill: Dedup & Filter fangen das meiste ab)
   /* Synthetik-Inzucht: zählt die HERKUNFT der Daten, nicht bloß Wiederholung */
   if(q.futter==="synth"){ p.synthGen=Math.max(p.synthGen+1,synthGeneration()); qual*=Math.pow(0.82,Math.max(0,p.synthGen-1)); }
   const streu=()=>z(0.75,1.2);
@@ -5170,6 +5289,7 @@ function trainingAbschliessen(p,bericht){
   const r=t.risiko||{};
   let vergessenP=r.vergessen||0;
   if(q.id==="cpt"&&q.replay) vergessenP=0.06;
+  if(skillAktiv("replaymeister")) vergessenP*=0.5;      /* Skill: Replay-Mix gegen katastrophales Vergessen */
   if(Math.random()<vergessenP){
     const andere=Object.keys(WERTE).filter(k=>k!==q.fokus);
     const k=zufall(andere); const minus=z(6,13);
@@ -5347,14 +5467,17 @@ function kundeBewerten(j,erg,bericht){
   } else {
     k.sterne=kl(Math.round((k.sterne*2+st)/3),1,5);          // laufende Erfahrung fließt gedämpft ein
   }
-  if(erg.fail&&!(K.geduld+(k.sterne||3)>=4)) k.groll=3;       // vergrätzt: 3 Tage keine Zettel
+  if(erg.fail&&!(K.geduld+(k.sterne||3)>=4)) k.groll=skillAktiv("dorfliebling")?1:3;       // vergrätzt: 3 Tage keine Zettel (Skill: gute Reklamationskultur)
   if(k.sterne>=5) questHook("kunde_5sterne",null);
   rufNeuBerechnen();
 }
 
-function tagBeenden(){
+function ausfuehrenTagesWechsel(){
   const bericht={zeilen:[],einnahmen:0,ausgaben:0,kwh:0};
-  const rechenTag=rhTagesStart(),rechenPause=rechenTag.fehl>0.001;
+  const bilanzStart={ein:S.statistik.einnahmen,aus:S.statistik.ausgaben};
+  const rechenTag=rhTagesStart(),rechenPause=false;
+  const pausiert=p=>!p.api&&hlVersorgung(p,rechenTag)<0.98;
+  hlTeamsTag(rechenTag,bericht);
   S.tagMs=0; S._tagFaellig=false;
   /* ══ 0) ERST die geleistete Arbeit des Tages erfassen – Energie & Segmente nach dem Status,
         der HEUTE galt. Freigaben kommen später (MH-007/008/011, T08/T12). ══ */
@@ -5373,8 +5496,8 @@ function tagBeenden(){
   /* Tages-Segment je laufendem Job EINFRIEREN: die heutige Konfiguration zählt für heute – für immer */
   S.tiere.forEach(p=>{
     if(p.status==="job"){
-      if(rechenPause&&!p.api)return;
-      const j=S.jobs.find(x=>x.id===p.job); if(!j) return;
+      if(pausiert(p))return;
+      const j=S.jobs.find(x=>x.id===p.job); if(!j||j.team) return;
       const c=jobCheck(p,j);
       j.seg=j.seg||{tage:0,anteil:0,erfolg:0};
       j.seg.tage++; j.seg.anteil+=c.anteil; j.seg.erfolg+=c.erfolg;
@@ -5382,9 +5505,11 @@ function tagBeenden(){
   });
   /* ══ 1) Jobs/Training/Zucht auflösen ══ */
   S.tiere.forEach(p=>{
-    if(rechenPause&&!p.api&&["job","training","zucht"].includes(p.status))return;
+    if(pausiert(p)&&["job","training","zucht","agentenwelt"].includes(p.status))return;
+    if(p.training&&p.training.nurNacht) return;
     if(p.status==="job"){
       const j=S.jobs.find(x=>x.id===p.job);
+      if(j&&j.team) return;
       if(!j){ p.status="frei"; p.job=null; return; }
       p.sitzung=p.sitzung||{tokens:0,notizen:[],wechsel:0};
       p.sitzung.tokens=Math.min((p.ctx||32)*1000,p.sitzung.tokens+Math.max(1000,(j.ctxMin||2)*1000));
@@ -5399,16 +5524,17 @@ function tagBeenden(){
         let erfolgsWert=j.seg?j.seg.erfolg/segT:jobCheck(p,j).erfolg;
         if(p.api&&aktiveEffekte("ausfall").length){ erfolgsWert-=22; bericht.zeilen.push({t:"Cloud-Störung traf "+p.name+" mitten im Auftrag – lokale Schweine hätten weitergegrunzt.",art:"schlecht"}); }
         const qualOk=Math.random()*100<erfolgsWert;
+        hlQualitaet(j,qualOk&&anteil>=0.95,bericht);
         const abgenommen=kl(anteil*(qualOk?1:0.55),0,1);       // Reklamation: fast die Hälfte der Stücke fällt durch
         const K=(typeof KUNDEN!=="undefined")?KUNDEN[j.kunde]:null;
         if(abgenommen<0.35){
           /* GESCHEITERT: Aufgabe war eine Nummer zu groß – kostet Strafe, Strom ist ohnehin verbraucht (N2) */
-          const strafe=Math.round(jobLohnGesamt(j)*(j.zweiteChance?0.08:0.15));
+          const strafe=Math.round(jobLohnGesamt(j)*(j.zweiteChance?0.08:0.15)*(skillAktiv("vertragskunst")?0.7:1));   /* Skill: SLA-Haftungsdeckel */
           buche(-strafe,"strafe","Vertragsstrafe: "+j.t);
           bericht.zeilen.push({t:"❌ "+j.t+" GESCHEITERT – "+p.name+" war der Aufgabe nicht gewachsen. Vertragsstrafe "+geld(strafe)+".",art:"schlecht"});
           kundeBewerten(j,{fail:true,anteil:abgenommen},bericht);
           const k2=j.kunde?kundeVon(j.kunde):null;
-          if(!j.zweiteChance&&K&&k2&&(K.geduld+(k2.sterne||3)>=4)){
+          if(!j.zweiteChance&&K&&k2&&(K.geduld+(k2.sterne||3)>=(skillAktiv("dorfliebling")?3:4))){   /* Skill: Reputation ist Kapital */
             const wieder={...j,id:"j"+(S.zaehler++),frisch:S.tag,zweiteChance:true,seg:null};   // Zähler-ID: eindeutig & reproduzierbar (Fund #12)
             S.jobs.push(wieder);
             bericht.zeilen.push({t:"🔁 "+K.z+" "+K.n+" gibt euch eine zweite Chance – der Zettel hängt wieder an der Pinnwand (halbe Strafe beim nächsten Patzer).",art:"info"});
@@ -5591,7 +5717,7 @@ function tagBeenden(){
       if(k.sterne>=5) questHook("kunde_5sterne",null);
     }
   });
-  S.rufBonus=Math.round(((S.rufBonus||0)*0.9)*10)/10;          // Event-Effekte verblassen; die Kundenbasis bleibt
+  S.rufBonus=Math.round(((S.rufBonus||0)*(skillAktiv("stammkunden")?0.95:0.9))*10)/10;          // Event-Effekte verblassen; die Kundenbasis bleibt (Skill: Beziehungspflege)
   rufNeuBerechnen();
   /* 6) Pinnwand-Nachschub & Markt – alte Zettel verfallen nach 3 Tagen */
   S.jobs=S.jobs.filter(j=>S.tiere.some(p=>p.job===j.id)||(S.tag-(j.frisch||S.tag))<3);
@@ -5604,7 +5730,7 @@ function tagBeenden(){
   /* Die Wand garantiert VIELFALT: Slot 1 klein & machbar, Slot 2 Streckziel, Rest bunt –
      so hängt nie nur Unerreichbares (Balance-Befund aus dem Referenzlauf) */
   const offenZahl=()=>S.jobs.filter(j=>!S.tiere.some(p=>p.job===j.id)).length;
-  const fensterMax=kl(Math.floor(hofLevel().i/2)+(rufSterne()>=4.5?1:0),0,5);
+  const fensterMax=kl(Math.floor(hofLevel().i/2)+(rufSterne()>=4.5?1:0)+(skillAktiv("werbetafel")?1:0),0,6);   /* Skill: Sichtbarkeit erzeugt Nachfrage */
   while(offenZahl()<ziel2&&schutz++<20){
     const n=offenZahl();
     const wunsch=notlage?(n%2):(n===0?Math.max(0,fensterMax-2):n===1?fensterMax:undefined);   // Notlage: Wand voll T0/T1
@@ -5617,7 +5743,11 @@ function tagBeenden(){
   if(S.tag-S.cloudAngebot.tag>=3) cloudRotieren();
   marktLosNeu();                                                // frisches Marktlos zum Morgen (N4)
   /* 7) Tag++ */
+  hlNachtAbrechnen(rechenTag,bericht);
   S.tag++;
+  hlMorgen(bericht);
+  bericht.einnahmen=rhR(S.statistik.einnahmen-bilanzStart.ein);
+  bericht.ausgaben=rhR(S.statistik.ausgaben-bilanzStart.aus);
   questHook("tage",S.tag);
   S.letzterBericht=bericht;
   alles(); sichern(); backupSichern();                          // letzte gültige Sicherung fortschreiben (MH-059)
@@ -5625,6 +5755,7 @@ function tagBeenden(){
 }
 
 function jobNeu(wunschTier){
+  const neu=hlJobNeu(wunschTier); if(neu) return neu;
   const lvl=hofLevel().i;
   const sterne=rufSterne();
   /* Stufen-Fenster: Hofstufe öffnet, RUF verschiebt es – guter Ruf bringt größere Zettel, schlechter kleinere (N2) */
@@ -5647,7 +5778,7 @@ function jobNeu(wunschTier){
   j.frisch=S.tag;
   j.preisMtok=Math.round(j.preisMtok*z(0.85,1.25));
   j.mtokTag=Math.max(0.01,Math.round(j.mtokTag*z(0.8,1.3)*1000)/1000);   // Promille-genau: 0,03 Mtok darf nicht zu 0 runden (Fund #11)
-  if(j.lohnBasis) j.lohnBasis=Math.round(j.lohnBasis*z(1.05,1.35)*(sterne>=4.5?1.1:1));   // Balance-Kur: Dorfpreise tragen den Betrieb; Stammkunden-Aufschlag ab 4,5⭐
+  if(j.lohnBasis) j.lohnBasis=Math.round(j.lohnBasis*z(1.05,1.35)*(sterne>=(skillAktiv("stammkunden")?4:4.5)?1.1:1));   // Balance-Kur: Dorfpreise tragen den Betrieb; Stammkunden-Aufschlag ab 4,5⭐ (Skill: schon ab 4⭐)
   j.stufe=j.tier;
   if(j.parallel) j.nutzerMin=Math.max(2,Math.ceil(j.mtokTag/MTOK_JE_NUTZER_TAG));   // Andrang: so viele Nutzer klopfen GLEICHZEITIG an (N7)
   return j;
@@ -5786,7 +5917,7 @@ function agentenWeltTag(bericht){
   /* Sättigungskurve: Ziel hängt von Modellgröße, Geschirr-Passung und Lehrerqualität ab (Spielannahme) */
   const ziel=kl(38+p.pT*0.9+geschirrEignung(p,aw.geschirr)*0.28+lehrerQ*14,45,93);
   const w=p.w.werkzeug||40;
-  const plus=Math.max(0,Math.round((ziel-w)*0.16*lehrerQ*10)/10);
+  const plus=Math.max(0,Math.round((ziel-w)*0.16*lehrerQ*(skillAktiv("lehrmeister")?1.25:1)*10)/10);   /* Skill: gutes Belohnungsdesign lehrt schneller */
   if(plus>0){ p.w.werkzeug=kl(p.w.werkzeug+plus,2,99); aw.gesamt=Math.round(((aw.gesamt||0)+plus)*10)/10; }
   if(Math.random()<0.5){ p.w.treue=kl(p.w.treue+0.5,2,99); }
   aw.tage++;
@@ -5912,6 +6043,7 @@ function uhrAnzeige(){
   if(bal) bal.style.width=(frac*100).toFixed(1)+"%";
 }
 function uhrTick(){
+  if(S&&hlStand().phase!=="tag"){_uhrLetzte=Date.now();return;}
   if(!S) return;
   const jetzt=Date.now();
   const dt=Math.min(2500,jetzt-_uhrLetzte); _uhrLetzte=jetzt;
@@ -6220,7 +6352,7 @@ function zielModusAn(hid){
 }
 function zielModusAus(){ zielGeschirr=null; document.getElementById("zielmodus").classList.remove("auf"); schilderNeu(); }
 
-function alles(){ kopfNeu(); dockNeu(); zieleNeu(); wieseNeu(); tickerNeu(); rhAussenNeu(); }
+function alles(){ kopfNeu(); dockNeu(); zieleNeu(); wieseNeu(); tickerNeu(); rhAussenNeu(); hlLeiste(); }
 
 function oeffne(was,arg){
   const f={rechenhaus:()=>zeigeRechenhaus(),stall:zeigeStall,futter:zeigeFutter,training:()=>zeigeTraining(arg),zucht:zeigeZucht,
@@ -6531,6 +6663,7 @@ function denkenUm(uid){
   sichern(); zeigeTier(uid); wieseNeu();
 }
 function setupUm(uid,id){
+  if(id==="rag"&&!hlRagBereit()){zeigeWissenswerkstatt();return;}
   const p=S.tiere.find(t=>t.uid===uid), s=SETUPS[id];
   if(!p||!s) return;
   if(p.status!=="frei"){ melde("Gerade beschäftigt","schlecht"); return; }
@@ -6879,14 +7012,15 @@ function adapterAbschliessen(p,bericht,q,t){
     basisFam:p.fam, basisPT:p.pT,
     basisName:(p.modell&&MODELLE[p.modell]?MODELLE[p.modell].n:p.name)+" ("+p.pT+"B)",
     w:wA};
-  /* Deklarierte Risiken greifen auch hier (LoRA kann die Basis leicht verschieben) */
+  /* LoRA friert die Basis ein. Ein schlechter Adapter kann Fähigkeiten überlagern,
+     aber sein Abnehmen muss den unveränderten Basisstand wiederherstellen. */
   let ausgang="sauber", art="gut";
   const r=t.risiko||{};
-  if(Math.random()<(r.vergessen||0)){
+  if(Math.random()<(r.vergessen||0)*(skillAktiv("replaymeister")?0.5:1)){   /* Skill: Replay-Mix */
     const andere=Object.keys(WERTE).filter(k=>k!==q.fokus);
     const k=zufall(andere); const minus=z(3,7);
-    p.w[k]=kl(p.w[k]-minus,2,99);
-    ausgang="mit leichtem Vergessen bei "+WERTE[k]+" (−"+rd(minus)+")"; art="schlecht";
+    a.w[k]=(a.w[k]||0)-minus;
+    ausgang="Adapter überlagert "+WERTE[k]+" (−"+rd(minus)+"); Abnehmen stellt die Basis wieder her"; art="schlecht";
   }
   p.adapters=p.adapters||[];
   if(p.adapters.length>=2){ S.adapterSchrank=S.adapterSchrank||[]; S.adapterSchrank.push(p.adapters.shift()); }
@@ -7122,8 +7256,9 @@ function marktReiterWahl(r){ marktReiter=r; zeigeMarkt(); }
 function marktFilter(t){ marktTierFilter=t; zeigeMarkt(); }
 function modellKaufen(id){
   const m=MODELLE[id];
-  if(!m||S.kredit<m.preis||!kannZahlen(m.preis)) return;
-  buche(-m.preis,"kauf","Modellkauf "+m.n+" (Download, Einrichtung, Erstprüfung)");
+  const preis=Math.round(m?m.preis*(skillAktiv("feilschen")?0.95:1):0);   /* Skill: Käufermarkt – wer verhandelt, spart */
+  if(!m||S.kredit<preis||!kannZahlen(preis)) return;
+  buche(-preis,"kauf","Modellkauf "+m.n+" (Download, Einrichtung, Erstprüfung)"+(preis<m.preis?" · gefeilscht −5 %":""));
   const p=neuesTier(id);
   S.tiere.push(p);
   melde(m.n+" zieht auf den Hof! (Gewichte: ~"+(m.pT<1?rd(m.pT*610)+" MB":rd(m.pT*0.61)+" GB")+" Download)","gut");
@@ -7182,7 +7317,7 @@ function lizenzKaufen(id){
    ═══════════════════════════════════════════════════════ */
 
 const STUFEN_NAMEN=["T0 · Alltagstexte","T1 · Fachwissen","T2 · Werkzeug & Agent","T3 · Lange Dokumente","T4 · Kritisch (Prüfpflicht)","T5 · Königsklasse"];
-function zeigeJobs(){
+function zeigeJobsAlt(){
   blattLive("📌 Pinnwand",()=>{
     const offene=S.jobs.filter(j=>!S.tiere.some(p=>p.job===j.id));
     const laufende=S.jobs.filter(j=>S.tiere.some(p=>p.job===j.id));
@@ -7235,7 +7370,7 @@ function zeigeJobs(){
     }).join(""):'<div class="leer">Alles vergeben – alle 10 Minuten und jeden Morgen hängen neue Zettel an der Wand.</div>');
   },"jobs");
 }
-function jobAnnehmen(jid,uid){
+function jobAnnehmenAlt(jid,uid){
   const j=S.jobs.find(x=>x.id===jid), p=S.tiere.find(t=>t.uid===uid);
   if(!j||!p||p.status!=="frei") return;
   /* Arbeiten ist unter dem Limit ausdrücklich ERLAUBT – nur Investitionen sind eingefroren (kannZahlen) */
@@ -7463,22 +7598,64 @@ function zeigeLeitstand(){
   },"leitstand");
 }
 
+let forschReiter="baum";
+function forschReiterWahl(r){ forschReiter=r; zeigeForschung(); }
+/* Techtree-Ebene einer Forschung = längste braucht-Kette bis zur Wurzel */
+function forschungsTiefe(id,seen={}){
+  const f=FORSCHUNG[id]; if(!f||seen[id]) return 0; seen[id]=true;
+  return (f.braucht&&f.braucht.length)?1+Math.max(...f.braucht.map(b=>forschungsTiefe(b,seen))):0;
+}
+function forschBaumHtml(){
+  const ebenen={};
+  Object.entries(FORSCHUNG).forEach(([id,f])=>{ const t=forschungsTiefe(id); (ebenen[t]=ebenen[t]||[]).push([id,f]); });
+  return '<div class="notiz">Der <b>Techtree</b>: Jede Stufe baut auf der vorigen auf – Pfeile zeigen, was ein Verfahren voraussetzt. Es forscht immer nur ein Projekt gleichzeitig: Fokus schlägt Breite.</div>'+
+  (S.forschungAktiv?'<div class="karte hell"><h3>🔬 Läuft: '+esc(FORSCHUNG[S.forschungAktiv.id].n)+'</h3><p>Noch '+S.forschungAktiv.rest+' Tag(e).</p></div>':"")+
+  Object.keys(ebenen).sort((a,b)=>a-b).map(t=>{
+    return '<div class="karte"><h3>'+(t==="0"?"🌱 Grundlagen":"⬆️ Aufbaustufe "+t)+'</h3><div class="baumzeile">'+
+    ebenen[t].map(([id,f])=>{
+      const hat=S.forschung[f.frei];
+      const vorOk=(f.braucht||[]).every(b=>FORSCHUNG[b]?S.forschung[FORSCHUNG[b].frei]:S.forschung[b]);
+      const kann=!hat&&vorOk&&!S.forschungAktiv&&S.kredit>=f.kosten;
+      return '<div class="baumkarte'+(hat?" fertig":vorOk?"":" dim")+'">'+
+        '<b>'+f.z+' '+esc(f.n)+(hat?' <span class="merk gut">✅</span>':"")+'</b>'+
+        ((f.braucht||[]).length?'<span class="baumpfad">⬑ braucht: '+f.braucht.map(b=>(FORSCHUNG[b]&&S.forschung[FORSCHUNG[b].frei]?"✅ ":"")+((FORSCHUNG[b]||{}).n||b)).map(esc).join(" · ")+'</span>':'<span class="baumpfad">Wurzel – sofort erforschbar</span>')+
+        '<span>'+esc(f.txt)+'</span>'+
+        (hat?"":'<span class="reihe" style="align-items:center;gap:8px"><span class="merk">'+f.tage+' Tag(e) · '+geld(f.kosten)+'</span><button class="knopf s" '+(kann?"":"disabled")+' onclick="forschen(\''+id+'\')">Start</button></span>')+
+      '</div>';
+    }).join("")+'</div></div>';
+  }).join("");
+}
+function skillTreesHtml(){
+  const frei=skillPunkteFrei(), ges=skillPunkteGesamt();
+  return '<div class="notiz">⭐ <b>Meisterpunkte: '+frei+' frei / '+ges+' gesamt</b> – genau einer je erreichter Hofstufe. Alle drei Wege voll kosten 18 Punkte, mehr als 11 gibt es nie: <b>wähle, was zu deinem Hof passt.</b> Ab Hofstufe 3 schlägst du zusätzlich einen <b>Meisterweg</b> ein – nur dort ist die 2⭐-Meister-Fertigkeit lernbar.</div>'+
+  '<div class="skillwege">'+Object.entries(SKILLS).map(([wegId,w])=>{
+    const istWeg=S.meisterweg===wegId;
+    return '<div class="karte'+(istWeg?" hell":"")+'"><h3>'+w.z+' '+esc(w.n)+(istWeg?' <span class="merk gut">DEIN MEISTERWEG</span>':"")+'</h3>'+
+    '<p style="font-size:11.5px;color:var(--tinte-2)">'+esc(w.motto)+'</p>'+
+    (!S.meisterweg?'<button class="knopf s hell" '+(hofLevel().i>=3?"":"disabled")+' onclick="meisterwegWaehlen(\''+wegId+'\')">'+(hofLevel().i>=3?"Diesen Meisterweg wählen":"Meisterweg ab Stufe 3")+'</button>':"")+
+    w.skills.map(sk=>{
+      const hat=skillAktiv(sk.id);
+      const brauchtOk=!sk.braucht||skillAktiv(sk.braucht);
+      const wegOk=!sk.capstone||istWeg;
+      const kann=!hat&&brauchtOk&&wegOk&&skillPunkteFrei()>=sk.p;
+      let sperr="";
+      if(!hat){ if(!wegOk) sperr="🔒 nur auf diesem Meisterweg"; else if(!brauchtOk) sperr="⬑ braucht: "+esc(skillDef(sk.braucht).n); else if(skillPunkteFrei()<sk.p) sperr="⭐ "+sk.p+" Punkt(e) nötig"; }
+      return '<div class="skillkarte'+(hat?" fertig":kann?"":" dim")+(sk.braucht?" folge":"")+'">'+
+        '<b>'+sk.z+' '+esc(sk.n)+' <span class="merk'+(hat?" gut":"")+'">'+(hat?"✅ gemeistert":"⭐".repeat(sk.p))+'</span>'+(sk.capstone?' <span class="merk gold">MEISTER</span>':"")+'</b>'+
+        '<span class="skilleff">'+esc(sk.eff)+'</span>'+
+        '<span class="skilllehre">💡 '+esc(sk.lehre)+'</span>'+
+        (hat?"":(sperr?'<span class="baumpfad">'+sperr+'</span>':"")+'<button class="knopf s'+(kann?" gruen":"")+'" '+(kann?"":"disabled")+' onclick="skillKaufen(\''+wegId+'\',\''+sk.id+'\')">Lernen ('+sk.p+'⭐)</button>')+
+      '</div>';
+    }).join("")+'</div>';
+  }).join("")+'</div>';
+}
 function zeigeForschung(){
   blattLive("🔭 Forschungshütte",()=>{
     if(!istFrei("gebForschung")) return '<div class="leer">Die Forschungshütte öffnet auf Hofstufe 2.</div>';
     const fertig=Object.entries(FORSCHUNG).filter(([id,f])=>S.forschung[f.frei]);
-    const offen=Object.entries(FORSCHUNG).filter(([id,f])=>!S.forschung[f.frei]);
-    return '<div class="notiz">Forschung schaltet Verfahren frei. Es forscht immer nur ein Projekt gleichzeitig – wie im echten Labor: Fokus schlägt Breite.</div>'+
-    (S.forschungAktiv?'<div class="karte hell"><h3>🔬 Läuft: '+esc(FORSCHUNG[S.forschungAktiv.id].n)+'</h3><p>Noch '+S.forschungAktiv.rest+' Tag(e).</p></div>':"")+
-    '<div class="karte"><h3>Offene Projekte</h3><div class="werteliste">'+
-    offen.map(([id,f])=>{
-      const vorOk=(f.braucht||[]).every(b=>FORSCHUNG[b]?S.forschung[FORSCHUNG[b].frei]:S.forschung[b]);
-      const kann=vorOk&&!S.forschungAktiv&&S.kredit>=f.kosten;
-      return '<div class="listenzeile'+(vorOk?"":" dim")+'"><span style="font-size:23px;flex:0 0 28px;text-align:center">'+f.z+'</span>'+
-      '<span class="txt"><b>'+esc(f.n)+'</b><span>'+esc(f.txt)+'</span>'+
-      '<span>'+f.tage+' Tag(e) · '+geld(f.kosten)+(vorOk?"":' · braucht erst: '+(f.braucht||[]).map(b=>FORSCHUNG[b]?FORSCHUNG[b].n:b).map(esc).join(", "))+'</span></span>'+
-      '<button class="knopf s" '+(kann?"":"disabled")+' onclick="forschen(\''+id+'\')">Start</button></div>';
-    }).join("")+'</div></div>'+
+    const reiter='<div class="reiter">'+[["baum","🔬 Techtree"],["meister","⭐ Meisterschaften"+(skillPunkteFrei()>0?" ("+skillPunkteFrei()+")":"")]].map(([id,n])=>'<button class="knopf s '+(forschReiter===id?"gewaehlt":"hell")+'" onclick="forschReiterWahl(\''+id+'\')">'+n+'</button>').join("")+'</div>';
+    if(forschReiter==="meister") return reiter+skillTreesHtml();
+    return reiter+forschBaumHtml()+
     (fertig.length?'<div class="karte hell"><h3>✅ Erforscht</h3><div class="reihe abstand">'+fertig.map(([id,f])=>'<span class="merk gut">'+f.z+' '+esc(f.n)+'</span>').join("")+'</div></div>':"");
   },"forschung");
 }
@@ -7605,7 +7782,7 @@ function zeigeNews(){
 }
 
 function zeigeBericht(b){
-  const html='<div class="karte hell"><h3>🌅 Guten Morgen! Tag '+S.tag+' beginnt</h3>'+
+  const html=hlBriefingHtml()+'<div class="karte hell"><h3>🌅 Guten Morgen! Tag '+S.tag+' beginnt</h3>'+
   '<div class="kacheln abstand">'+
   '<div class="kachel"><b>+'+geld(b.einnahmen)+'</b><span>Einnahmen</span></div>'+
   '<div class="kachel"><b>−'+geld(Math.round(b.ausgaben))+'</b><span>Ausgaben</span></div>'+
@@ -7623,7 +7800,7 @@ function zeigeBericht(b){
   }).join(""):"")+
   (b.wurf?'<div class="karte"><h3>🍼 Nachwuchs aus der Misch-Werkstatt!</h3><div class="reihe abstand"><button class="knopf gruen" onclick="zeigeWurfKarte(\''+b.wurf+'\')">Wurf anschauen</button></div></div>':"")+
   (b.zeilen.length?'<div class="karte"><h3>Was passiert ist</h3><div class="werteliste">'+b.zeilen.map(x=>'<div class="listenzeile"><span class="txt"><b style="'+(x.art==="schlecht"?"color:#a33":"")+'">'+esc(x.t)+'</b></span></div>').join("")+'</div></div>':"")+
-  (S.kredit<0?'<div class="karte warnrand"><h3>💸 Konto überzogen!</h3><p>Die Hofbank rechnet <b>1 % Zins pro Tag</b>. Ab '+geld(KREDIT_LIMIT)+' friert sie den Hof ein: keine Käufe, keine neuen Zettel. Verkaufe ein Modell oder eine GPU, kündige Mieten!</p></div>':"")+
+  (S.kredit<0?'<div class="karte warnrand"><h3>💸 Konto überzogen!</h3><p>Die Hofbank rechnet <b>1 % Zins pro Tag</b>. Ab '+geld(KREDIT_LIMIT)+' friert sie den Hof ein: keine neuen Investitionen. Kleine Aufträge bleiben verfügbar. Verkaufe ein Modell oder eine GPU, kündige Mieten!</p></div>':"")+
   '<div class="reihe"><button class="knopf" onclick="blattZu()">An die Arbeit</button><button class="knopf hell" onclick="oeffne(\'jobs\')">Zur Pinnwand</button></div>';
   blattAuf("📋 Tagesbericht",html,"bericht");
   S.newsIdx=(S.newsIdx+zi(1,2))%NEWS.length;
@@ -7658,6 +7835,7 @@ function start(){
   const alt=laden();
   S=alt||frischerStand();
   rhMigration(S);
+  hlStand();
   if(!alt){
     S.jobs.push(jobNeu(),jobNeu(),jobNeu());
     cloudRotieren();
@@ -7673,6 +7851,7 @@ function start(){
   requestAnimationFrame(lauf);
   _uhrLetzte=Date.now();
   if(!_uhrTimer) _uhrTimer=setInterval(uhrTick,1000);          // Echtzeit-Hoftag & Rotationen (N3/N4)
+  if(hlStand().phase!=="tag") setTimeout(zeigeNachtSetup,700);
   /* Einführung beim ersten Start – und Wiedereinstieg, falls ein alter Stand ohne Tiere hängt */
   if(!alt||(!S.einfFertig&&!S.tiere.some(t=>!t.api))) setTimeout(zeigeWillkommen,600);
   if(!speicher.echt) setTimeout(()=>melde("⚠️ Dein Browser blockiert das Speichern – Spielstand geht beim Schließen verloren! (Website-Daten erlauben oder im Hofhaus exportieren)","schlecht"),1500);
@@ -8050,7 +8229,7 @@ const RH_STUFEN=[
  {name:"Nerdtempel",bild:"rh_nerd",pc:6,racks:8,dach:6,wp:600,akku:80,pue:1.20,grund:0.10,preis:12000},
  {name:"Rechenzentrum",bild:"rh_zentrum",pc:0,racks:64,dach:10,wp:600,akku:600,pue:1.15,grund:0.50,preis:90000}
 ];
-const RH_WIND=[{kw:5,preis:7500},{kw:20,preis:24000},{kw:50,preis:55000}];
+const RH_WIND=[{kw:5,preis:750},{kw:20,preis:2400},{kw:50,preis:5500}];
 const RH_GEN=[{kw:15,preis:10000},{kw:45,preis:27000},{kw:120,preis:60000},{kw:240,preis:110000},{kw:400,preis:170000}];
 const RH_PC={basis:{gpu:"rtx4080",cpu:"Ryzen 7",ramGB:32,ssdTB:2,preis:2100},max:{gpu:"rtx5090",cpu:"Ryzen 9",ramGB:64,ssdTB:4,preis:5700}};
 const RH_EVS={
@@ -8093,6 +8272,7 @@ function rhCash(s=S){return s.kredit-rh(s).nachbarOffen;}
 function rhPeak(b){return ((GPUS[b.gpu]||{}).watt||0)/1000+((b.rhSlot||"").startsWith("pc:")?(b.ramGB>=64?.13:.095):.18);}
 function rhLast(s=S){const c=rhCfg(s);return s.buchten.reduce((a,b)=>a+rhPeak(b),0)*c.pue+c.grund;}
 function rhProfile(s=S){
+ if(typeof hlProfile==='function')return hlProfile(s).last;
  const c=rhCfg(s),hours=Array(24).fill(c.grund);
  s.buchten.forEach(b=>{
    const p=s.tiere.find(t=>t.uid===b.tier)||s.tiere.find(t=>t.training&&t.training.bucht===b.id);
@@ -8116,30 +8296,48 @@ function rhSim(r,last,tag,tarif,opt={}){
  const w=rhWeather(tag,!!opt.normal),cap=r.akku,power=cap/2,eta=Math.sqrt(.90);
  let soc=kl(opt.soc??r.soc,0,cap),a={last:0,pv:0,wind:0,direkt:0,ladung:0,entladung:0,verlust:0,netz:0,nachbar:0,fossil:0,export:0,fehl:0,stunden:[],socStart:soc};
  const maxgen=opt.genAus?0:rhGenKW(r),fkw=rhPV(r),wkw=rhWindKW(r);
- for(let h=0;h<24;h++){
+ a.modelle={};a.nachtKwh=0;a.nachtKosten=0;a.netzKosten=0;a.nachbarKosten=0;
+ const profile=opt.profile;
+ if(profile)for(const uid of Object.keys(profile.teile))a.modelle[uid]={tagLast:0,tagGeliefert:0,nachtLast:0,nachtGeliefert:0,eigen:0};
+ const reihenfolge=opt.hofnacht?[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,0,1,2,3,4,5]:Array.from({length:24},(_,i)=>i);
+ for(const h of reihenfolge){
    // 3,2 kWh/kWp·Tag im Normjahr, Tagesschwankung keine echte Wettervorhersage.
    const shape=Math.max(0,Math.sin((h-6+.5)/12*Math.PI)),norm=7.661297576;
-   const pv=fkw*3.2*(w.wolke/.72)*shape/norm;
-   const wind=wkw*w.wind*(opt.normal?1:.65+.7*rhSeed(tag,h+20));
-   const demand=Math.max(0,last[h]),direct=Math.min(demand,pv+wind);
+   const pv=fkw*3.2*(w.wolke/.72)*shape/norm*(opt.solarF??1);
+   const wind=wkw*w.wind*(opt.normal?1:.65+.7*rhSeed(tag,h+20))*(opt.windF??1);
+   const nacht=h>=22||h<6;
+   const ids=profile?Object.keys(profile.teile):[];
+   const eigenIds=ids.filter(uid=>profile.modi[uid]==='eigen');
+   let gruenBudget=pv+wind+Math.min(power,soc*eta),abgeworfen=0;
+   const erlaubt={};
+   for(const uid of eigenIds){erlaubt[uid]=Math.min(profile.teile[uid][h],gruenBudget);gruenBudget-=erlaubt[uid];abgeworfen+=profile.teile[uid][h]-erlaubt[uid];}
+   const demand=Math.max(0,last[h]-abgeworfen),direct=Math.min(demand,pv+wind);
    let need=demand-direct,surplus=pv+wind-direct;
    const charge=Math.min(surplus,power,(cap-soc)/eta);soc+=charge*eta;surplus-=charge;
    const discharge=Math.min(need,power,soc*eta);soc-=discharge/eta;need-=discharge;
    let fossil=0;
    if(r.genModus==="eigen"){fossil=Math.min(need,maxgen);need-=fossil;}
-   const grid=Math.min(need,r.netzKW),nb=r.nachbar&&r.stufe===0?(opt.nachbarProfil?grid*kl((opt.nachbarProfil[h]||0)/Math.max(.00001,demand),0,1):Math.min(grid,Math.max(0,grid-6))):0;
+   const grid=Math.min(need,(opt.ausfallStunden||[]).includes(h)?0:r.netzKW),nb=r.nachbar&&r.stufe===0?(opt.nachbarProfil?grid*kl((opt.nachbarProfil[h]||0)/Math.max(.00001,demand),0,1):Math.min(grid,Math.max(0,grid-6))):0;
    need-=grid;
    if(r.genModus!=="eigen"){fossil=Math.min(need,maxgen);need-=fossil;}
-   for(const [k,v]of Object.entries({last:demand,pv,wind,direkt:direct,ladung:charge,entladung:discharge,verlust:charge*(1-eta)+discharge*(1/eta-1),netz:grid-nb,nachbar:nb,fossil,export:surplus,fehl:need}))a[k]+=v;
+   // Zuerst reservierte Eigenstrom-Modelle, dann Grundlast und automatische Verbraucher.
+   let eigenRest=direct+discharge,externRest=grid+fossil;
+   for(const uid of eigenIds){const m=a.modelle[uid],angefordert=profile.teile[uid][h],geliefert=Math.min(erlaubt[uid],eigenRest);eigenRest-=geliefert;m.eigen+=geliefert;m[nacht?'nachtLast':'tagLast']+=angefordert;m[nacht?'nachtGeliefert':'tagGeliefert']+=geliefert;}
+   if(profile){const basis=profile.base[h],eb=Math.min(basis,eigenRest);eigenRest-=eb;externRest=Math.max(0,externRest-(basis-eb));}
+   for(const uid of ids.filter(uid=>!eigenIds.includes(uid))){const m=a.modelle[uid],angefordert=profile.teile[uid][h],eg=Math.min(angefordert,eigenRest);eigenRest-=eg;const net=Math.min(angefordert-eg,externRest);externRest-=net;m.eigen+=eg;m[nacht?'nachtLast':'tagLast']+=angefordert;m[nacht?'nachtGeliefert':'tagGeliefert']+=eg+net;}
+   const preis=tarif*(opt.hofnacht&&nacht?.5:1);
+   a.netzKosten+=(grid-nb)*preis;a.nachbarKosten+=nb*preis*1.10;
+   if(nacht){a.nachtKwh+=demand;a.nachtKosten+=(grid-nb)*preis+nb*preis*1.10;}
+   for(const [k,v]of Object.entries({last:demand+abgeworfen,pv,wind,direkt:direct,ladung:charge,entladung:discharge,verlust:charge*(1-eta)+discharge*(1/eta-1),netz:grid-nb,nachbar:nb,fossil,export:surplus,fehl:need+abgeworfen}))a[k]+=v;
    a.stunden.push({h,last:demand,pv,wind,soc,grid,fossil,fehl:need});
  }
  a.soc=kl(soc,0,cap);a.wetter=w.n;
  // Nachbarvertrag gilt für die Zusatz-PCs 7–12, nicht für den gesamten Hof.
  // Ihre Lastanteile werden separat tarifiert, auch wenn Gesamtlast unter 6 kW liegt.
  if(r.nachbar&&r.stufe===0&&!opt.nachbarProfil&&opt.nachbarAnteil){const total=a.netz+a.nachbar;a.nachbar=total*opt.nachbarAnteil;a.netz=total-a.nachbar;}
- a.netzKosten=a.netz*tarif;a.nachbarKosten=a.nachbar*tarif*1.10;
+ if(!opt.hofnacht){a.netzKosten=a.netz*tarif;a.nachbarKosten=a.nachbar*tarif*1.10;}
  a.fuelKosten=a.fossil*.62*(opt.fuelF??r.fuelF); // Brennstoff je erzeugter kWh: Spielannahme.
- a.wartung=((r.pv.reduce((n,w)=>n+(w===400?450:600),0)+(r.solarfelder||0)*2700+r.legacySolar*1000)*.01+r.wind.reduce((n,i)=>n+RH_WIND[i].preis*.02,0)+r.akku*400*.01+(r.gen>=0?RH_GEN[r.gen].preis*.04:0))/365;
+ a.wartung=((r.pv.reduce((n,w)=>n+(w===400?45:60),0)+(r.solarfelder||0)*270+r.legacySolar*100)*.01+r.wind.reduce((n,i)=>n+RH_WIND[i].preis*.02,0)+r.akku*40*.01+(r.gen>=0?RH_GEN[r.gen].preis*.04:0))/365;
  a.einspeise=a.export*.06;a.kosten=a.netzKosten+a.nachbarKosten+a.fuelKosten+a.wartung-a.einspeise;
  a.co2=(a.netz+a.nachbar)*.36+a.fossil*.8; // Betriebsbilanz, keine Lebenszyklusanalyse.
  return a;
@@ -8152,7 +8350,7 @@ function rhNBAnteil(s=S){
  return kl(sub/all,0,1);
 }
 function rhNBProfil(s=S){const bs=s.buchten.filter(b=>(b.rhSlot||'').startsWith('pc:')&&Number(b.rhSlot.split(':')[1])>=6);return rhProfile({...s,buchten:bs}).map(k=>Math.max(0,k-rhCfg(s).grund));}
-function rhVorschau(s=S){const r=rh(s);return rhSim(r,rhProfile(s),s.tag,strompreis(),{nachbarProfil:rhNBProfil(s),genAus:r.genAus>0});}
+function rhVorschau(s=S){const r=rh(s),profile=hlProfile(s),ev=hlEvent().id;return rhSim(r,profile.last,s.tag,strompreis(),{profile,hofnacht:true,nachbarProfil:rhNBProfil(s),genAus:r.genAus>0,solarF:ev==='sonne'?1.45:ev==='dunkel'?.35:1,windF:ev==='wind'?1.65:ev==='dunkel'?.2:1,ausfallStunden:ev==='ausfall'&&hofLevel().i>=5?[14,15,16,17]:[]});}
 function rhTagesStart(){
  const r=rh();if(r.fuelTage>0){if(--r.fuelTage===0)r.fuelF=1;}
  if(r.genAus>0)r.genAus--;
@@ -8170,7 +8368,7 @@ function rhTagBuchen(a,bericht){
  const baseline=a.last*strompreis(),saved=baseline-a.kosten;r.ertrag+=saved;r.letzte={...a,tag:S.tag,tarif:strompreis()};r.verlauf.push({tag:S.tag,kosten:rhR(a.kosten),last:rhR(a.last)});r.verlauf=r.verlauf.slice(-30);
  bericht.zeilen.push({t:"🏡 Rechenhaus: "+rhN(a.last)+" kWh Bedarf · "+rhN(a.direkt)+" kWh direkt von Sonne/Wind · "+rhN(a.entladung)+" kWh aus Akku · Kosten "+rhEuro(a.kosten)+" (Nachbar-Anteil monatlich).",art:"info"});
  if(r.gen>=0&&(r.genAus||r.fuelF>1))bericht.zeilen.push({t:r.genAus?"🔧 Kraftwerk ausgefallen. Netz und Akku übernehmen soweit möglich; "+rhN(a.fehl)+" kWh unversorgt.":"⛽ Brennstoffpreissprung: +45 % für vier Tage. Heute "+rhEuro(a.fuelKosten)+" Brennstoffkosten.",art:"schlecht"});
- if(a.fehl>.001)bericht.zeilen.push({t:"⚡ Energie fehlte: lokale Arbeiten pausierten heute. Cloud-Aufträge laufen weiter.",art:"schlecht"});
+ if(a.fehl>.001)bericht.zeilen.push({t:"⚡ Energie fehlte: betroffene lokale Arbeiten pausierten. Ausreichend versorgte Modelle und Cloud-Aufträge laufen weiter.",art:"schlecht"});
 }
 function rhEventFehlt(stage,index,r=rh()){
  if(stage===1&&index===1&&!(rhPV(r)>=3.6-1e-9||r.wind.length||rhGenKW(r)>=15))return "3,6 kWp Solar, ein Windrad oder 15-kW-Kraftwerk fehlen.";
@@ -8203,19 +8401,19 @@ function rhKauf(typ,i=0){
  if(typ==="nachbar"){
    if(r.nachbar||r.stufe!==0)return;preis=350;action=()=>{r.nachbar=true;r.netzKW=Math.max(r.netzKW,12);};
  }else if(typ==="solar"){
-   if(r.pv.length>=c.dach)return;preis=c.wp===400?450:600;action=()=>{r.pv.push(c.wp);};
+   if(r.pv.length>=c.dach)return;preis=c.wp===400?45:60;action=()=>{r.pv.push(c.wp);};
  }else if(typ==="solarfeld"){
-   if(r.stufe!==2||(r.solarfelder||0)>=6)return;preis=2700;action=()=>r.solarfelder=(r.solarfelder||0)+1;
+   if(r.stufe!==2||(r.solarfelder||0)>=6)return;preis=270;action=()=>r.solarfelder=(r.solarfelder||0)+1;
  }else if(typ==="panelUpgrade"){
-   if(r.stufe<1||r.pv[i]!==400)return;preis=220;action=()=>r.pv[i]=600;
+   if(r.stufe<1||r.pv[i]!==400)return;preis=22;action=()=>r.pv[i]=600;
  }else if(typ==="akku"){
    const step=rhAkkuSchritt(r);
-   if(step<=0)return;preis=step*400;action=()=>{r.akku+=step;};
+   if(step<=0)return;preis=step*40;action=()=>{r.akku+=step;};
  }else if(typ==="wind"){
    if(r.stufe<1||r.wind.length>=6||!RH_WIND[i])return;preis=RH_WIND[i].preis;action=()=>r.wind.push(i);
  }else if(typ==="windUpgrade"){
    if(!Number.isInteger(i)||r.wind[i]===undefined||r.wind[i]>=2)return;
-   preis=RH_WIND[r.wind[i]+1].preis-RH_WIND[r.wind[i]].preis+1500;action=()=>r.wind[i]++;
+   preis=RH_WIND[r.wind[i]+1].preis-RH_WIND[r.wind[i]].preis+150;action=()=>r.wind[i]++;
  }else if(typ==="generator"){
    if(r.stufe<1||!RH_GEN[i]||i<=r.gen)return;preis=RH_GEN[i].preis-(r.gen>=0?RH_GEN[r.gen].preis*.6:0);action=()=>r.gen=i;
  }else return;
@@ -8328,25 +8526,25 @@ function rhAusbau(){const r=rh(),c=rhCfg();return '<div class="rhAusbaufolge">'+
  (r.stufe===0?'<div class="rhEvents"><article><b>1 · Der vorhandene Anschluss</b><p>PC 1–6: kein zusätzlicher Anschlussbau. Stromverbrauch wird zum Normaltarif bezahlt.</p><span class="merk gut">6 kW vorhanden</span></article><article><b>2 · Ein Kabel über den Gartenzaun</b><p>Vor PC 7: Nachbarvertrag für 350 €. Zusatz-PCs 7–12 zahlen ihren Anteil des Netzstroms zum Tagestarif +10 %, Abrechnung alle 30 Hoftage.</p>'+rhBtn(r.nachbar?'Vertrag aktiv':'Vertrag abschließen · 350 €',"rhKauf('nachbar')",r.nachbar||rhCash()<350)+'</article><article><b>3 · Ein Sonnenplatz auf dem Dach</b><p>Vor PC 10: mindestens ein 400-W-Panel. Vier Dachplätze, optional bis 10 kWh Akku. Das Panel deckt nur einen Teil des Verbrauchs.</p>'+rhBtn('Zum Energiegarten',"zeigeRechenhaus('energie')")+'</article></div>':'<div class="rhEvents">'+RH_EVS[r.stufe].map((e,i)=>{const done=r.events[r.stufe+':'+i],why=rhEventFehlt(r.stufe,i),prev=i===0||r.events[r.stufe+':'+(i-1)];return '<article><b>'+ (i+1)+' · '+e.n+'</b><p>'+e.txt+'</p><p>Leitungsbau: '+rhEuro(e.preis)+'</p>'+(why?'<small class="rhWarn">'+why+'</small>':'')+rhBtn(done?'Abgeschlossen':'Anschluss freischalten','rhEvent('+i+')',done||!!why||!prev||rhCash()<e.preis)+'</article>';}).join('')+'</div>')+
  '<div class="notiz">Die Anschlussereignisse sind Spielregeln, keine technischen Naturgesetze. Auch auf dem erneuerbaren Weg bleibt das Netz als verlässliche Reserve erhalten. Ein Akku erzeugt keine Energie.</div>';}
 function rhAmort(r,next,preis){
- const load=rhProfile(),tarif=strompreis(),opts={normal:true,soc:0,fuelF:1,nachbarProfil:rhNBProfil()};
+ const profile=hlProfile(),load=profile.last,tarif=.48,opts={normal:true,soc:0,fuelF:1,hofnacht:true,profile,nachbarProfil:rhNBProfil()};
  // 7 Tage einschwingen, letzte 7 Tage vergleichen: neuer Akku kommt leer, kein Gratisstrom.
  let a={...r,soc:0},b={...next,soc:0},old=0,neu=0;
  for(let d=0;d<14;d++){const x=rhSim(a,load,1,tarif,{...opts,soc:a.soc}),y=rhSim(b,load,1,tarif,{...opts,soc:b.soc});a.soc=x.soc;b.soc=y.soc;if(d>=7){old+=x.kosten;neu+=y.kosten;}}
  const delta=(old-neu)/7,years=delta>0?preis/(delta*365):Infinity;
- return (delta>0?'≈ '+rhEuro(delta)+'/Tag weniger · '+(years<=25?'Amortisation ≈ '+rhN(years)+' Jahre':'keine Amortisation binnen 25 Jahren'):'Bei dieser Auslastung keine Betriebskosten-Ersparnis')+'.';
+ return (delta>0?'≈ '+rhEuro(delta)+'/Tag weniger · '+(years<=25?'Amortisation ≈ '+Math.ceil(years*365)+' Hoftage':'keine Amortisation binnen 9.125 Hoftagen'):'Bei dieser Auslastung keine Betriebskosten-Ersparnis')+'.';
 }
 function rhEnergie(){
- const r=rh(),c=rhCfg(),a=rhVorschau(),roof=r.pv.length,add=(c.wp===400?450:600),batStep=rhAkkuSchritt(r);
+ const r=rh(),c=rhCfg(),a=rhVorschau(),roof=r.pv.length,add=(c.wp===400?45:60),batStep=rhAkkuSchritt(r);
  const stats=[['Anschluss',rhN(r.netzKW)+' kW','gesichert, nicht Verbrauch'],['Installierte Spitzenlast',rhN(rhLast())+' kW','inkl. Rechner & Kühlung'],['Heute voraussichtlich',rhN(a.last)+' kWh','24 Stunden, aktueller Einsatz'],['Kosten heute',rhEuro(a.kosten),'inkl. Wartung, ohne Baukosten'],['Akku',rhN(r.soc)+' / '+r.akku+' kWh','Leistung max. '+rhN(r.akku/2)+' kW'],['Nachbar offen',rhEuro(r.nachbarOffen),'nächste Rechnung Tag '+(Math.floor((S.tag-1)/30)+1)*30]];
- return '<div class="rhStats">'+stats.map(x=>'<div><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+x[2]+'</span></div>').join('')+'</div>'+
+ return '<div class="notiz">Spielbalance: Solar, Wind und Akku kosten ein Zehntel der früheren Baupreise; Erzeugung und Verluste bleiben physikalisch unverändert. Beispiel: 400-W-Panel 45 €, 5-kWh-Akku 200 €. Alte bezahlte Anlagen bleiben erhalten. Das sind Spielpreise, keine realen Angebote.</div>'+hlBtn('⚡ Modelle & Nachtstrom zuweisen','zeigeEnergieplan()')+'<div class="rhStats">'+stats.map(x=>'<div><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+x[2]+'</span></div>').join('')+'</div>'+
  '<div class="rhEnergieLayout"><div class="rhMiniHof">'+rhAussenMarkup(r,true)+'</div><div class="rhBilanz"><h3>Wohin der Strom fließt</h3><p>'+a.wetter+' · deterministisches Spielwetter</p>'+[['Bedarf',a.last],['Solar erzeugt',a.pv],['Wind erzeugt',a.wind],['Direkt genutzt',a.direkt],['In Akku geladen',a.ladung],['Aus Akku geliefert',a.entladung],['Speicherverluste',a.verlust],['Netz (inkl. Nachbar)',a.netz+a.nachbar],['Fossil erzeugt',a.fossil],['Eingespeist',a.export],['Nicht versorgt',a.fehl]].map(([k,v])=>'<div><span>'+k+'</span><b>'+rhN(v)+' kWh</b></div>').join('')+'</div></div>'+
  '<div class="rhStunden" aria-label="Stündlicher Bedarf und erneuerbare Erzeugung">'+a.stunden.map(h=>{const max=Math.max(...a.stunden.map(x=>Math.max(x.last,x.pv+x.wind)),.1);return '<div title="'+h.h+' Uhr: Bedarf '+rhN(h.last,2)+' kW; Sonne/Wind '+rhN(h.pv+h.wind,2)+' kW"><i style="height:'+h.last/max*70+'px"></i><u style="height:'+(h.pv+h.wind)/max*70+'px"></u><small>'+h.h+'</small></div>';}).join('')+'</div><p class="rhLegende">24 Stunden · Braun: Bedarf · Grün: Sonne + Wind. Überschüsse laden zuerst den Akku, danach Einspeisung.</p>'+
- '<div class="rhShop"><article>'+rhObjektBild(c.wp===400?'solarpanel_400w':'solarpanel_600w')+'<h3>Das Sonnendach</h3><p>'+roof+'/'+c.dach+' Module · '+rhN(rhPV(r))+' kWp gesamt. '+c.wp+' W je neuem Panel.</p>'+rhBtn(roof>=c.dach?'Dach vollständig belegt':'Panel montieren · '+rhEuro(add),"rhKauf('solar')",roof>=c.dach||rhCash()<add)+(roof<c.dach?'<p class="rhPayback">'+rhAmort(r,{...r,pv:[...r.pv,c.wp]},add)+'</p>':'')+r.pv.map((w,i)=>'<span class="rhPanelTag">'+(i+1)+': '+w+' W'+(w===400&&r.stufe>0?rhBtn('→ 600 W · 220 €',"rhKauf('panelUpgrade',"+i+")",rhCash()<220):'')+'</span>').join('')+'</article>'+
- (r.stufe===2?'<article>'+rhObjektBild('solarfeld')+'<h3>Die Sonnenwiese</h3><p>'+r.solarfelder+'/6 Freilandfelder. Pro Feld 4 × 600 W = 2,4 kWp, einschließlich Gestell. Die 10 Dachplätze bleiben davon getrennt.</p>'+rhBtn(r.solarfelder>=6?'Alle Felder bepflanzt':'Solarfeld aufstellen · 2.700 €',"rhKauf('solarfeld')",r.solarfelder>=6||rhCash()<2700)+(r.solarfelder<6?'<p class="rhPayback">'+rhAmort(r,{...r,solarfelder:r.solarfelder+1},2700)+'</p>':'')+'<p>Für die letzte Ausbaustufe brauchst du insgesamt 12 kWp Solar. Zum Beispiel: zehn 600-W-Dachpanels und drei Felder ergeben 13,2 kWp. Alte 400-W-Panels zählen mit ihrer echten Leistung.</p></article>':'')+
- '<article>'+rhObjektBild('akku')+'<h3>Der Energiespeicher</h3><p>'+r.akku+'/'+c.akku+' kWh. 90 % Rundlaufwirkungsgrad, Leistung = Kapazität ÷ 2 h. Neue Module kommen leer.</p>'+rhBtn(batStep<=0?'Speicher vollständig ausgebaut':'+'+batStep+' kWh · '+rhEuro(batStep*400),"rhKauf('akku')",batStep<=0||r.akku+batStep>c.akku||rhCash()<batStep*400)+(batStep>0?'<p class="rhPayback">'+rhAmort(r,{...r,akku:r.akku+batStep},batStep*400)+'</p>':'')+'<p>Ein 10-kWh-Akku liefert bei 1 kW Last höchstens etwa 9,5 Stunden; Verluste sind eingerechnet.</p></article>'+
- (r.stufe>0?'<article>'+rhObjektBild('wind_gross')+'<h3>Wind im Hof</h3><p>'+r.wind.length+'/6 Windplätze · '+rhN(rhWindKW(r))+' kW Nennleistung. Normjahr: 25 % Auslastung; bei Flaute viel weniger.</p>'+RH_WIND.map((w,i)=>'<div class="rhAngebot"><b>'+['Klein','Mittel','Groß'][i]+' · '+w.kw+' kW</b>'+rhBtn(rhEuro(w.preis),"rhKauf('wind',"+i+")",r.wind.length>=6||rhCash()<w.preis)+'<small>'+rhAmort(r,{...r,wind:[...r.wind,i]},w.preis)+'</small></div>').join('')+r.wind.map((w,i)=>'<div>Windrad '+(i+1)+': '+RH_WIND[w].kw+' kW '+(w<2?rhBtn('Vergrößern · '+rhEuro(RH_WIND[w+1].preis-RH_WIND[w].preis+1500),"rhKauf('windUpgrade',"+i+")"):'✓ größte Größe')+'</div>').join('')+'</article>'+
+ '<div class="rhShop"><article>'+rhObjektBild(c.wp===400?'solarpanel_400w':'solarpanel_600w')+'<h3>Das Sonnendach</h3><p>'+roof+'/'+c.dach+' Module · '+rhN(rhPV(r))+' kWp gesamt. '+c.wp+' W je neuem Panel.</p>'+rhBtn(roof>=c.dach?'Dach vollständig belegt':'Panel montieren · '+rhEuro(add),"rhKauf('solar')",roof>=c.dach||rhCash()<add)+(roof<c.dach?'<p class="rhPayback">'+rhAmort(r,{...r,pv:[...r.pv,c.wp]},add)+'</p>':'')+r.pv.map((w,i)=>'<span class="rhPanelTag">'+(i+1)+': '+w+' W'+(w===400&&r.stufe>0?rhBtn('→ 600 W · 22 €',"rhKauf('panelUpgrade',"+i+")",rhCash()<22):'')+'</span>').join('')+'</article>'+
+ (r.stufe===2?'<article>'+rhObjektBild('solarfeld')+'<h3>Die Sonnenwiese</h3><p>'+r.solarfelder+'/6 Freilandfelder. Pro Feld 4 × 600 W = 2,4 kWp, einschließlich Gestell. Die 10 Dachplätze bleiben davon getrennt.</p>'+rhBtn(r.solarfelder>=6?'Alle Felder bepflanzt':'Solarfeld aufstellen · 270 €',"rhKauf('solarfeld')",r.solarfelder>=6||rhCash()<270)+(r.solarfelder<6?'<p class="rhPayback">'+rhAmort(r,{...r,solarfelder:r.solarfelder+1},270)+'</p>':'')+'<p>Für die letzte Ausbaustufe brauchst du insgesamt 12 kWp Solar. Zum Beispiel: zehn 600-W-Dachpanels und drei Felder ergeben 13,2 kWp. Alte 400-W-Panels zählen mit ihrer echten Leistung.</p></article>':'')+
+ '<article>'+rhObjektBild('akku')+'<h3>Der Energiespeicher</h3><p>'+r.akku+'/'+c.akku+' kWh. 90 % Rundlaufwirkungsgrad, Leistung = Kapazität ÷ 2 h. Neue Module kommen leer.</p>'+rhBtn(batStep<=0?'Speicher vollständig ausgebaut':'+'+batStep+' kWh · '+rhEuro(batStep*40),"rhKauf('akku')",batStep<=0||r.akku+batStep>c.akku||rhCash()<batStep*40)+(batStep>0?'<p class="rhPayback">'+rhAmort(r,{...r,akku:r.akku+batStep},batStep*40)+'</p>':'')+'<p>Ein 10-kWh-Akku liefert bei 1 kW Last höchstens etwa 9,5 Stunden; Verluste sind eingerechnet.</p></article>'+
+ (r.stufe>0?'<article>'+rhObjektBild('wind_gross')+'<h3>Wind im Hof</h3><p>'+r.wind.length+'/6 Windplätze · '+rhN(rhWindKW(r))+' kW Nennleistung. Normjahr: 25 % Auslastung; bei Flaute viel weniger.</p>'+RH_WIND.map((w,i)=>'<div class="rhAngebot"><b>'+['Klein','Mittel','Groß'][i]+' · '+w.kw+' kW</b>'+rhBtn(rhEuro(w.preis),"rhKauf('wind',"+i+")",r.wind.length>=6||rhCash()<w.preis)+'<small>'+rhAmort(r,{...r,wind:[...r.wind,i]},w.preis)+'</small></div>').join('')+r.wind.map((w,i)=>'<div>Windrad '+(i+1)+': '+RH_WIND[w].kw+' kW '+(w<2?rhBtn('Vergrößern · '+rhEuro(RH_WIND[w+1].preis-RH_WIND[w].preis+150),"rhKauf('windUpgrade',"+i+")"):'✓ größte Größe')+'</div>').join('')+'</article>'+
  '<article>'+rhObjektBild('kraftwerk')+'<h3>Das fossile Kraftwerk</h3><p>Planbare Leistung, teurer Betrieb: '+rhEuro(.62*r.fuelF)+'/erzeugter kWh + Wartung. 3,5 % Ausfallchance/Tag (zwei Tage), 7 % Preissprungchance (+45 % für vier Tage).</p>'+RH_GEN.map((g,i)=>i>r.gen?rhBtn(g.kw+' kW · '+rhEuro(g.preis-(r.gen>=0?RH_GEN[r.gen].preis*.6:0)),"rhKauf('generator',"+i+")",rhCash()<g.preis-(r.gen>=0?RH_GEN[r.gen].preis*.6:0)):'').join('')+(r.gen>=0?'<p>Aktuell '+rhGenKW(r)+' kW · '+(r.genAus?'Ausfall, noch '+r.genAus+' Tage':'betriebsbereit')+'</p>'+rhBtn((r.genModus==='reserve'?'✓ ':'')+'Nur Notreserve',"rhModus('reserve')")+rhBtn((r.genModus==='eigen'?'✓ ':'')+'Eigenbetrieb vor Netz',"rhModus('eigen')"):'')+'<p>Ausbau mit Fossiltechnik ist erlaubt. Das Netz kann bei Ausfall übernehmen; reicht es nicht, pausieren lokale Arbeiten.</p></article>':'')+'</div>'+
- '<details class="rhInfo"><summary>Alle Annahmen, Kosten und Grenzen</summary><p>1 Hoftag = 24 simulierte Stunden; 30 Tage = Abrechnungsmonat. Normaltarif aktuell '+rhEuro(strompreis())+'/kWh. Einspeisung 0,06 €/kWh; CO₂ 0,36 kg/kWh Netz und 0,80 kg/kWh fossil (nur Betrieb). PUE '+c.pue+' modelliert Kühlung/Verteilung. Nachtstrom bleibt kostenpflichtig. GPU-Wattwerte sind Herstellergrenzen, Systemaufschläge und Laststunden sind Spielannahmen.</p><p>Solar: 3,2 kWh/kWp je Normtag, Wetterfaktor; Wind: mittlere Auslastung 25 %. Wartung pro Jahr: Solar 1 %, Wind 2 %, Speicher 1 %, Generator 4 % des Anlagenwerts. Wind-Aufrüstung: Preisunterschied +1.500 € Umbau; Kraftwerkswechsel: 60 % Altwert. Alle Preise sind Spielpreise, keine Marktangebote.</p><p>Amortisation = Investition ÷ jährliche Nettoersparnis gegenüber dem jetzigen System; identische Last, 14 Normtage mit Einschwingphase, unveränderte Tarife. Keine Verzinsung, Alterung oder Ersatzkäufe. Kein Ertragsversprechen. Sonne und Wind haben im Szenario günstigere Erzeugung über 20 Jahre als Fossilstrom; eine überdimensionierte Anlage oder ein kaum genutzter Akku kann sich trotzdem nicht rechnen.</p><p>Investitionen in Energie/Anschlüsse: '+rhEuro(r.invest)+'; kumulierte Betriebskosten-Differenz zu reinem Norm-Netzbezug: '+rhEuro(r.ertrag)+'. Gebäudebau und Hardware kommen separat dazu.</p><p><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/" target="_blank" rel="noopener">NVIDIA RTX 5090</a> · <a href="https://www.nvidia.com/en-us/geforce/news/geforce-rtx-40-series-ultra-efficient-beyond-fast/" target="_blank" rel="noopener">NVIDIA RTX 4080 Leistungsaufnahme</a> · <a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" target="_blank" rel="noopener">EU JRC / PVGIS</a>. Rechenhaus-Regeln v1, 30.08.2026.</p></details>';
+ '<details class="rhInfo"><summary>Alle Annahmen, Kosten und Grenzen</summary><p>1 Hoftag = 24 simulierte Stunden; 30 Tage = Abrechnungsmonat. Normaltarif aktuell '+rhEuro(strompreis())+'/kWh. Einspeisung 0,06 €/kWh; CO₂ 0,36 kg/kWh Netz und 0,80 kg/kWh fossil (nur Betrieb). PUE '+c.pue+' modelliert Kühlung/Verteilung. Nachtstrom bleibt kostenpflichtig. GPU-Wattwerte sind Herstellergrenzen, Systemaufschläge und Laststunden sind Spielannahmen.</p><p>Solar: 3,2 kWh/kWp je Normtag, Wetterfaktor; Wind: mittlere Auslastung 25 %. Wartung pro Jahr: Solar 1 %, Wind 2 %, Speicher 1 %, Generator 4 % des Anlagenwerts. Wind-Aufrüstung: Preisunterschied +150 € Umbau; Kraftwerkswechsel: 60 % Altwert. Alle Preise sind Spielpreise, keine Marktangebote.</p><p>Amortisation in Hoftagen = Investition ÷ tägliche Nettoersparnis gegenüber dem jetzigen System; identische Last, 14 Normtage mit Einschwingphase, unveränderte Tarife. Keine Verzinsung, Alterung oder Ersatzkäufe. Kein Ertragsversprechen. Sonne und Wind haben im Szenario günstigere Erzeugung über 20 Jahre als Fossilstrom; eine überdimensionierte Anlage oder ein kaum genutzter Akku kann sich trotzdem nicht rechnen.</p><p>Investitionen in Energie/Anschlüsse: '+rhEuro(r.invest)+'; kumulierte Betriebskosten-Differenz zu reinem Norm-Netzbezug: '+rhEuro(r.ertrag)+'. Gebäudebau und Hardware kommen separat dazu.</p><p><a href="https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/" target="_blank" rel="noopener">NVIDIA RTX 5090</a> · <a href="https://www.nvidia.com/en-us/geforce/news/geforce-rtx-40-series-ultra-efficient-beyond-fast/" target="_blank" rel="noopener">NVIDIA RTX 4080 Leistungsaufnahme</a> · <a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" target="_blank" rel="noopener">EU JRC / PVGIS</a>. Rechenhaus-Regeln mit Hoftag 7.0, 31.08.2026.</p></details>';
 }
 function zeigeRechenhaus(view="raum"){
  rhView=['raum','energie','ausbau','teich','ansicht'].includes(view)?view:'raum';rh();
@@ -8448,6 +8646,7 @@ Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstal
   zuchtMethodeWahl,zuchtWaehle,zuchtLeer,zuchtStart,futterKauf,synthProduzieren,
   marktReiterWahl,marktFilter,modellKaufen,gpuKaufen,lizenzKaufen,jobAnnehmen,
   rennParcoursWahl,rennWaehlen,rennenStarten,rennenSchliessen,forschen,solarKaufen,
+  forschReiterWahl,skillKaufen,meisterwegWaehlen,
   hofUmbenennen,standExport,standImport,neustart,willkommenFertig,kurieren,
   tierArtWahl,eigenGenerieren,eigenUebernehmen,eigenFlipWechsel,figurStilWahl,onboardWahl,onboardEigen,zeigeTierwahl,
   einfWeiter,einfModell,einfSpezial,einfModus,
@@ -8468,6 +8667,319 @@ if(typeof rhObjektBild!=="function"){
 if(typeof rhHintergrundNeu!=="function"){
   globalThis.rhHintergrundNeu=function(){ /* Original-Wiese bleibt; die Alternativ-Hintergruende aus assets/rechenhaus sind bewusst nicht aktiv */ };
 }
+
+/* LLM FARM · Hoftag 7.0. Alle Preise, Scores, Wahrscheinlichkeiten und Lasten sind
+   transparente Spielannahmen. Keine reale Modell-Evaluation oder Strompreisprognose. */
+// Optionale, parallel entwickelte Meisterschaften: ein unvollständig eingebauter
+// Zusatz darf das Basisspiel nicht stilllegen. Eine vorhandene Implementierung gewinnt.
+if(typeof globalThis.skillAktiv!=='function')globalThis.skillAktiv=()=>false;
+const HL_TEILE={
+ vector:{n:'Vektordatenbank',z:'🗄️',preis:90,braucht:[],txt:'Speichert Textabschnitte mit ihren Suchvektoren. Kein Wissen in Modellgewichten.',mod:'Speicher & Abschnittsbildung'},
+ embedding:{n:'Embedding-Modell',z:'🧭',preis:120,braucht:['vector'],txt:'Übersetzt Suchfrage und Text in vergleichbare Vektoren. Zusammen mit der Datenbank wird Textsuche möglich.',mod:'Semantische Suche'},
+ ocr:{n:'OCR-Modell',z:'📄',preis:100,braucht:['vector'],txt:'Liest Text aus Scans und Fotos. Für reine Textquellen optional; bei Belegen und Archivscans erforderlich.',mod:'Scans → Text'},
+ reranker:{n:'Reranker',z:'🎯',preis:160,braucht:['embedding'],txt:'Bewertet gefundene Textstellen erneut. Bessere Treffer, aber zusätzliche Rechenarbeit.',mod:'Treffer nachsortieren'}
+};
+// Kleine Sortier-/Extraktionsstufen sind ausdrücklich für Sub-1B-Modelle ausgelegt.
+const HL_AUFTRAEGE=[
+ {key:'post',t:'Die Post muss ins richtige Fach',b:'Sortiere kurze Nachrichten in fünf vorgegebene Kategorien. Unklare Fälle kommen in die Rückfragebox.',kunde:'werkstatt',art:'support',tier:0,tage:1,lohn:92,rollen:[['Vorsortieren',{treue:26,logik:20}]]},
+ {key:'etikett',t:'Etiketten für den Hofladen',b:'Erkenne Produktnamen und packe sie ins feste Ausgabeformat. Kein freies Erfinden.',kunde:'laden',art:'text',tier:0,tage:1,lohn:88,rollen:[['Felder extrahieren',{treue:26,kontext:22}]]},
+ {key:'spam',t:'Die Vereinsmail aufräumen',b:'Markiere Dubletten und offensichtlichen Spam. Nur markieren, niemals selbst löschen.',kunde:'verein',art:'support',tier:0,tage:1,lohn:96,rollen:[['Markieren',{logik:23,treue:26}]]},
+ {key:'stimmung',t:'Wie kam das Dorffest an?',b:'Ordne kurze Kommentare in positiv, neutral und negativ ein. Ironische Texte gehen zur Rückfrage.',kunde:'verein',art:'text',tier:0,tage:1,lohn:90,rollen:[['Klassifizieren',{schreiben:24,treue:25}]]},
+ {key:'produkt',t:'Vom Stichwort zum Produkttext',b:'Erst die Produktdaten ordnen, dann verständlich formulieren. Ein kleines Modell darf die Vorarbeit übernehmen.',kunde:'laden',art:'text',tier:1,tage:2,lohn:310,rollen:[['Daten ordnen',{treue:27,logik:22}],['Texte schreiben',{schreiben:43,treue:38}]]},
+ {key:'tickets',t:'Support mit Weiterleitung',b:'Ein günstiger Router sortiert die Anfragen. Der Spezialist beantwortet nur die schwierigen Tickets.',kunde:'werkstatt',art:'support',tier:1,tage:2,lohn:340,rollen:[['Routing',{treue:27,logik:24}],['Antworten',{wissen:40,schreiben:40,treue:40}]]},
+ {key:'radio',t:'Eine Woche Dorfgeschichten',b:'Ordne Interviewnotizen und schreibe daraus kurze Radiotexte. Zwei Arbeitstage, ein Tag Lieferpuffer.',kunde:'radio',art:'text',tier:1,tage:2,puffer:1,lohn:370,rollen:[['Notizen ordnen',{kontext:28,treue:26}],['Redaktion',{schreiben:46,treue:40}]]},
+ {key:'faq',t:'Belegte Antworten aus dem Vereinsarchiv',b:'Beantworte Fragen ausschließlich aus Textquellen und liefere passende Belegstellen.',kunde:'buecherei',art:'wissen',tier:1,tage:2,lohn:380,teile:['vector','embedding'],rollen:[['Quellenantwort',{wissen:42,treue:40}]]},
+ {key:'belege',t:'Der Schuhkarton voller Belege',b:'Scans lesen, Beträge extrahieren und Abweichungen zur Prüfung markieren. Alle Daten bleiben auf dem Hof.',kunde:'genossen',art:'text',tier:1,tage:2,lohn:420,teile:['vector','ocr'],lokal:true,rollen:[['Belegfelder',{treue:28,logik:24}],['Abgleich',{logik:42,treue:43}]]},
+ {key:'code',t:'Kleine Reparaturen, echte Tests',b:'Vorsortierte Bugmeldungen reparieren und unabhängig testen. Ein grüner Test allein ist noch kein Beweis.',kunde:'startup',art:'code',tier:2,tage:3,lohn:760,rollen:[['Tickets ordnen',{treue:28,logik:24}],['Reparieren',{code:55,logik:48}],['Gegenprüfen',{code:44,treue:50}]]},
+ {key:'archiv',t:'Das gescannte Heimatarchiv',b:'Scans erschließen, Treffer sortieren und eine belegte Zusammenfassung abgeben. Der gesamte Wissensbaukasten kommt zum Einsatz.',kunde:'buecherei',art:'wissen',tier:2,tage:3,lohn:820,teile:['vector','embedding','ocr','reranker'],rollen:[['Dokumente ordnen',{treue:28,kontext:26}],['Recherche',{wissen:48,treue:46}],['Redaktion',{schreiben:48,treue:45}]]},
+ {key:'rat',t:'Die Ratsunterlagen im Überblick',b:'Lokale Unterlagen zusammenfassen, widersprüchliche Aussagen markieren und Fundstellen gegenprüfen.',kunde:'gemeinde',art:'wissen',tier:2,tage:3,lohn:790,lokal:true,teile:['vector','embedding','reranker'],rollen:[['Quellen ordnen',{kontext:30,treue:28}],['Zusammenfassen',{kontext:50,schreiben:46}],['Quellen prüfen',{wissen:45,treue:52}]]},
+ {key:'daten',t:'Datensatz mit Qualitätsprotokoll',b:'Neue Beispiele auf Dubletten und widersprüchliche Labels prüfen. Saubere Daten vor dem Training sparen später Reparaturen.',kunde:'schule',art:'code',tier:1,tage:2,lohn:330,rollen:[['Dubletten markieren',{logik:24,treue:26}],['Labels prüfen',{logik:40,treue:45}]]},
+ {key:'barriere',t:'Das Amtsblatt in einfacher Sprache',b:'Absätze gliedern und in kurze verständliche Sätze übertragen. Namen und Zahlen müssen erhalten bleiben.',kunde:'gemeinde',art:'text',tier:1,tage:2,lohn:350,rollen:[['Gliedern',{kontext:26,treue:27}],['Vereinfachen',{schreiben:45,treue:44}]]},
+ {key:'wissen',t:'Die widersprüchlichen Quellen',b:'Drei Fassungen einer Anleitung vergleichen. Veraltete Angaben finden und nur die gültige Fassung zitieren.',kunde:'schule',art:'wissen',tier:2,tage:3,lohn:780,teile:['vector','embedding','reranker'],rollen:[['Suche',{wissen:40,treue:40}],['Widersprüche prüfen',{logik:52,treue:54}]]}
+];
+const HL_EVENTS=[
+ {id:'ruhig',z:'🌤️',n:'Ein guter Tag für saubere Arbeit',txt:'Normale Tarife. Zeit, Reserven aufzubauen und kleine Spezialisten auszubilden.'},
+ {id:'sonne',z:'☀️',n:'Sonne über dem Hof',txt:'Solarertrag +45 %. Ein guter Tag für lokale Aufträge und das Laden des Akkus.'},
+ {id:'wind',z:'🌬️',n:'Eine kräftige Brise',txt:'Windertrag +65 %. Wind kann auch die Nachtschicht versorgen.'},
+ {id:'teuer',z:'📈',n:'Teure Netzstunden',txt:'Netzstrom heute +60 %. Nachts gilt weiter der halbe Tagestarif. Eigenstrom priorisieren oder Arbeit verschieben.'},
+ {id:'dunkel',z:'☁️',n:'Dunkelflaute',txt:'Solar liefert nur 35 %, Wind nur 20 %. Akkuladung ist endlich; Netzbezug bleibt verfügbar.'},
+ {id:'quelle',z:'📚',n:'Neue Fassung im Kundenarchiv',txt:'Die Quellen haben sich geändert: Der Index ist nicht mehr aktuell. Nachts neu indexieren; bis dahin keine veralteten Belege liefern.'},
+ {id:'schema',z:'🧾',n:'Der Kunde ändert sein Ausgabeformat',txt:'Zusätzliche Formatfehler drohen. Eine aktuelle Stressprüfung oder das kostenpflichtige Kontrollpaket fängt die Änderung ab.'},
+ {id:'andrang',z:'📬',n:'Viele kleine Anliegen',txt:'Neue einfache Aufträge zahlen heute 20 % mehr. Bereits vereinbarte Preise bleiben bestehen.'},
+ {id:'audit',z:'🧐',n:'Ein unabhängiger Prüfer schaut vorbei',txt:'Kontaminierte Modelle verlieren deutlich an Zuverlässigkeit. Unabhängige Tests und saubere Trainingsdaten sind gefragt.'},
+ {id:'ausfall',z:'🔌',n:'Netzausfall angekündigt · 14–18 Uhr',lvl:5,txt:'Vier Stunden ohne Versorger. Eigenstrom, Akku und Reservekraftwerk übernehmen; unversorgte Modelle pausieren. Cloud bleibt unabhängig.'}
+];
+function hlStand(s=S){
+ if(!s)return {phase:'tag',teile:{},plan:{},energie:{},serie:0,saat:1};
+ if(!s.hofloop){
+  const alt=!!s.setup_rag||s.tiere.some(p=>(p.setups||[]).includes('rag'));
+  s.hofloop={v:1,phase:'tag',saat:zi(1,1000000),teile:alt?{vector:true,embedding:true,ocr:true,reranker:true}:{},indexTag:alt?s.tag:0,plan:{},energie:{},serie:0,best:0,sauber:0,arten:[],abzeichen:{},ereignis:null,letzteEvents:[],pruefungen:{},nacht:null};
+ }
+ const h=s.hofloop; h.teile=h.teile||{};h.plan=h.plan||{};h.energie=h.energie||{};h.pruefungen=h.pruefungen||{};h.abzeichen=h.abzeichen||{};h.arten=h.arten||[];h.letzteEvents=h.letzteEvents||[];
+ if(!['tag','planung','laeuft'].includes(h.phase))h.phase='tag';
+ if(h.phase==='laeuft'&&!hlNachtLaeuft){h.phase='planung';h.nacht=null;} // Reload vor Commit: editierbare Planung wiederherstellen.
+ return h;
+}
+let hlNachtLaeuft=false,hlAuswahl={},hlFilter='alle',hlSuche='',hlSort='name';
+function hlEvent(){const h=hlStand();return HL_EVENTS.find(e=>e.id===(h.ereignis||{}).id)||HL_EVENTS[0];}
+function hlStromFaktor(){return hlEvent().id==='teuer'?1.6:1;}
+function hlRagBereit(){const h=hlStand();return !!(h.teile.vector&&h.teile.embedding&&h.indexTag>0);}
+function hlIndexAlter(){const h=hlStand();return h.indexTag?Math.max(h.indexVeraltet?4:0,S.tag-h.indexTag):99;}
+function hlSetupMod(id){
+ if(id!=='rag')return (SETUPS[id]||{}).mod||{};
+ if(!hlRagBereit())return {};
+ const frisch=hlIndexAlter()<=3,f=frisch?1:.35;
+ return {wissen:Math.round((hlStand().teile.reranker?16:10)*f),treue:Math.round((hlStand().teile.reranker?6:3)*f)};
+}
+// Bisher gekaufte Anlagen bleiben voll erhalten. Die Pipeline ersetzt den pauschalen Kauf.
+Object.assign(SETUPS.rag,{n:'Wissenspipeline (RAG)',preis:0,lvl:1,forschung:null,txt:'Gemeinsame Vektordatenbank + Embedding-Modell + aktueller Index. OCR erschließt Scans; ein Reranker verbessert die Treffer. Aufbau in der Wissenswerkstatt.',lehre:'Retrieval verändert keine Modellgewichte. Falsche Quellen oder ein alter Index lassen sich nicht durch mehr Denkzeit reparieren.'});
+Object.assign(FORSCHUNG.rag,{n:'Quellenlabor: Retrieval prüfen',kosten:180,tage:1,braucht:[],txt:'Optional: Ein eigener Prüfsatz für Treffer und Zitate verbessert Wissensaufträge um 2 Qualitätspunkte. Die Wissenspipeline selbst wird bausteinweise in der Wissenswerkstatt eingerichtet.'});
+// Eine Quelle auch für die bestehenden Setup-Karten und Kapazitätsformeln.
+Object.defineProperties(SETUPS.rag,{mod:{get:()=>hlSetupMod('rag')},kw:{get:()=>hlStand().teile.reranker?1.2:1.1},tokens:{get:()=>hlStand().teile.reranker?1.5:1.35}});
+function hlBauteilKauf(id){const t=HL_TEILE[id],h=hlStand();if(!t||h.teile[id])return;
+ if(t.braucht.some(k=>!h.teile[k])||rhCash()<t.preis){melde('Erst Voraussetzungen und Guthaben prüfen.','schlecht');return;}
+ buche(-t.preis,'kauf',t.n+' · gemeinsame Wissenswerkstatt');h.teile[id]=true;
+ if(h.teile.vector&&h.teile.embedding&&!h.indexTag){h.indexTag=S.tag;S.setup_rag=true;} // Einrichtung enthält ersten kleinen Textindex.
+ sichern();alles();zeigeWissenswerkstatt();
+}
+function hlBtn(t,fn,aus=false,cls='hell'){return '<button class="knopf s '+cls+'" '+(aus?'disabled ':'')+'onclick="'+fn+'">'+t+'</button>';}
+function hlNavigation(){return '<nav class="hlNav" aria-label="Hofplanung">'+hlBtn('📌 Aufträge','zeigeJobs()')+hlBtn('⚖️ Modellvergleich','zeigeModellvergleich()')+hlBtn('🧩 Wissenswerkstatt','zeigeWissenswerkstatt()')+hlBtn('⚡ Einsatz & Energie','zeigeEnergieplan()')+hlBtn('🌙 Nacht planen','tagBeenden()')+'</nav>';}
+function zeigeWissenswerkstatt(){const h=hlStand();blattAuf('🧩 Die Wissenswerkstatt',hlNavigation()+
+ '<div class="karte hell"><h3>Vom Dokument zur belegten Antwort</h3><p>Text → Abschnitte → Embeddings → Vektordatenbank → Reranker → Antwort. Scans brauchen vorher OCR. Die Grundsuche kostet einmalig <b>210 €</b>, alle vier Teile zusammen <b>470 €</b>; gemeinsam für alle Modelle.</p><p>Du kaufst die Einrichtung offener Komponenten. Die kleinen Hilfsmodelle laufen sequenziell im Host-RAM (zusammen 2 GB), kosten im Betrieb zusätzliche Tokens und Strom und belegen keinen eigenen Tierplatz.</p></div>'+
+ '<div class="hlBausteine">'+Object.entries(HL_TEILE).map(([id,t])=>'<article class="karte '+(h.teile[id]?'hlBesitz':'')+'"><span class="hlIcon">'+t.z+'</span><h3>'+t.n+'</h3><b>'+t.mod+'</b><p>'+t.txt+'</p><small>'+(t.braucht.length?'Benötigt: '+t.braucht.map(k=>HL_TEILE[k].n).join(' + '):'Hier beginnt der Aufbau')+'</small>'+hlBtn(h.teile[id]?'✓ Auf dem Hof':geld(t.preis)+' · Einrichten',"hlBauteilKauf('"+id+"')",!!h.teile[id]||t.braucht.some(k=>!h.teile[k])||rhCash()<t.preis,'gruen')+'</article>').join('')+'</div>'+
+ '<div class="karte"><h3>📚 Quellenpflege</h3><p>Index: '+(hlRagBereit()?(hlIndexAlter()<=3?'aktuell':'⚠️ veraltet')+' · '+hlIndexAlter()+' Tage alt':'noch keine Textsuche')+'. Die Einrichtung enthält den ersten Index. Nach drei Tagen oder einer Quellenänderung nachts aktualisieren. Dafür braucht ein lokales Modell 2 GPU-Stunden und mindestens 2 GB Quelldaten; die Quelldaten bleiben erhalten.</p>'+hlBtn('Index nachts aktualisieren','tagBeenden()',!hlRagBereit())+'</div>'+
+ '<div class="karte"><h3>🔍 An Modelle anschließen</h3>'+S.tiere.map(p=>'<div class="listenzeile"><span class="txt"><b>'+esc(p.name)+'</b><span>'+(p.setups.includes('rag')?'Wissenspipeline angeschlossen':'Nutzt bisher keine Pipeline')+'</span></span>'+hlBtn(p.setups.includes('rag')?'Abnehmen':'Anschließen',"hlRagAn('"+p.uid+"')",p.status!=='frei'||(!hlRagBereit()&&!p.setups.includes('rag')))+'</div>').join('')+'</div>', 'wissenwerkstatt');}
+function hlRagAn(uid){setupUm(uid,'rag');zeigeWissenswerkstatt();}
+function hlJobNeu(wunsch){
+ if(!S)return null;
+ const h=hlStand(),offen=S.jobs.filter(j=>!S.tiere.some(p=>p.job===j.id));
+ const mikro=!offen.some(j=>j.mikro),max=Math.min(2,Math.floor(hofLevel().i/2));
+ if(!mikro&&Math.random()>.78)return null; // Alter Katalog bleibt Teil der Wirtschaft.
+ let pool=HL_AUFTRAEGE.filter(v=>mikro?v.tier===0:v.tier<=max);
+ const frisch=pool.filter(v=>!offen.some(j=>j.vorlage===v.key)&&!(h.letzteJobs||[]).slice(-2).includes(v.key));if(frisch.length)pool=frisch;
+ const v=zufall(pool),dauer=v.tage;
+ h.letzteJobs=[...(h.letzteJobs||[]),v.key].slice(-4);
+ const preis=Math.round(v.lohn*z(.95,1.08)*(hlEvent().id==='andrang'&&v.tier===0?1.2:1)*(rufSterne()>=(skillAktiv('stammkunden')?4:4.5)?1.1:1));
+ return {id:'j'+S.zaehler++,vorlage:v.key,mikro:v.tier===0,t:v.t,b:v.b,tier:v.tier,art:v.art,kunde:v.kunde,
+  tage:dauer,puffer:v.puffer||1,frisch:S.tag,anf:v.rollen.reduce((a,r)=>{for(const k in r[1])a[k]=Math.max(a[k]||0,r[1][k]);return a;},{}),ctxMin:v.tier===0?4:16,agent:false,dsgvo:!!v.lokal,
+  mtokTag:v.tier===0?.016:.06,preisMtok:10,latenz:3,parallel:false,einheit:v.tier===0?'Kurzfälle':'Pakete',einheiten:v.tier===0?40:12*dauer,
+  lohnBasis:preis,teile:v.teile||[],rollen:v.rollen.map(([n,anf])=>({n,anf})),stufe:v.tier};
+}
+function hlRollen(j){return j.rollen||[{n:'Bearbeiten',anf:j.anf}];}
+function hlRollenJob(j,i){return {...j,evalRoot:j,rollen:null,anf:hlRollen(j)[i].anf,mtokTag:j.mtokTag/hlRollen(j).length,parallel:!j.rollen&&j.parallel,teile:[],team:null};}
+function jobCheck(p,j){
+ const c=jobCheckBasis(p,j); if(!p.api&&(!p.bucht||!passtInBucht(p,buchtVon(p)))){c.ok=false;c.gruende.push('Keine passende lokale GPU zugewiesen');}
+ for(const id of j.teile||[])if(!hlStand().teile[id]){c.ok=false;c.gruende.push('Fehlt: '+HL_TEILE[id].n);}
+ if((j.teile||[]).includes('embedding')&&(!p.setups.includes('rag')||!hlRagBereit())){c.ok=false;c.gruende.push('Wissenspipeline nicht angeschlossen');}
+ if((j.teile||[]).length&&!p.api&&((buchtVon(p)||{}).ramGB||0)<2){c.ok=false;c.gruende.push('2 GB Host-RAM für die Hilfsmodelle benötigt');}
+ if((j.teile||[]).includes('embedding')&&hlIndexAlter()>3){c.erfolg-=18;c.gruende.push('⚠️ Alter Index: falsche Belege möglich (−18 Qualität)');}
+ if((j.teile||[]).includes('embedding')&&forschungFrei('rag')){c.erfolg+=2;c.boni.push('Quellenlabor: unabhängiger Retrieval-Prüfsatz (+2)');}
+ if(hlEvent().id==='schema'&&!j.kontrolle&&!hlGeprueft(p,j)){c.erfolg-=10;c.gruende.push('⚠️ Ausgabeformat geändert (−10); Stressprüfung empfohlen');}
+ if(hlEvent().id==='audit'&&p.contaminated){c.erfolg-=22;c.gruende.push('⚠️ Kontaminierte Trainingsdaten (−22)');}
+ if(p.pT<1&&p.denken&&j.agent){c.erfolg-=12;c.gruende.push('⚠️ Kleines Modell: Denkmodus + Werkzeuglast überfordern die Ausführung');}
+ if(j.kontrolle){c.erfolg+=6;c.boni.push('Kontrollpaket: Format- und Quellenchecks (+6, 8 €/Arbeitstag)');}
+ c.erfolg=kl(c.erfolg,4,97); return c;
+}
+function hlFinger(p,j){return JSON.stringify([p.w,p.quant,p.denken,p.temp,p.adapters,p.setups,p.geschirr,p.bucht,p.zustand,p.contaminated,p.krank,j.anf,j.teile,hlStand().teile,hlStand().indexTag,hlEvent().id,S.tag]);}
+function hlGeprueft(p,j){j=j.evalRoot||j;return (hlStand().pruefungen[p.uid+':'+j.id]||{}).finger===hlFinger(p,j);}
+function hlPruefen(uid,jid){const p=S.tiere.find(x=>x.uid===uid),j=S.jobs.find(x=>x.id===jid);if(!p||!j||p.status!=='frei')return;
+ if(!hlGeprueft(p,j)){if(rhCash()<3){melde('3 € für unabhängige Testfälle fehlen.','schlecht');return;}
+ buche(-3,'pflege','Dreistufige Evaluation · '+p.name);hlStand().pruefungen[uid+':'+jid]={finger:hlFinger(p,j)};sichern();kopfNeu();}
+ const basis={...p,w:MODELLE[p.modell]?.w||p.w,adapters:[],setups:[],geschirr:null,denken:false,temp:'werk',zustand:100,krank:null};
+ const b=jobCheckBasis(basis,j),c=jobCheck(p,j);
+ const stress=Math.max(4,c.erfolg-(hlIndexAlter()>3&&p.setups.includes('rag')?18:0)-(p.contaminated?22:0)-(p.pT<1&&j.agent?12:0));
+ blattAuf('🔬 Drei Perspektiven auf '+p.name,'<div class="karte hell"><h3>Grundmodell → Konfiguration → Stresstest</h3><p>Simulierte Testfälle für <b>'+esc(j.t)+'</b>. Keine Messung eines realen Modells. Prüfen erhöht keine Fähigkeiten. Ein sauber abgegebener, vorab geprüfter Auftrag kann einen Qualitätsbonus verdienen.</p></div><div class="hlTests">'+
+ [["1 · Grundmodell",b.erfolg,'Ohne Adapter, Denkmodus und Werkzeuge.'],['2 · Mit Ausrüstung',c.erfolg,'Aktuelle Gewichte, Adapter, Setup und Hardware.'],['3 · Unter Stress',stress,'Alte Quellen, kontaminierte Daten und überforderte Werkzeuge.']].map(([n,v,t])=>'<div class="karte"><h3>'+n+'</h3><b class="hlZahl">'+Math.round(v)+' %</b><p>'+t+'</p></div>').join('')+'</div><div class="karte"><h3>Warnzeichen & Gegenmaßnahmen</h3>'+hlWarnHtml(p,j)+ '<p>Dieses Ergebnis gilt nur für diese Konfiguration und diesen Hoftag. In der Einsatzplanung lassen sich passende Modelle direkt vergleichen.</p>'+hlBtn('Zurück zur Einsatzplanung',"zeigeAuftrag('"+jid+"')")+'</div>','evaluation');
+}
+function hlWarnHtml(p,j){const c=jobCheck(p,j),warn=[...c.gruende];if(p.contaminated)warn.push('Trainingsdaten prüfen und sauberen Checkpoint verwenden.');if(p.zustand<65)warn.push('Sitzungspflege nötig: Cache-/Kontextzustand niedrig.');if((hlStand().energie[p.uid]||'auto')==='eigen')warn.push('Nur Eigenstrom: bei Unterdeckung pausiert die Arbeit, Frist läuft weiter.');
+ return warn.length?'<ul class="hlWarn">'+warn.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>':'<p class="hlGut">✓ Keine konkreten Warnzeichen. Ein Restrisiko bleibt.</p>';}
+function hlTeamCheck(j,wahl){
+ const rollen=hlRollen(j),ids=rollen.map((r,i)=>wahl[i]),ps=ids.map(id=>S.tiere.find(p=>p.uid===id));
+ let gruende=[],warnungen=[],ch=[];rollen.forEach((r,i)=>{const p=ps[i];if(!p){gruende.push(r.n+': Modell wählen');return;}
+  const jc={...hlRollenJob(j,i),teile:i===rollen.length-1?j.teile:[],kontrolle:j.kontrolle};
+  const c=jobCheck(p,jc);if(!c.ok)gruende.push(r.n+': '+c.gruende.join(' · '));else warnungen.push(...c.gruende.map(t=>r.n+': '+t));ch.push(c);
+ });
+ const einzigartig=[...new Set(ids.filter(Boolean))];
+ // Keine Addition von Modell-IQ: jede Stufe muss ihren eigenen Mindestwert erreichen.
+ let chance=ch.length?Math.min(...ch.map(c=>c.erfolg)):0;
+ const teamwork=einzigartig.length>1;
+ if(teamwork)chance-=3; // Übergaben sind nicht kostenlos und können scheitern.
+ let anteil=ch.length?Math.min(...ch.map(c=>c.anteil)):0;
+ for(const uid of einzigartig){const p=S.tiere.find(t=>t.uid===uid),jobs=ids.map((id,i)=>id===uid?hlRollenJob(j,i):null).filter(Boolean);
+  if(p){const last=jobs.reduce((a,jj)=>a+jj.mtokTag,0)* (teamwork?1.12:1);anteil=Math.min(anteil,mtokTagKapazitaet(p,j)/Math.max(.001,last));}}
+ return {ok:!gruende.length,gruende,warnungen,erfolg:kl(chance,4,97),anteil:kl(anteil,0,1),ids:einzigartig,teamwork};
+}
+function hlWaehlen(jid,i,uid){const p=S.tiere.find(t=>t.uid===uid);if(!p||p.status!=='frei')return;hlAuswahl[jid]=hlAuswahl[jid]||{};hlAuswahl[jid][i]=uid;zeigeAuftrag(jid);}
+function hlAuto(jid){const j=S.jobs.find(j=>j.id===jid);if(!j)return;const w={};hlRollen(j).forEach((r,i)=>{const jj={...hlRollenJob(j,i),teile:i===hlRollen(j).length-1?j.teile:[]};const ps=S.tiere.filter(p=>p.status==='frei'&&jobCheck(p,jj).ok).sort((a,b)=>(a.api?10:a.pT)-(b.api?10:b.pT));if(ps[0])w[i]=ps[0].uid;});hlAuswahl[jid]=w;zeigeAuftrag(jid);}
+function hlKontrolle(jid){const j=S.jobs.find(x=>x.id===jid);if(!j||j.team||S.tiere.some(p=>p.job===jid))return;j.kontrolle=!j.kontrolle;sichern();zeigeAuftrag(jid);}
+function jobAnnehmen(jid,uid){const j=S.jobs.find(x=>x.id===jid);if(!j)return;hlAuswahl[jid]=Object.fromEntries(hlRollen(j).map((r,i)=>[i,uid]));hlTeamStart(jid);}
+function hlTeamStart(jid){const j=S.jobs.find(x=>x.id===jid);if(!j||j.team||S.tiere.some(p=>p.job===jid)||hlStand().phase!=='tag')return;
+ const w=hlAuswahl[jid]||{},c=hlTeamCheck(j,w);if(!c.ok){melde(c.gruende[0]||'Team unvollständig','schlecht');return;}
+ if(c.ids.some(id=>{const p=S.tiere.find(t=>t.uid===id);return !p||p.status!=='frei';})){melde('Ein Modell ist inzwischen beschäftigt.','schlecht');return;}
+ if(c.anteil<.6){melde('Weniger als 60 % Kapazität. Kleineren Auftrag oder weitere Modelle wählen.','schlecht');return;}
+ j.vereinbart=jobLohnGesamt(j);j.team={wahl:{...w},rest:j.tage,frist:S.tag+j.tage-1+(j.puffer||1),seg:[],geprueft:c.ids.every(id=>hlGeprueft(S.tiere.find(p=>p.uid===id),j))};
+ c.ids.forEach(id=>{const p=S.tiere.find(t=>t.uid===id);p.status='job';p.job=j.id;p.rest=j.tage;});
+ if(j.kunde)kundeVon(j.kunde);sichern();alles();zeigeJobs();
+}
+function hlTeamsTag(energie,bericht){
+ for(const j of [...S.jobs].filter(j=>j.team)){
+  const team=j.team,c=hlTeamCheck(j,team.wahl),ps=c.ids.map(id=>S.tiere.find(p=>p.uid===id)).filter(Boolean);
+  const strom=ps.every(p=>p.api||hlVersorgung(p,energie)>=.98);
+  const bereit=strom&&c.ok&&ps.length===c.ids.length;
+  if(bereit){team.rest--;team.seg.push({anteil:c.anteil,erfolg:c.erfolg});
+   if(j.kontrolle)buche(-8,'pflege','Kontrollpaket · '+j.t);
+   ps.forEach(p=>{if(p.api){const anteil=Object.values(team.wahl).filter(id=>id===p.uid).length/hlRollen(j).length;buche(-jobTagesKosten(p,{...j,mtokTag:j.mtokTag*anteil*(c.teamwork?1.12:1)}),'api','Team-Token · '+p.name);}p.rest=team.rest;});
+  }else bericht.zeilen.push({t:'⏸ '+j.t+': '+(!strom?'Energie reicht für mindestens eine Stufe nicht.':'Team erfüllt die Anforderungen nicht mehr.')+' Lieferfrist: Tag '+team.frist+'.',art:'schlecht'});
+  const spaet=S.tag>=team.frist&&team.rest>0;
+  if(team.rest>0&&!spaet)continue;
+  const n=Math.max(1,team.seg.length),anteil=team.seg.reduce((a,s)=>a+s.anteil,0)/n,chance=team.seg.reduce((a,s)=>a+s.erfolg,0)/n;
+  const gut=!spaet&&Math.random()*100<chance,akzeptiert=spaet?0:anteil*(gut?1:.55),er=einheitenRechnung(j,akzeptiert);
+  if(spaet){const strafe=Math.round(j.vereinbart*.12*(skillAktiv('vertragskunst')?.7:1));buche(-strafe,'strafe','Lieferfrist verpasst · '+j.t);bericht.zeilen.push({t:'❌ '+j.t+': Lieferfrist verpasst. '+geld(strafe)+' Vertragsstrafe, keine Auszahlung.',art:'schlecht'});}
+  else {er.lohn=Math.round(er.lohn*(S.spezial===j.art?1.08:1));buche(er.lohn,'job',j.t+' · '+er.ok+'/'+er.einheiten+' abgenommen');S.statistik.jobs++;S.statistik.mtok+=j.mtokTag*team.seg.length*anteil;S.jobArt=S.jobArt||{};S.jobArt[j.art]=(S.jobArt[j.art]||0)+1;
+   bericht.zeilen.push({t:(gut?'✅ ':'⚠️ ')+j.t+': '+er.ok+'/'+er.einheiten+' abgenommen · '+geld(er.lohn)+(gut?'':' · Nacharbeit/Reklamation'),art:gut?'gut':'schlecht'});
+   if(gut){ps.forEach(p=>tierXp(p,20+j.tier*12));xpDazu(14+j.tier*8);questHook('job_fertig',null);questHook('jobs_fertig',S.statistik.jobs);if(j.agent)questHook('job_agent_fertig',null);if(j.dsgvo)questHook('dsgvo_job',null);}}
+  kundeBewerten(j,{fail:spaet,rekla:!gut,anteil:akzeptiert},bericht);hlQualitaet(j,gut&&anteil>=.95,bericht);
+  ps.forEach(p=>{p.status='frei';p.job=null;p.rest=0;p.zustand=kl(p.zustand-4,5,100);});S.jobs=S.jobs.filter(x=>x.id!==j.id);
+ }
+}
+function hlQualitaet(j,gut,bericht){const h=hlStand();h.serie=gut?h.serie+1:0;h.best=Math.max(h.best||0,h.serie);if(!gut)return;
+ h.sauber++;if(!h.arten.includes(j.art))h.arten.push(j.art);h.mikroSauber=(h.mikroSauber||0)+(j.mikro?1:0);h.teamSauber=(h.teamSauber||0)+(j.team&&new Set(Object.values(j.team.wahl)).size>1?1:0);
+ const bonus=(j.team?.geprueft?.08:0)+(h.serie>=3?.05:0);
+ if(bonus){const b=Math.round(jobLohnGesamt(j)*bonus);buche(b,'job','Qualitätsprämie · '+j.t);bericht.zeilen.push({t:'🏅 '+h.serie+' saubere Lieferungen in Folge · Qualitätsprämie '+geld(b)+'.',art:'gut'});}
+}
+function hlAuftragStatus(j){const p=S.tiere.find(p=>p.job===j.id);return j.team?j.team.rest+' Arbeitstage · bis Tag '+j.team.frist:p?(p.rest+' Tage verbleiben'):(j.tage+' Arbeitstag'+(j.tage===1?'':'e')+' · '+(j.puffer||1)+' Tag Puffer');}
+function zeigeJobs(){const h=hlStand(),laufend=S.jobs.filter(j=>S.tiere.some(p=>p.job===j.id)),offen=S.jobs.filter(j=>!laufend.includes(j));
+ const pool=offen.filter(j=>hlFilter==='alle'||(hlFilter==='klein'?j.mikro:hlFilter==='team'?hlRollen(j).length>1:hlFilter==='wissen'?(j.teile||[]).length:j.tage>=2));
+ blattAuf('📌 Aufträge & Einsatzplanung',hlNavigation()+hlBriefingHtml()+
+ '<details class="karte hlErfolge"><summary>🏅 '+h.serie+' saubere Lieferungen · Boni & Sammlung</summary><p>Bestserie '+h.best+' · '+h.arten.length+' Auftragsarten. Ab 3 sauberen Lieferungen: +5 %. Vorab geprüfte Teams: weitere +8 % bei sauberer Abnahme. Eine Reklamation beendet nur die aktuelle Serie.</p>'+hlAbzeichenHtml()+'</details>'+hlProjektHtml()+
+ (laufend.length?'<div class="karte"><h3>In Arbeit</h3>'+laufend.map(j=>'<div class="hlVertrag"><b>'+esc(j.t)+'</b><span>'+hlAuftragStatus(j)+'</span><progress max="'+j.tage+'" value="'+(j.tage-(j.team?.rest??S.tiere.find(p=>p.job===j.id)?.rest??j.tage))+'"></progress><small>'+S.tiere.filter(p=>p.job===j.id).map(p=>esc(p.name)).join(' + ')+' · '+geld(jobLohnGesamt(j))+' vereinbart</small></div>').join('')+'</div>':'')+
+ '<div class="hlNav">'+[['alle','Alle'],['klein','0,6B-tauglich'],['team','Produktionsketten'],['wissen','Wissensaufträge'],['mehr','Mehrere Tage']].map(([id,n])=>hlBtn(n,"hlJobFilter('"+id+"')",false,hlFilter===id?'gruen':'hell')).join('')+'</div>'+
+ (pool.length?pool.map(j=>'<article class="karte hlAuftrag"><div class="hlKopf"><h3>'+esc(j.t)+'</h3><b>'+geld(jobLohnGesamt(j))+'</b></div><p>'+esc(j.b)+'</p><div class="reihe abstand"><span class="merk">'+hlAuftragStatus(j)+'</span><span class="merk">'+hlRollen(j).length+' Stufe(n)</span>'+(j.mikro?'<span class="merk gut">Auch 0,6B-Spezialisten</span>':'')+(j.dsgvo?'<span class="merk">🔒 nur lokal</span>':'')+'</div><div class="hlStufen">'+hlRollen(j).map(r=>'<span>'+r.n+'<small>'+Object.entries(r.anf).map(([k,v])=>WERTE[k]+' ≥ '+v).join(' · ')+'</small></span>').join('')+'</div>'+(j.teile||[]).map(id=>'<span class="merk '+(h.teile[id]?'gut':'schlecht')+'">'+HL_TEILE[id].z+' '+HL_TEILE[id].n+'</span>').join('')+'<div class="reihe abstand">'+hlBtn('Modelle vergleichen & einteilen',"zeigeAuftrag('"+j.id+"')",false,'gruen')+'</div></article>').join(''):'<div class="karte"><p>Für diesen Filter ist gerade kein Auftrag offen. Andere Kategorien prüfen oder am nächsten Hoftag wiederkommen.</p></div>')+'<p class="hlHinweis">Auszahlung nach Abnahme. Bei Terminbruch 12 % Strafe; bei Qualitätsmängeln nur abgenommene Einheiten bezahlt. Alle Zahlen sind Spielannahmen.</p>','jobs');}
+function hlJobFilter(f){hlFilter=f;zeigeJobs();}
+function zeigeAuftrag(jid){const j=S.jobs.find(x=>x.id===jid);if(!j)return;const w=hlAuswahl[jid]||{},c=hlTeamCheck(j,w),rollen=hlRollen(j);
+ const ps=S.tiere.filter(p=>p.status==='frei'&&(p.bucht||p.api));
+ blattAuf('🧑‍🌾 Einsatz: '+j.t,hlNavigation()+'<div class="karte hell"><h3>'+esc(j.t)+' · '+geld(jobLohnGesamt(j))+'</h3><p>'+esc(j.b)+'</p><p>'+hlAuftragStatus(j)+'. Jede Stufe braucht passende Fähigkeiten. Dasselbe Modell kann mehrere Stufen übernehmen; seine Kapazität wird dabei geteilt. Verschiedene Modelle kosten Übergaben (+12 % Tokenlast, −3 Qualität).</p>'+hlBtn('Günstige passende Modelle vorschlagen',"hlAuto('"+jid+"')")+'</div>'+
+ rollen.map((r,i)=>{const jj={...hlRollenJob(j,i),teile:i===rollen.length-1?j.teile:[]};return '<div class="karte"><h3>'+(i+1)+' · '+r.n+'</h3><div class="reihe">'+Object.entries(r.anf).map(([k,v])=>'<span class="merk">'+WERTE[k]+' ≥ '+v+'</span>').join('')+'</div><p>'+j.ctxMin+'k Kontext · ≥ '+j.latenz+' tok/s'+(j.dsgvo?' · nur lokal':'')+'</p>'+
+ ps.slice().sort((a,b)=>Number(jobCheck(b,jj).ok)-Number(jobCheck(a,jj).ok)||a.pT-b.pT).map(p=>{const q=jobCheck(p,jj),ew=effW(p);return '<div class="hlKandidat '+(w[i]===p.uid?'hlAusgewaehlt':'')+'"><div><b>'+esc(p.name)+'</b> <span class="merk">'+(p.api?'Cloud':p.pT+'B')+'</span><small>'+Object.entries(r.anf).map(([k,v])=>'<span class="'+(ew[k]>=v?'hlGut':'hlRot')+'">'+WERTE[k]+' '+ew[k]+'/'+v+'</span>').join(' · ')+'</small><small>'+rd(q.erfolg)+' % Qualität · '+rd(q.anteil*100)+' % Volumen · '+(p.api?'API':'Strom')+' ~'+geld(Math.ceil(jobTagesKosten(p,jj)*j.tage))+'</small>'+(!q.ok?'<small class="hlRot">'+esc(q.gruende.join(' · '))+'</small>':'')+'</div>'+hlBtn(w[i]===p.uid?'✓ Eingeteilt':'Einteilen',"hlWaehlen('"+jid+"',"+i+",'"+p.uid+"')",!q.ok,w[i]===p.uid?'gruen':'hell')+'</div>';}).join('')+(!ps.length?'<p>Kein freies Modell mit Hardware. Im Stall ein Modell zuweisen.</p>':'')+'</div>';}).join('')+
+ '<div class="karte"><h3>🔬 Vor der Zusage</h3><p>Grundmodell, Ausrüstung und Stressfälle vergleichen. 3 € pro Modell und Konfiguration; am selben Tag erneut ansehen kostenlos.</p>'+c.ids.map(id=>{const p=S.tiere.find(t=>t.uid===id);return hlBtn((hlGeprueft(p,j)?'✓ ':'🔬 ')+esc(p.name),"hlPruefen('"+id+"','"+jid+"')");}).join('')+hlBtn((j.kontrolle?'✓ ':'')+'Kontrollpaket · 8 €/Arbeitstag',"hlKontrolle('"+jid+"')")+'</div>'+
+ '<div class="karte hlZusagen"><h3>'+ (c.ok?'✓ Team vollständig':'Noch nicht startklar')+'</h3><p>'+rd(c.erfolg)+' % Qualitätschance · '+rd(c.anteil*100)+' % Volumen. Kontrollpaket '+geld(j.kontrolle?8*j.tage:0)+' gesamt. Hardware, Strom/API und Pacht fallen zusätzlich an.</p>'+([...c.gruende,...c.warnungen].length?'<p class="hlRot">'+[...c.gruende,...c.warnungen].map(esc).join('<br>')+'</p>':'')+hlBtn('Verbindlich übernehmen · '+geld(jobLohnGesamt(j)),"hlTeamStart('"+jid+"')",!c.ok||c.anteil<.6||hlStand().phase!=='tag','gruen')+'</div>','einsatz');}
+function zeigeModellvergleich(){const keys=Object.keys(WERTE);const arr=S.tiere.slice().sort((a,b)=>hlSort==='groesse'?(a.pT||0)-(b.pT||0):hlSort==='name'?a.name.localeCompare(b.name):(effW(b)[hlSort]||0)-(effW(a)[hlSort]||0));
+ blattAuf('⚖️ Modelle im direkten Vergleich',hlNavigation()+'<div class="karte"><h3>Fähigkeiten sind wichtiger als Größe</h3><p>Aktive Werte inklusive Gewichte, Adapter, Ausrüstung und Zustand. Grau darunter steht der reine Modellwert. Hohe Werte ersetzen weder Hardware noch passende Werkzeuge.</p><div class="hlFelder"><label>Modell suchen<input id="hlSuche" value="'+esc(hlSuche)+'" placeholder="Name oder Modellfamilie" oninput="hlSuche=this.value;hlVergleichZeilen()"></label><label>Sortieren<select onchange="hlSort=this.value;zeigeModellvergleich()">'+[['name','Name'],['groesse','Kleinste zuerst'],...keys.map(k=>[k,WERTE[k]])].map(([v,n])=>'<option value="'+v+'" '+(hlSort===v?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div><div class="hlTabelle" tabindex="0" role="region" aria-label="Horizontal scrollbarer Modellvergleich"><table><thead><tr><th>Modell / Status</th><th>Hardware</th>'+keys.map(k=>'<th>'+WERTE[k]+'</th>').join('')+'<th>Warnzeichen</th></tr></thead><tbody id="hlVergleichBody">'+hlVergleichRows(arr,keys)+'</tbody></table></div></div>','modellvergleich');hlVergleichZeilen();}
+function hlVergleichRows(arr,keys=Object.keys(WERTE)){return arr.map(p=>{const w=effW(p);return '<tr data-name="'+esc(p.name.toLowerCase())+'"><th>'+hlBtn(esc(p.name),"zeigeTier('"+p.uid+"')")+'<small>'+p.status+' · '+(p.api?'API':p.pT+'B')+'</small></th><td>'+ (p.api?'Cloud':rd1(vramPig(p))+' GB VRAM')+'<small>'+tokps(p)+' tok/s</small></td>'+keys.map(k=>'<td><b>'+w[k]+'</b><small>'+p.w[k]+'</small></td>').join('')+'<td>'+[p.krank?'⚠️ '+KRANKHEITEN[p.krank]?.n:'',p.contaminated?'⚠️ Kontamination':'',p.setups.includes('rag')&&hlIndexAlter()>3?'⚠️ Index alt':'',!p.api&&!p.bucht?'⚠️ Keine GPU':''].filter(Boolean).map(esc).join('<br>')+'</td></tr>';}).join('')||'<tr><td colspan="12">Keine Modelle gefunden.</td></tr>';}
+function hlVergleichZeilen(){document.querySelectorAll('#hlVergleichBody tr').forEach(el=>el.hidden=!el.dataset.name?.includes(hlSuche.toLowerCase()));}
+function hlAbzeichenHtml(){return [['klein','🐣 Kleine Helfer',hlStand().sauber>=5],['vielseitig','🧺 Vielseitiger Hof',hlStand().arten.length>=4],['qualitaet','🏅 Qualitätshof',hlStand().best>=7],['wissen','📚 Wissenshof',Object.keys(hlStand().teile).length===4],['nacht','🌙 Nachtmeister',(hlStand().naechte||0)>=5]].map(([id,n,ok])=>'<span class="merk '+(ok?'gut':'')+'">'+(ok?'✓ ':'🔒 ')+n+'</span>').join('');}
+function hlBriefingHtml(){const e=hlEvent();return '<div class="karte hlBriefing"><div><span class="hlIcon">'+e.z+'</span><h3>Tag '+S.tag+' · '+e.n+'</h3><p>'+e.txt+'</p></div><div class="reihe"><span class="merk">Tag '+rhEuro(strompreis())+'/kWh</span><span class="merk">Nacht '+rhEuro(strompreis()*.5)+'/kWh</span>'+hlBtn('Versorgung planen','zeigeEnergieplan()')+'</div></div>';}
+function hlMorgen(bericht){const h=hlStand();hlProjektPruefen(bericht);h.phase='tag';h.plan={};h.pruefungen={};
+ const pool=HL_EVENTS.filter(e=>(!e.lvl||hofLevel().i>=e.lvl)&&!h.letzteEvents.slice(-3).includes(e.id)&&!(e.id==='quelle'&&!hlRagBereit()));
+ const e=pool[Math.floor(rhSeed(S.tag,h.saat)*pool.length)]||HL_EVENTS[0];h.ereignis={id:e.id,tag:S.tag};h.letzteEvents.push(e.id);h.letzteEvents=h.letzteEvents.slice(-5);
+ if(e.id==='quelle')h.indexVeraltet=true;
+ if(!S.jobs.some(j=>j.mikro&&!j.team)){const j=hlJobNeu(0);if(j)S.jobs.push(j);}
+ // Nur offene Preisangebote reagieren auf die aktuelle Nachfrage; Verträge sind eingefroren.
+ bericht.zeilen.push({t:e.z+' Morgenlage: '+e.n+'. '+e.txt,art:e.id==='ausfall'?'schlecht':'info'});
+}
+const HL_PROJEKTE=[
+ {id:'klein',n:'Die Woche der kleinen Helfer',txt:'4 saubere Mikroaufträge abliefern.',feld:'mikroSauber',ziel:4,preis:130},
+ {id:'qualitaet',n:'Verlässlicher Nachbar',txt:'5 Aufträge ohne Qualitätsmängel abliefern.',feld:'sauber',ziel:5,preis:160},
+ {id:'nacht',n:'Wenn die anderen schlafen',txt:'3 Nächte mit geplanter Zusatzarbeit abschließen.',feld:'naechte',ziel:3,preis:110},
+ {id:'eigen',n:'Sonne und Wind ernten',txt:'8 kWh Eigenenergie tatsächlich einsetzen.',feld:'eigenGesamt',ziel:8,preis:150},
+ {id:'team',n:'Zusammen wird es besser',txt:'2 saubere Aufträge mit mehreren Modellen abliefern.',feld:'teamSauber',ziel:2,preis:190},
+ {id:'index',n:'Ein gepflegtes Archiv',txt:'2 nächtliche Reindexierungen abschließen.',feld:'reindexAnzahl',ziel:2,preis:100}
+];
+function hlProjektAngebote(){const w=Math.floor((S.tag-1)/7);return [HL_PROJEKTE[w%2],HL_PROJEKTE[2+(w+Math.floor(hlStand().saat/10))%4]];}
+function hlProjektWaehlen(id){const h=hlStand(),w=Math.floor((S.tag-1)/7);if(h.projekt?.woche===w)return;const p=hlProjektAngebote().find(p=>p.id===id);if(!p)return;h.projekt={id,woche:w,start:h[p.feld]||0,erledigt:false};sichern();zeigeJobs();}
+function hlProjektHtml(){const h=hlStand(),w=Math.floor((S.tag-1)/7),q=h.projekt,p=q?.woche===w?HL_PROJEKTE.find(p=>p.id===q.id):null;
+ return '<details class="karte hlProjekt"><summary>🗓️ Woche '+(w+1)+' · '+(p?(q.erledigt?'Projekt geschafft':'Projekt läuft'):'Hofprojekt wählen')+'</summary><p>Ein selbst gewähltes Ziel bis Hoftag '+(w*7+7)+'. Keine Echtzeit-Frist und keine Strafe, wenn es nicht klappt.</p>'+(p?'<b>'+p.n+'</b><p>'+p.txt+'</p><progress max="'+p.ziel+'" value="'+Math.min(p.ziel,(h[p.feld]||0)-q.start)+'"></progress><p>'+ (q.erledigt?'✓ Abgeschlossen, '+geld(p.preis)+' Projektprämie gebucht.':rhN(Math.max(0,(h[p.feld]||0)-q.start))+' / '+p.ziel+' · Prämie '+geld(p.preis))+'</p>':hlProjektAngebote().map(p=>'<div class="listenzeile"><span class="txt"><b>'+p.n+'</b><span>'+p.txt+' · '+geld(p.preis)+'</span></span>'+hlBtn('Wählen',"hlProjektWaehlen('"+p.id+"')")+'</div>').join(''))+'</details>';
+}
+function hlProjektPruefen(bericht){const h=hlStand(),q=h.projekt;if(!q||q.erledigt)return;const p=HL_PROJEKTE.find(p=>p.id===q.id);if(p&&S.tag<=q.woche*7+8&&(h[p.feld]||0)-q.start>=p.ziel){q.erledigt=true;buche(p.preis,'foerderung','Hofprojekt: '+p.n);bericht.zeilen.push({t:'🗓️ '+p.n+' geschafft! '+geld(p.preis)+' Projektprämie, im Kassenbuch als Förderung getrennt.',art:'gut'});}}
+Object.assign(window,{hlProjektWaehlen});
+function hlLeiste(){if(!S||!S.einfFertig)return;let bar=document.getElementById('hlLeiste');if(!bar){bar=document.createElement('div');bar.id='hlLeiste';document.body.appendChild(bar);}const e=hlEvent();bar.innerHTML=hlBtn(e.z+' Tag '+S.tag+' · Planung','zeigeJobs()')+hlBtn('⚖️ Vergleichen','zeigeModellvergleich()')+hlBtn('🧩 Wissen','zeigeWissenswerkstatt()');}
+
+/* Nachtplanung. Ein Modell / eine GPU kann nicht doppelt verplant werden.
+   Ein 8-Stunden-Fenster ist Rechenzeit, keine kostenlose sofortige Gewichtsverbesserung. */
+const HL_NACHT={ruhe:{n:'Sitzungspflege & Ruhe',stunden:0},lora:{n:'LoRA trainieren',stunden:8,technik:'lora',futter:'beispiele'},sft:{n:'Full SFT trainieren',stunden:8,technik:'sft',futter:'beispiele'},dpo:{n:'DPO trainieren',stunden:8,technik:'dpo',futter:'praef'},synth:{n:'Synthetische Daten',stunden:6},reindex:{n:'Quellen neu indexieren',stunden:2},distill:{n:'Destillations-Lehrdaten',stunden:8}};
+function hlNachtFrei(p){return !p.api&&!!p.bucht&&archVon(p)!=='hrm'&&(p.status==='frei'||(p.status==='job'&&p.rest<=1)||(p.training&&p.training.nurNacht));}
+function hlNachtOption(p){return hlStand().plan[p.uid]||{art:p.training?.nurNacht?'weiter':'ruhe',fokus:'treue',lehrer:null};}
+function hlNachtPruefung(p,q){
+ const a=q.art==='weiter'?{stunden:8,technik:p.training?.id,futter:p.training?.futter}:HL_NACHT[q.art];
+ if(!a)return 'Unbekannte Nachtaktion';if(!hlNachtFrei(p))return 'Modell oder GPU ist noch belegt';
+ if(p.training?.nurNacht&&!['weiter','ruhe'].includes(q.art))return 'Laufendes Nachttraining erst abschließen';
+ if(a.technik){const t=TECHNIKEN[a.technik],g=gpuVon(p);if(!t||!g)return 'Training braucht eine GPU';
+  if(p.krank&&KRANKHEITEN[p.krank]?.sperrtTraining)return 'Erst sauberen Checkpoint wiederherstellen';
+  if(hofLevel().i<t.lvl)return 'Ab Hofstufe '+t.lvl;
+  if(trainingsVramNoetig(p,t)>g.vram)return 'Trainings-VRAM reicht nicht';
+  if((S.daten[a.futter]||0)<trainingsKosten(p,t,a.futter,false).gb)return 'Zu wenig passende Daten in der Bibliothek';}
+ if(q.art==='reindex'&&(!hlRagBereit()||(S.daten.webmix||0)<2))return 'Textpipeline und 2 GB Quelldaten erforderlich';
+ if(q.art==='distill'){const l=S.tiere.find(t=>t.uid===q.lehrer);if(!l||l.uid===p.uid||!hlNachtFrei(l)||l.training)return 'Freien lokalen Lehrer wählen';if(hlNachtOption(l).art!=='ruhe')return 'Lehrer ist bereits verplant';if(effW(l)[q.fokus]<=effW(p)[q.fokus])return 'Lehrer muss im Fokus stärker sein';}
+ return '';
+}
+function hlNachtSet(uid,f,v){const p=S.tiere.find(t=>t.uid===uid);if(!p||hlNachtLaeuft)return;const h=hlStand();h.plan[uid]={...hlNachtOption(p),[f]:v};sichern();zeigeNachtSetup();}
+function hlNachtPlaene(){return S.tiere.filter(hlNachtFrei).map(p=>({p,q:hlNachtOption(p)}));}
+function hlNachtDauer(p,q){if(q.art==='weiter')return Math.min(8,p.training.nachtRest||8);const a=HL_NACHT[q.art];if(a?.technik){const t=TECHNIKEN[a.technik];return Math.min(8,t.gpuStdProB*p.pT/Math.max(.08,gpuVon(p).bw/3350));}return a?.stunden||0;}
+function hlNachtFixkosten(){return hlNachtPlaene().reduce((s,{p,q})=>s+(HL_NACHT[q.art]?.technik?trainingsKosten(p,TECHNIKEN[HL_NACHT[q.art].technik],HL_NACHT[q.art].futter,false).arbeit:0),0);}
+function tagBeenden(){if(!S||hlNachtLaeuft)return;hlStand().phase='planung';S._tagFaellig=false;sichern();zeigeNachtSetup();}
+function hlZurueckTag(){if(hlNachtLaeuft)return;hlStand().phase='tag';S.tagMs=Math.min(S.tagMs,TAG_MS-120000);sichern();blattZu();}
+function zeigeNachtSetup(){if(!S||hlNachtLaeuft)return;const h=hlStand();h.phase='planung';const plaene=hlNachtPlaene(),e=rhVorschau(),fix=hlNachtFixkosten();
+ blattAuf('🌙 Nachtplanung · 22:00–06:00', '<div class="hlNachtKopf"><span>☾</span><div><small>TAG '+S.tag+' GEHT ZU ENDE</small><h3>Wenn der Hof leiser wird.</h3><p>Die nächste Schicht gehört dir. Plane echte Rechenzeit – oder gönne den Sitzungen eine Pause.</p></div></div>'+
+ '<div class="hlTests"><div class="karte"><b class="hlZahl">−50 %</b><p>Netzpreis nachts · '+rhEuro(strompreis()*.5)+'/kWh</p></div><div class="karte"><b class="hlZahl">'+rhN(e.nachtKwh||0)+' kWh</b><p>Geplante Nachtlast inklusive Bereitschaft</p></div><div class="karte"><b class="hlZahl">'+geld(fix)+'</b><p>Datenaufbereitung einmalig; Strom separat</p></div></div>'+
+ '<div class="notiz">Solar erzeugt nachts keinen Strom. Akku und Wind können liefern. Der Tarif halbiert nur Netzstromkosten, weder Datenaufbereitung noch GPU-Zeit. Reward Hacking hängt vom Verfahren ab, nicht von der Uhrzeit. Modelle mit heute endendem Auftrag sind nur bei erfolgreicher Tagesfortschreibung verfügbar.</div>'+
+ (plaene.length?plaene.map(({p,q})=>{const fehler=hlNachtPruefung(p,q),std=hlNachtDauer(p,q);return '<div class="karte hlNachtKarte"><h3>'+esc(p.name)+' <span class="merk">'+p.pT+'B · '+gpuVon(p).vram+' GB VRAM</span></h3><div class="hlFelder"><label>Nachtarbeit<select onchange="hlNachtSet(\''+p.uid+'\',\'art\',this.value)">'+(p.training?.nurNacht?[['weiter','Training fortsetzen'],['ruhe','Training pausieren']]:Object.entries(HL_NACHT).map(([id,a])=>[id,a.n])).map(([id,n])=>'<option value="'+id+'" '+(q.art===id?'selected':'')+'>'+n+'</option>').join('')+'</select></label><label>Trainingsfokus<select onchange="hlNachtSet(\''+p.uid+'\',\'fokus\',this.value)">'+Object.entries(WERTE).map(([k,n])=>'<option value="'+k+'" '+(q.fokus===k?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
+ (q.art==='distill'?'<label>Lehrer<select onchange="hlNachtSet(\''+p.uid+'\',\'lehrer\',this.value)"><option value="">Bitte wählen</option>'+plaene.filter(x=>x.p.uid!==p.uid).map(({p:l})=>'<option value="'+l.uid+'" '+(q.lehrer===l.uid?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><p>Beide Modelle sind gebunden. Ergebnis: gekennzeichnete Lehrdaten für späteres Training des vorhandenen kleinen Schülers, kein kostenloses neues Grundmodell.</p>':'')+
+ (q.art==='synth'?'<p>6 GPU-Stunden → 8–40 GB Lehrbeispiele, abhängig von Tempo und Qualität. Herkunft wird gespeichert; rekursive Synthetik verliert Qualität.</p>':'')+
+ (q.art==='reindex'?'<p>2 GPU-Stunden · 2 GB vorhandene Quellen nötig · setzt die Indexfrische zurück.</p>':'')+
+ '<p>'+rhN(std)+' GPU-Stunden in dieser Nacht'+(q.art==='weiter'?' · '+rhN(p.training.nachtRest)+' Stunden Restarbeit':'')+'. '+(q.art==='ruhe'?'Sitzungspflege: +6 Zustand, keine Heilung beschädigter Gewichte.':'Bei fehlender Energie wird pausiert, kein Ergebnis verschenkt.')+'</p>'+(fehler?'<p class="hlRot">⚠️ '+fehler+'</p>':'')+'</div>';}).join(''):'<div class="karte"><p>Alle Modelle sind noch beschäftigt. Die Nacht kann auch ohne zusätzliche Jobs beginnen.</p></div>')+
+ '<div class="karte hlZusagen"><h3>Schichtvorschau</h3><p>Tag + Nacht: '+rhN(e.last)+' kWh tatsächlicher Bedarf · '+rhEuro(e.kosten)+' Energiekosten inkl. Wartung, abzüglich Einspeisung. Davon Nacht-Netzbezug: '+rhEuro(e.nachtKosten||0)+'. Pacht, Mieten und Auftragskontrolle zusätzlich.</p>'+(e.fehl>.01?'<p class="hlRot">⚠️ '+rhN(e.fehl)+' kWh nicht versorgt. Einsatz & Energie prüfen.</p>':'')+'<div class="reihe">'+hlBtn('⚡ Energie zuweisen','zeigeEnergieplan()')+hlBtn('Zurück zum Tag','hlZurueckTag()')+hlBtn('🌙 Nachtschicht starten','starteNachtSchicht()',false,'gruen')+'</div></div>', 'nachtsetup');sichern();}
+function starteNachtSchicht(){if(hlNachtLaeuft||hlStand().phase!=='planung')return false;
+ const plaene=hlNachtPlaene(),belegt=new Set();for(const {p,q}of plaene){if(q.art==='ruhe')continue;const f=hlNachtPruefung(p,q);if(f){melde(p.name+': '+f,'schlecht');return false;}for(const id of [p.uid,...(q.art==='distill'?[q.lehrer]:q.art==='reindex'?['gemeinsamerIndex']:[])]){if(belegt.has(id)){melde('Ein Modell oder der gemeinsame Index ist mehrfach für die Nacht eingeplant.','schlecht');return false;}belegt.add(id);}}
+ if(rhCash()<hlNachtFixkosten()){melde('Datenaufbereitung übersteigt das verfügbare Guthaben. Kleineren Nachtplan wählen.','schlecht');return false;}
+ hlStand().nacht=plaene.map(({p,q})=>({uid:p.uid,q:{...q},stunden:hlNachtDauer(p,q)}));
+ hlNachtLaeuft=true;hlStand().phase='laeuft';sichern();blattZu();
+ let overlay=document.getElementById('nachtschatten');if(!overlay){overlay=document.createElement('div');overlay.id='nachtschatten';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');document.body.appendChild(overlay);}
+ overlay.innerHTML='<div class="hlMondbahn"><span>🌕</span></div><h3>Die Nachtschicht läuft …</h3><p>Rechenzeit, Energie und Ergebnisse werden abgerechnet.</p>';overlay.classList.add('auf');
+ // Genau ein Commit. Ein Reload vor dem Commit stellt die unveränderte Planung wieder her.
+ setTimeout(()=>{try{ausfuehrenTagesWechsel();}finally{hlNachtLaeuft=false;overlay.classList.remove('auf');}},window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?50:3300);return true;
+}
+function hlNachtAbrechnen(energie,bericht){const h=hlStand(),plan=h.nacht||[],gebunden=new Set(plan.filter(x=>x.q.art==='distill').map(x=>x.q.lehrer));let erfolge=0;
+ for(const {uid,q,stunden}of plan){const p=S.tiere.find(t=>t.uid===uid);if(!p)continue;
+  if(q.art==='ruhe'){if(!gebunden.has(uid)&&p.status==='frei')p.zustand=kl(p.zustand+6,5,100);continue;}
+  if(p.status!=='frei'&&!p.training?.nurNacht){bericht.zeilen.push({t:'🌙 '+p.name+': Nachtarbeit entfällt, Tagesauftrag noch nicht abgeschlossen.',art:'info'});continue;}
+  const quote=hlVersorgung(p,energie,true);if(quote<.98){bericht.zeilen.push({t:'🌙 '+p.name+': Nachtarbeit wegen Energieunterdeckung pausiert.',art:'schlecht'});continue;}
+  const a=HL_NACHT[q.art];if(a?.technik||q.art==='weiter'){
+   if(q.art!=='weiter'){if(!trainingStarten(p,a.technik,q.fokus,a.futter,p.bucht))continue;p.training.nurNacht=true;p.training.nachtRest=Math.max(.1,TECHNIKEN[a.technik].gpuStdProB*p.pT/Math.max(.08,gpuVon(p).bw/3350));}
+   p.training.nachtRest=Math.max(0,p.training.nachtRest-stunden);p.rest=Math.ceil(p.training.nachtRest/8);
+   if(p.training.nachtRest<=.001)trainingAbschliessen(p,bericht);
+   else bericht.zeilen.push({t:'🌙 '+p.name+': '+rhN(stunden)+' h trainiert; '+rhN(p.training.nachtRest)+' h bleiben. Tagsüber reserviert, nachts fortsetzbar.',art:'info'});
+  }else if(q.art==='synth'||q.art==='distill'){
+   let lehrer=p;if(q.art==='distill'){lehrer=S.tiere.find(t=>t.uid===q.lehrer);if(!lehrer||lehrer.status!=='frei'||hlVersorgung(lehrer,energie,true)<.98){bericht.zeilen.push({t:'🌙 Destillation pausiert: Lehrer nicht verfügbar.',art:'info'});continue;}}
+   const qual=kl((effW(lehrer).treue+effW(lehrer)[q.fokus])/220,.25,.9)*Math.pow(.82,lehrer.synthGen||0);
+   const gb=Math.round(kl(tokps(lehrer)*stunden/30,8,40));synthChargeDazu(gb,qual,(lehrer.synthGen||0)+1,(q.art==='distill'?'Lehrer '+lehrer.name+' → '+p.name:p.name)+' · Nacht '+S.tag);p.zustand=kl(p.zustand-3,5,100);
+   bericht.zeilen.push({t:'🌙 '+(q.art==='distill'?'Destillations-Vorbereitung':'Synthetische Daten')+': '+gb+' GB · Qualität '+rd(qual*100)+' % · Herkunft dokumentiert. Noch kein Gewichtsupdate.',art:'gut'});
+  }else if(q.art==='reindex'){h.indexTag=S.tag+1;h.indexVeraltet=false;h.reindexAnzahl=(h.reindexAnzahl||0)+1;bericht.zeilen.push({t:'🌙 Vektorindex aus vorhandenen Quellen neu aufgebaut. Gewichte unverändert.',art:'gut'});}
+  erfolge++;
+ }
+ if(erfolge)h.naechte=(h.naechte||0)+1;
+ h.eigenGesamt=(h.eigenGesamt||0)+(energie.direkt||0)+(energie.entladung||0);
+ h.nacht=null;h.plan={};h.phase='tag';
+}
+
+/* Individuelle Energieprofile, gespeicherte Prioritäten und transparente Lastabwürfe. */
+function hlEnergieModus(uid,m){if(!['auto','eigen'].includes(m))return;hlStand().energie[uid]=m;sichern();zeigeEnergieplan();}
+function hlProfile(s=S){const teile={},nacht={},base=Array(24).fill(rhCfg(s).grund),h=hlStand(s),plaene=h.nacht||s.tiere.filter(hlNachtFrei).map(p=>({uid:p.uid,q:hlNachtOption(p),stunden:hlNachtDauer(p,hlNachtOption(p))}));
+ const vorgesehen=new Map();for(const x of plaene){vorgesehen.set(x.uid,x);if(x.q.art==='distill')vorgesehen.set(x.q.lehrer,{...x,uid:x.q.lehrer});}
+ for(const b of s.buchten){const p=s.tiere.find(t=>t.uid===b.tier);const idle=p?.045:.008,peak=rhPeak(b)*rhCfg(s).pue;for(let t=0;t<24;t++)base[t]+=idle;
+  if(!p)continue;teile[p.uid]=Array(24).fill(0);nacht[p.uid]=Array(24).fill(0);
+  const aktiv=p.status==='training'&&!p.training?.nurNacht?22:p.status==='job'?Math.min(16,14*(p.setups||[]).reduce((f,id)=>f*((SETUPS[id]||{}).kw||1),1)):p.status==='agentenwelt'?16:p.status==='zucht'?10:0;
+  for(let t=0;t<24;t++){const d=p.status==='training'&&!p.training?.nurNacht?t!==6&&t!==7:t>=22-aktiv&&t<22; if(d)teile[p.uid][t]=Math.max(0,peak-idle);}
+  const n=vorgesehen.get(p.uid);if(n){let rest=n.stunden;for(const t of [22,23,0,1,2,3,4,5]){const dt=Math.min(1,rest);nacht[p.uid][t]=Math.max(0,peak-idle)*dt;teile[p.uid][t]=Math.max(teile[p.uid][t],nacht[p.uid][t]);rest-=dt;}}
+ }
+ return {teile,nacht,base,last:base.map((x,i)=>x+Object.values(teile).reduce((a,v)=>a+v[i],0)),modi:h.energie};
+}
+function hlVersorgung(p,a,nacht=false){if(p.api)return 1;const m=(a.modelle||{})[p.uid];if(!m)return 1;return nacht?(m.nachtLast?m.nachtGeliefert/m.nachtLast:1):(m.tagLast?m.tagGeliefert/m.tagLast:1);}
+function zeigeEnergieplan(){const h=hlStand(),a=rhVorschau();blattAuf('⚡ Einsatz & Energie',hlNavigation()+hlBriefingHtml()+
+ '<div class="karte hell"><h3>Eigenstrom dort einsetzen, wo er sich lohnt</h3><p><b>Automatisch:</b> Sonne, Wind und Akku zuerst, fehlenden Strom vom Netz/Kraftwerk beziehen. <b>Nur Eigenstrom:</b> Dieses Modell erhält erneuerbare Energie zuerst und pausiert bei Unterdeckung; das Netz wird dafür nicht belastet. Mehrere Eigenstrom-Modelle teilen sich den Ertrag in der angezeigten Reihenfolge. Grundlast und Standby bleiben automatisch versorgt.</p><p>Akkus starten leer, haben Ladeverluste und eine Leistungsgrenze. Nur Eigenstrom ist ohne genug Erzeugung oder Speicher riskant.</p></div>'+
+ '<div class="hlTests"><div class="karte"><b class="hlZahl">'+rhN(a.direkt+a.entladung)+' kWh</b><p>Eigenenergie eingesetzt</p></div><div class="karte"><b class="hlZahl">'+rhN(a.netz+a.nachbar)+' kWh</b><p>Netz / Nachbar</p></div><div class="karte"><b class="hlZahl">'+rhEuro(a.kosten)+'</b><p>Energie gesamt · '+rhN(a.fehl)+' kWh fehlen</p></div></div>'+
+ '<div class="karte">'+S.tiere.filter(p=>!p.api&&p.bucht).map(p=>{const m=a.modelle?.[p.uid]||{tagLast:0,nachtLast:0,eigen:0};return '<div class="hlKandidat"><div><b>'+esc(p.name)+'</b><small>'+rhN(m.tagLast)+' kWh Tag · '+rhN(m.nachtLast)+' kWh Nacht · '+rhN(m.eigen)+' kWh Eigenenergie</small><small class="'+(hlVersorgung(p,a)<.98||hlVersorgung(p,a,true)<.98?'hlRot':'hlGut')+'">Versorgt: Tag '+rd(hlVersorgung(p,a)*100)+' % · Nacht '+rd(hlVersorgung(p,a,true)*100)+' %</small></div><label>Versorgung<select onchange="hlEnergieModus(\''+p.uid+'\',this.value)"><option value="auto" '+(h.energie[p.uid]!=='eigen'?'selected':'')+'>Automatisch</option><option value="eigen" '+(h.energie[p.uid]==='eigen'?'selected':'')+'>Nur Eigenstrom</option></select></label></div>';}).join('')+'</div><div class="reihe">'+hlBtn('Solar, Wind & Speicher bauen',"zeigeRechenhaus('energie')")+hlBtn('🌙 Zur Nachtplanung','tagBeenden()')+'</div><p class="hlHinweis">Vorschau mit aktueller Belegung und geplantem Nachtprogramm. Eine Zuweisung verbraucht keinen Strom und entlädt keinen Akku. Gebucht wird erst beim Schichtabschluss.</p>','energieplan');}
+Object.assign(window,{tagBeenden,zeigeNachtSetup,starteNachtSchicht,hlZurueckTag,hlNachtSet,zeigeJobs,jobAnnehmen,zeigeAuftrag,hlWaehlen,hlAuto,hlKontrolle,hlTeamStart,hlJobFilter,hlPruefen,zeigeModellvergleich,hlVergleichZeilen,zeigeWissenswerkstatt,hlBauteilKauf,hlRagAn,zeigeEnergieplan,hlEnergieModus});
+
 
 /* Boot-Sequenz */
 document.getElementById("bootpig").innerHTML=(typeof pigSvg==="function")?pigSvg({farbe:"#f4a6c0",gr:1}):"🐷";
