@@ -629,7 +629,7 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
     </div>
     <div class="chips" id="chips"></div>
     <button class="knopfrund" onclick="oeffne('kompendium')" aria-label="Kompendium">📖</button>
-    <button class="knopfrund" onclick="zeigeHilfe()" aria-label="Anleitung">?</button>
+    <button class="knopfrund" onclick="zeigeHofbuch()" aria-label="Hofbuch – Regelwerk und Hilfe">📖</button>
   </div>
   <div id="ticker" onclick="oeffne('news')"><span id="tickertext"></span></div>
 </header>
@@ -4060,7 +4060,7 @@ const BAUFORMEN={
   moe:{n:"Mixture of Experts (MoE)",z:"🧩",txt:"Viele Experten, wenige aktiv pro Wort: viel Speicher, wenig Rechenzeit."},
   ssmh:{n:"Mamba-Hybrid (SSM)",z:"🐍",txt:"Zustandsraum-Schichten statt purer Attention: der Kontext-Cache bleibt winzig, lange Texte kosten kaum extra Speicher."},
   linh:{n:"Linear-Attention-Hybrid",z:"⚡",txt:"Lineare Attention (z. B. Kimi Delta Attention, GatedDeltaNet): bis zu 7-fach kleinerer KV-Cache bei langem Kontext."},
-  hrm:{n:"HRM/TRM (Reasoning-Spezialarchitektur)",z:"🧮",txt:"Kein Sprachmodell! Winzige rekursive Denk-Netze, die nur strukturierte Rätsel lösen – dafür mit ein paar Millionen Parametern."}
+  hrm:{n:"HRM/TRM (Rätsel-Architektur)",z:"🧮",txt:"Kein Sprachmodell! Winzige rekursive Denk-Netze, die nur strukturierte Rätsel lösen – dafür mit ein paar Millionen Parametern."}
 };
 /* Denk-Klassen */
 /* Denk-Klasse = POST-TRAINING-Eigenschaft (Denkmodus), KEINE Bauform neben Dense/MoE (Prüfbericht) */
@@ -4605,7 +4605,9 @@ function hashZahl(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeA
 const speicher=(()=>{try{localStorage.setItem("_t","1");localStorage.removeItem("_t");
     return {echt:true,l:n=>localStorage.getItem(n),s:(n,v)=>localStorage.setItem(n,v),w:n=>localStorage.removeItem(n)};
   }catch(e){const m={};return {echt:false,l:n=>m[n]??null,s:(n,v)=>{m[n]=v},w:n=>{delete m[n]}};}})();
-const KEY="modellhof_v4";
+/* Ära 7 (ADR 0003): NEUER Speicher-Schlüssel – Alt-Stände (modellhof_v4) werden bewusst
+   weder geladen noch migriert; der einmalige Hinweis kommt in start(). */
+const KEY="modellhof_v7";
 
 /* Größenklasse eines Schweins aus Parametern (Mrd.) */
 function grKlasse(pT){ return pT<=5?0 : pT<=16?1 : pT<=49?2 : pT<=130?3 : pT<=500?4 : 5; }
@@ -4670,7 +4672,7 @@ function frischerStand(){
     zaehler:1, denkmodusGenutzt:false, adapterGewechselt:false, replayGenutzt:false,
     verkauft:0, letzterBericht:null, hilfeGesehen:false,
     journal:[], kunden:{}, tagMs:0, marktLos:null, marktStempel:0,
-    agentenWelt:null, ramGB:32, synthChargen:[], modus:"lern", rechenhaus:rhNeu()
+    agentenWelt:null, ramGB:32, synthChargen:[], rechenhaus:rhNeu()
   };
   hlStand(stand);return stand;
 }
@@ -4930,10 +4932,10 @@ function jobCheckBasis(p,j){
   if(j.art==="puzzle"){
     if(archVon(p)==="hrm"){
       const erfolg=kl(38+(p.puzzle||90)*0.55+((w.treue||50)-50)*0.2,10,97);
-      boni.push("Spezialarchitektur: löst reine Struktur-Rätsel nativ");
+      boni.push("Rätsel-Architektur: löst reine Struktur-Rätsel nativ");
       return {ok:true,gruende,boni,erfolg,anteil:1,min:1.4};
     }
-    if(!(p.rz>0&&p.denken)){ ok=false; gruende.push("Reines Rätsel: braucht Denkmodus oder Spezialarchitektur (HRM/TRM)"); }
+    if(!(p.rz>0&&p.denken)){ ok=false; gruende.push("Reines Rätsel: braucht Denkmodus oder Rätsel-Architektur (HRM/TRM)"); }
   }
   for(const k in j.anf){
     const q=(w[k]||0)/j.anf[k]; quote.push(q);
@@ -5582,7 +5584,8 @@ function ausfuehrenTagesWechsel(){
             bericht.zeilen.push({t:"🔁 "+K.z+" "+K.n+" gibt euch eine zweite Chance – der Zettel hängt wieder an der Pinnwand (halbe Strafe beim nächsten Patzer).",art:"info"});
           }
         } else {
-          const spezB=(S.spezial&&j.art===S.spezial)?1.08:1;   // Hof-Spezialisierung: +8 % auf die eigene Auftragsart
+          /* Hof-Fokus (+8 %) und Tier-Spezialist (+8 %, Marktlos) – stapeln bewusst; Ära-7-Fix: spezialArt wirkt jetzt wirklich */
+          const spezB=((S.spezial&&j.art===S.spezial)?1.08:1)*((p.spezialArt===j.art)?1.08:1);
           const er=einheitenRechnung(j,abgenommen);
           const lohn=Math.round(er.lohn*spezB);
           buche(lohn,"job",j.t+" ("+er.ok+"/"+er.einheiten+" "+(j.einheit||"Stück")+")");
@@ -5590,7 +5593,7 @@ function ausfuehrenTagesWechsel(){
           S.statistik.jobs++; S.statistik.mtok+=Math.round((j.mtokTag||0)*segT*anteil*10)/10;
           S.jobArt=S.jobArt||{}; S.jobArt[j.art]=(S.jobArt[j.art]||0)+1;   // Hermes-Skill-Schleife lernt je Auftragsart
           if(qualOk){
-            bericht.zeilen.push({t:"✅ "+j.t+": "+er.ok+" von "+er.einheiten+" "+(j.einheit||"Stück")+" abgenommen (+"+geld(lohn)+(spezB>1?" · Spezialisierung +8 %":"")+")",art:"gut"});
+            bericht.zeilen.push({t:"✅ "+j.t+": "+er.ok+" von "+er.einheiten+" "+(j.einheit||"Stück")+" abgenommen (+"+geld(lohn)+(spezB>1.12?" · Hof-Fokus & Spezialist +16 %":spezB>1?((p.spezialArt===j.art)?" · 🎯 Spezialist +8 %":" · Hof-Fokus +8 %"):"")+")",art:"gut"});
             tierXp(p,25+j.tier*14); xpDazu(14+j.tier*8);
             questHook("job_fertig",null); questHook("jobs_fertig",S.statistik.jobs);
             if(j.agent) questHook("job_agent_fertig",null);
@@ -5887,7 +5890,7 @@ function marktLosKaufen(i){
   }
   if(a.typ==="spezialist"){
     t.spezialArt=a.art;
-    t.historie.push({tag:S.tag,n:"Spezialisierung",detail:"Auf "+a.art+"-Aufträge eingestellt (+8 % Erlös)",ausgang:"sauber"});
+    t.historie.push({tag:S.tag,n:"Spezialist",detail:"Auf "+a.art+"-Aufträge eingestellt (+8 % Erlös)",ausgang:"sauber"});
   }
   S.tiere.push(t);
   S.marktLos.angebote.splice(i,1);
@@ -6412,7 +6415,7 @@ function oeffne(was,arg){
     geschirr:zeigeGeschirr,werkstatt:zeigeWerkstatt,forschung:zeigeForschung,cloud:zeigeCloud,
     leitstand:zeigeLeitstand,energie:zeigeEnergie,jobs:zeigeJobs,markt:zeigeMarkt,arena:zeigeArena,hof:zeigeHof,tierwahl:zeigeTierwahl,
     agentenwelt:zeigeAgentenWelt,
-    hofhaus:zeigeHofhaus,kompendium:zeigeKompendium,news:zeigeNews,tier:()=>zeigeTier(arg),hilfe:zeigeHilfe}[was];
+    hofhaus:zeigeHofhaus,kompendium:zeigeKompendium,news:zeigeNews,tier:()=>zeigeTier(arg),hilfe:zeigeHilfe,hofbuch:zeigeHofbuch}[was];
   if(f) f();
 }
 
@@ -6650,7 +6653,9 @@ function zeigeTier(uid){
       (archVon(p)!=="hrm"?'<div class="karte"><h3>🌡️ Betriebstemperatur (Sampler)</h3>'+
         '<p>Jeder Hersteller empfiehlt eine Einstellung'+(empf?' – für die '+esc((FAMILIEN[p.fam]||{}).n||p.fam)+'-Familie offiziell: <b>Temperatur '+esc(empf)+'</b>':"")+'. Abweichen hat echte Folgen'+(quirkHat(p,"repetitionsrisiko")?' – diese Familie neigt bei zu kalter Einstellung dokumentiert zu Wiederholungsschleifen!':"")+(quirkHat(p,"hitzeempfindlich")?' – diese Familie fantasiert bei zu heißer Einstellung dokumentiert stärker!':"")+'.</p>'+
         '<div class="reihe abstand">'+[["praezise","🥶 Präzise (kalt)","Treue +3, Stil −4"],["werk","🎯 Werksempfehlung","neutral – so testet der Hersteller"],["kreativ","🔥 Kreativ (heiß)","Stil +4, Treue −4"]].map(([id,n,t])=>'<button class="knopf s '+(p.temp===id?"gewaehlt":"hell")+'" title="'+t+'" onclick="tempSetzen(\''+p.uid+'\',\''+id+'\')">'+n+'</button>').join("")+'</div></div>':"")+
-      (archVon(p)==="hrm"?'<div class="karte"><h3>🧮 Spezialarchitektur</h3><p>Dieses Tier ist <b>kein Sprachmodell</b>: kein Geschirr, keine Setups, keine Adapter – aber bei reinen Rätsel-Aufträgen (Jobbrett: 🧩) schlägt es Riesen zum Bruchteil der Kosten.</p></div>':
+      (archVon(p)==="hrm"?'<div class="karte"><h3>🧮 Rätsel-Architektur</h3><p>Dieses Tier ist <b>kein Sprachmodell</b>: kein Geschirr, keine Setups, keine Adapter – aber bei reinen Rätsel-Aufträgen (Jobbrett: 🧩) schlägt es Riesen zum Bruchteil der Kosten.</p></div>':"")+
+      (p.spezialArt?'<div class="karte"><h3>🎯 Spezialist: '+esc(p.spezialArt)+'</h3><p>Dieses Tier ist auf <b>'+esc(p.spezialArt)+'</b>-Aufträge eingestellt und verdient dort dauerhaft <b>+8 % Erlös</b> (stapelt mit dem Hof-Fokus).</p></div>':"")+
+      (archVon(p)==="hrm"?'':
       '<div class="karte"><h3>'+((HARNESSE[p.geschirr]||{}).z||"🐴")+' Geschirr (Agent-Harness)</h3>'+
         (p.geschirr?'<p><b>'+HARNESSE[p.geschirr].n+'</b> · Eignung '+geschirrEignung(p,p.geschirr)+'% · Agent-Wert <b>'+agentScore(p)+'</b></p><p style="font-size:12px">'+HARNESSE[p.geschirr].lehre+'</p><div class="reihe abstand"><button class="knopf s hell" onclick="geschirrAb(\''+p.uid+'\')">Ablegen</button><button class="knopf s" onclick="oeffne(\'geschirr\')">Kammer öffnen</button></div>'
         :'<p>Ohne Geschirr keine Agent-Aufträge. Die Geschirrkammer zeigt, welches CLI-Harness zu welcher Modellfamilie passt.</p><div class="reihe abstand"><button class="knopf s" '+(forschungFrei("geschirr")?"":"disabled")+' onclick="oeffne(\'geschirr\')">'+(forschungFrei("geschirr")?"Zur Geschirrkammer":"Erst \'Agentenkunde\' erforschen")+'</button></div>')+'</div>'+
@@ -7909,6 +7914,97 @@ function zeigeBericht(b){
   tickerNeu();
 }
 
+/* ══════════ 📖 HOFBUCH – das aus den Spieldaten GENERIERTE Regelwerk (ADR 0001) ══════════
+   Eine Quelle der Wahrheit: Jedes Kapitel liest die Datenobjekte direkt. Neue Einträge
+   dokumentieren sich selbst; der Solltest HOFBUCH-1 erzwingt Vollständigkeit. */
+function hbKap(id,z,titel,inhalt){ return '<div class="karte" id="hb_'+id+'"><h3>'+z+' '+titel+'</h3>'+inhalt+'</div>'; }
+function hbZeile(z,name,rest){ return '<div class="listenzeile"><span style="font-size:20px;flex:0 0 26px;text-align:center">'+z+'</span><span class="txt"><b>'+name+'</b><span>'+rest+'</span></span></div>'; }
+function hbSpring(id){ const el=document.getElementById("hb_"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); }
+function hofbuchHtml(){
+  const T=x=>typeof x!=="undefined", e=esc;
+  const KAPITEL=[["start","🚀","Schnellstart"],["stufen","🏅","Stufen"],["forschung","🔬","Techtree"],["skills","⭐","Meisterschaften"],
+    ["training","🎓","Training & Zucht"],["ausruestung","🐴","Geschirre & Setups"],["krank","🤒","Krankheiten"],["events","⚡","Ereignisse"],
+    ["saison","🌱","Saisonen"],["auftraege","📌","Aufträge & Kunden"],["hardware","🖥️","Hardware & Energie"],["futter","🌾","Futter"],
+    ["modelle","🐷","Modell-Katalog"],["ehre","🎖️","Auszeichnungen"],["glossar","📜","Glossar"]];
+  let h='<div class="notiz">Das <b>Hofbuch</b> ist direkt aus den Spieldaten erzeugt – was hier steht, gilt; was hier fehlt, gibt es nicht. Für die Grundlagen: <button class="knopf s hell" onclick="zeigeHilfe()">🐷 Anleitung</button> <button class="knopf s hell" onclick="oeffne(\'kompendium\')">📚 Wissenskarten</button></div>'+
+  '<div class="reihe" style="flex-wrap:wrap;gap:5px;position:sticky;top:0;background:var(--papier);z-index:5;padding:4px 0">'+KAPITEL.map(([id,z,t])=>'<button class="knopf s hell" onclick="hbSpring(\''+id+'\')">'+z+' '+t+'</button>').join("")+'</div>';
+  /* Schnellstart-FAQ */
+  h+=hbKap("start","🚀","Schnellstart & FAQ",[
+    ["Wie nehme ich Aufträge an?","Ein Tier muss in einer GPU-Bucht stehen (Stall → „Belegen“) oder eine API-Lizenz haben. Dann zeigt jeder passende Zettel einen Annahme-Knopf mit Vorab-Kalkulation."],
+    ["Warum passt mein Tier nicht in die Bucht?","VRAM-Bedarf = Gewichte + Kontext-Cache + Reserve. Diät (Quantisierung) verkleinert die Gewichte; Überhang lagert in den RAM aus und kostet Tempo."],
+    ["Wovon werde ich krank?","Dreckiges Futter, Dauerbetrieb ohne Sitzungspflege, Übertraining (zu viele Läufe in kurzer Zeit) und heiße Sampler-Einstellungen. Jede Krankheit hat eine echte Ursache und eine echte Kur."],
+    ["Wie bekomme ich Meisterpunkte?","Genau einen je erreichter Hofstufe ab Stufe 2 – keine anderen Quellen. Ausgeben in der Forschungshütte unter „Meisterschaften“."],
+    ["Was bringt die Nacht?","Halber Strompreis. Die Nachtplanung erlaubt Training, Synthetik-Erzeugung und Index-Pflege, ohne den Arbeitstag zu blockieren."],
+    ["Wie funktioniert die Wissens-Pipeline (RAG)?","Als Kette: Vektordatenbank + Embedding-Modell ergeben Textsuche; OCR erschließt Scans; der Reranker prüft Treffer. Aufträge verlangen die Bausteine ausdrücklich – und der Index veraltet."],
+    ["Kann ich verlieren?","Ja: Wer groß investiert ohne Einnahmen, landet in der Kreditklemme (unter −2.000 € sind Investitionen eingefroren). Vertrauens-Zettel der Nachbarn halten den Weg zurück offen."],
+    ["Was ist der Unterschied zwischen Hof-Fokus und Spezialist?","Der Hof-Fokus (Einführung) gibt +8 % auf EINE Auftragsart hofweit. Ein Spezialist ist EIN Tier mit +8 % auf seine Art (übers Marktlos). Beides stapelt."]
+  ].map(([q,a])=>'<p style="margin-bottom:7px"><b>'+q+'</b><br>'+a+'</p>').join(""));
+  /* Stufen */
+  if(T(LEVELS)) h+=hbKap("stufen","🏅","Hofstufen ("+LEVELS.length+")",'<div class="werteliste">'+LEVELS.map((l,i)=>hbZeile("🏅","Stufe "+(i+1)+" · "+e(l.n)+" <span class=\"merk\">"+l.xp+" XP</span>",(l.frei.length?"Schaltet frei: "+l.frei.join(", "):"—")+" · "+e(l.hinweis||""))).join("")+'</div>');
+  /* Techtree */
+  if(T(FORSCHUNG)) h+=hbKap("forschung","🔬","Techtree – Forschung ("+Object.keys(FORSCHUNG).length+")",'<div class="werteliste">'+Object.entries(FORSCHUNG).map(([id,f])=>hbZeile(f.z,e(f.n)+' <span class="merk">'+geld(f.kosten)+' · '+f.tage+' Tag(e)</span>',((f.braucht||[]).length?"⬑ braucht: "+f.braucht.map(b=>(FORSCHUNG[b]||{}).n||b).join(", ")+" · ":"Wurzel · ")+e(f.txt||""))).join("")+'</div>');
+  /* Meisterschaften */
+  if(T(SKILLS)) h+=hbKap("skills","⭐","Meisterschaften – 3 Wege, 1 ⭐ je Hofstufe",Object.values(SKILLS).map(w=>'<p style="margin:8px 0 3px"><b>'+w.z+' '+e(w.n)+'</b> – '+e(w.motto)+'</p><div class="werteliste">'+w.skills.map(s=>hbZeile(s.z,e(s.n)+' <span class="merk">'+"⭐".repeat(s.p)+'</span>'+(s.capstone?' <span class="merk gold">MEISTER</span>':""),(s.braucht?"⬑ nach „"+e((skillDef(s.braucht)||{}).n||s.braucht)+"“ · ":"")+"<b>"+e(s.eff)+"</b><br>💡 "+e(s.lehre))).join("")+'</div>').join(""));
+  /* Training & Zucht */
+  let tz="";
+  if(T(TECHNIKEN)) tz+='<p><b>Trainingsverfahren ('+Object.keys(TECHNIKEN).length+'):</b></p><div class="werteliste">'+Object.entries(TECHNIKEN).map(([id,t])=>hbZeile(t.z||"🎓",e(t.n),e(t.txt||t.kurz||"")+(t.risiko?" · Risiken: "+Object.entries(t.risiko).map(([k,v])=>k+" "+Math.round(v*100)+"%").join(", "):""))).join("")+'</div>';
+  if(T(ZUCHT)) tz+='<p style="margin-top:8px"><b>Zucht-Verfahren ('+Object.keys(ZUCHT).length+'):</b></p><div class="werteliste">'+Object.entries(ZUCHT).map(([id,zv])=>hbZeile(zv.z||"🧬",e(zv.n||id),e(zv.txt||""))).join("")+'</div>';
+  if(T(QUANTS)) tz+='<p style="margin-top:8px"><b>Diät-Stufen (Quantisierung):</b> '+Object.entries(QUANTS).map(([id,q])=>'<span class="merk">'+id+' · '+q.bpw+' Bit</span>').join(" ")+'</p>';
+  tz+='<p style="margin-top:8px;font-size:12px">Eiserne Regeln: Daten werden beim Training NICHT verbraucht (Bibliothek) · wiederholtes Training auf demselben Satz sättigt · Adapter passen nur auf ihre eigene Basis · Übertraining und Vergessen sind echte Risiken mit echten Kuren.</p>';
+  h+=hbKap("training","🎓","Training & Zucht",tz);
+  /* Geschirre & Setups */
+  let ausr="";
+  if(T(HARNESSE)) ausr+='<p><b>Geschirre ('+Object.keys(HARNESSE).length+'):</b> Arbeitsumgebung für Agenten-Aufträge – Eignung hängt an der Modellfamilie.</p><div class="reihe" style="flex-wrap:wrap;gap:4px">'+Object.entries(HARNESSE).map(([id,g])=>'<span class="merk">'+(g.z||"🐴")+' '+e(g.n)+'</span>').join("")+'</div>';
+  if(T(SETUPS)) ausr+='<p style="margin-top:8px"><b>Setups ('+Object.keys(SETUPS).length+'):</b></p><div class="werteliste">'+Object.entries(SETUPS).map(([id,s])=>hbZeile(s.z||"🔧",e(s.n),e(s.txt||""))).join("")+'</div>';
+  if(T(HL_TEILE)) ausr+='<p style="margin-top:8px"><b>Wissenswerkstatt-Bausteine:</b></p><div class="werteliste">'+Object.entries(HL_TEILE).map(([id,t])=>hbZeile("🧩",e(t.n||id)+' <span class="merk">'+geld(t.preis||0)+'</span>',e(t.txt||"")+(t.braucht?" · ⬑ braucht "+t.braucht:""))).join("")+'</div>';
+  h+=hbKap("ausruestung","🐴","Geschirre, Setups & Wissenswerkstatt",ausr);
+  /* Krankheiten */
+  if(T(KRANKHEITEN)) h+=hbKap("krank","🤒","Krankheiten ("+Object.keys(KRANKHEITEN).length+")",'<div class="werteliste">'+Object.entries(KRANKHEITEN).map(([id,k])=>hbZeile(k.z,e(k.n),e(k.txt)+' · <b>Kur:</b> '+e((k.heilAktiv||{}).n||"Ruhe")+((k.heilAktiv||{}).kosten?" ("+geld(k.heilAktiv.kosten)+")":""))).join("")+'</div>');
+  /* Ereignisse */
+  let ev="";
+  if(T(EREIGNISSE)) ev+='<div class="werteliste">'+EREIGNISSE.map(x=>hbZeile(x.z||"⚡",e(x.n)+' <span class="merk">'+e((x.effekt||{}).typ||"")+'</span>',e(x.txt||""))).join("")+'</div>';
+  if(T(HL_EVENTS)) ev+='<p style="margin-top:8px"><b>Tages-Wetterlagen (Hofplanung):</b> '+HL_EVENTS.map(x=>'<span class="merk">'+(x.z||"")+' '+e(x.n)+'</span>').join(" ")+'</p>';
+  h+=hbKap("events","⚡","Hof-Ereignisse",ev);
+  /* Saisonen */
+  if(T(SAISONEN)) h+=hbKap("saison","🌱","Saisonen (je 30 Hoftage)",'<div class="werteliste">'+SAISONEN.map(s=>hbZeile(s.z,e(s.n),e(s.hin))).join("")+'</div>'+'<p style="font-size:12px;margin-top:6px">🧹 <b>Datenlese</b> (Futterscheune, 1×/Tag): 8 Schnipsel sortieren – 4 GB Web-Silage werden je nach Quote zu 0–4 GB Kuratiertem.</p>');
+  /* Aufträge & Kunden */
+  let auf='<p><b>Grundregeln:</b> Kunden zahlen je abgenommener Arbeitseinheit · Vorab-Kalkulation an jedem Zettel · Scheitern kostet Vertragsstrafe (Fristbruch 12 %, Qualitäts-Scheitern 15 %, zweite Chance 8 % – Vertragskunst-Skill senkt alle um 30 %) · Team-Aufträge: Übergabelast +12 % Token (gleiche Modellfamilie: +8 %), −3 Qualität, EINE Auszahlung, XP nach Rollenanteil.</p>';
+  if(T(KUNDEN)) auf+='<p style="margin-top:6px"><b>Kunden ('+Object.keys(KUNDEN).length+'):</b> '+Object.values(KUNDEN).map(k=>'<span class="merk">'+k.z+' '+e(k.n)+'</span>').join(" ")+'</p>';
+  h+=hbKap("auftraege","📌","Aufträge & Kunden",auf);
+  /* Hardware & Energie */
+  let hw="";
+  if(T(GPUS)) hw+='<p><b>GPUs ('+Object.keys(GPUS).length+'):</b></p><div class="werteliste">'+Object.entries(GPUS).map(([id,g])=>hbZeile("🖥️",e(g.n)+' <span class="merk">'+g.vram+' GB</span>',geld(g.preis)+" · "+g.watt+" W · Bandbreite "+g.bw+" GB/s")).join("")+'</div>';
+  if(T(RH_STUFEN)) hw+='<p style="margin-top:8px"><b>Rechenhaus-Ausbau:</b> '+RH_STUFEN.map(s=>'<span class="merk">'+e(s.n||s.name)+' · '+(s.pc||0)+' PC / '+(s.racks||0)+' Racks</span>').join(" ")+'</p>';
+  hw+='<p style="margin-top:6px;font-size:12px">⚡ Strom: Tag '+strompreis().toFixed(2)+' €/kWh, Nacht die Hälfte (offene Spielannahme). Solar liefert nachts nichts; Wind schwankt mit dem Wetter; Kraftwerke sind stabil, aber brennstoff- und wartungsteuer.</p>';
+  h+=hbKap("hardware","🖥️","Hardware & Energie",hw);
+  /* Futter */
+  if(T(FUTTER)) h+=hbKap("futter","🌾","Futter – Datensorten ("+Object.keys(FUTTER).length+")",'<div class="werteliste">'+Object.entries(FUTTER).map(([id,f])=>hbZeile(f.z||"🌾",e(f.n)+' <span class="merk">'+(f.preisGB!=null?f.preisGB+" €/GB":"selbst erzeugt")+'</span>',e(f.txt||"")+" · Qualität "+Math.round((f.q||0)*100)+"%")).join("")+'</div>');
+  /* Modell-Katalog */
+  if(T(MODELLE)){
+    const proTier={};
+    Object.entries(MODELLE).forEach(([id,m])=>{ (proTier[m.tier]=proTier[m.tier]||[]).push(m); });
+    h+=hbKap("modelle","🐷","Modell-Katalog ("+Object.keys(MODELLE).length+" offene Modelle)",Object.keys(proTier).sort().map(t=>'<p style="margin:7px 0 3px"><b>Tier '+t+'</b> ('+proTier[t].length+')</p><div style="overflow-x:auto"><table class="vergleich"><tr><th>Modell</th><th>Param.</th><th>Kontext</th><th>Preis</th></tr>'+proTier[t].map(m=>'<tr><td>'+e(m.n)+'</td><td>'+(m.pT<1?Math.round(m.pT*1000)+" Mio.":m.pT+" Mrd.")+(m.moe?" (MoE)":"")+'</td><td>'+(m.ctx>=1000?Math.round(m.ctx/1000)+"M":m.ctx+"k")+'</td><td>'+geld(m.preis)+'</td></tr>').join("")+'</table></div>').join("")+(T(LEIHMODELLE)?'<p style="margin-top:8px"><b>API-Leihmodelle ('+Object.keys(LEIHMODELLE).length+'):</b> '+Object.values(LEIHMODELLE).map(m=>'<span class="merk">☁️ '+e(m.n)+'</span>').join(" ")+'</p>':""));
+  }
+  /* Auszeichnungen */
+  let ehre='<p><b>Kopfbedeckungen:</b> '+(T(HUT_NAMEN)?Object.entries(HUT_NAMEN).map(([s,n])=>'<span class="merk">'+e(n)+' ab Tier-Level '+(s==="1"?3:s==="2"?5:7)+'</span>').join(" "):"Strohhut (Level 3) · Zylinder (Level 5) · Krone (Level 7)")+'</p>';
+  if(T(HL_PROJEKTE)) ehre+='<p style="margin-top:6px"><b>Wochen-Hofprojekte:</b> '+HL_PROJEKTE.map(p=>'<span class="merk">🗓️ '+e(p.n)+'</span>').join(" ")+'</p>';
+  ehre+='<p style="margin-top:6px"><b>Abzeichen:</b> Kleine Helfer · Vielseitiger Hof · Qualitätshof · Wissenshof · Nachtmeister (Fortschritt an der Pinnwand).</p>';
+  h+=hbKap("ehre","🎖️","Auszeichnungen",ehre);
+  /* Glossar */
+  h+=hbKap("glossar","📜","Glossar – die kanonischen Begriffe",[
+    ["Hof-Fokus","Auftragsart des Hofs aus der Einführung, +8 % Erlös auf diese Art."],
+    ["Spezialist","EIN Tier mit +8 % auf seine Auftragsart (Marktlos) – stapelt mit dem Hof-Fokus."],
+    ["Meisterweg","Einmalige Wahl eines Skill-Wegs ab Stufe 3; nur dort gibt es die 2⭐-Meister-Fertigkeit."],
+    ["Techtree","Der Forschungs-Baum."],["Meisterschaften","Die drei Skill-Trees."],
+    ["Geschirr","Agenten-Arbeitsumgebung eines Tiers (Harness)."],["Setup","Zuschaltbare Arbeitstechnik (Verifier, Best-of-N …)."],
+    ["Rätsel-Architektur","HRM/TRM-Spezialtiere für reine Struktur-Rätsel."],
+    ["Übergabelast","Token-Aufschlag bei Team-Übergaben (12 %, gleiche Familie 8 %)."],
+    ["Hof-Ereignis","Globales Tagesereignis."],["Saison","30-Hoftage-Abschnitt mit eigener Nachfrage."]
+  ].map(([b,t])=>'<p style="margin-bottom:5px"><b>'+b+':</b> '+t+'</p>').join(""));
+  return h;
+}
+function zeigeHofbuch(){ blattLive("📖 Hofbuch – Regelwerk & FAQ",hofbuchHtml,"hofbuch"); }
+
 function zeigeHilfe(){
   blattLive("❓ Anleitung",()=>{
     return '<img src="'+bild("titel")+'" alt="" style="width:100%;border-radius:14px;border:3px solid var(--holz-4)" onerror="this.remove()">'+
@@ -7936,6 +8032,8 @@ function startModellId(){
 function start(){
   const alt=laden();
   S=alt||frischerStand();
+  /* Clean Break (ADR 0003): Ära-6-Stände unter modellhof_v4 werden bewusst nicht geladen */
+  if(!alt){ try{ if(localStorage.getItem("modellhof_v4")) setTimeout(()=>melde("🌅 Neue Ära: LLM FARM startet frisch – dein alter Ära-6-Stand bleibt unangetastet im Browser-Speicher, wird aber nicht fortgeführt.","info"),1200); }catch(e){} }
   rhMigration(S);
   hlStand();
   if(!alt){
@@ -8197,7 +8295,7 @@ function zeigeWillkommen(){
   if(_einf.schritt===1){
     inhalt='<img src="'+bild("titel")+'" alt="" style="width:100%;border-radius:14px;border:3px solid var(--holz-4)" onerror="this.remove()">'+
     '<div class="karte hell"><h3>Du hast einen Hof geerbt!</h3>'+
-    '<p>Im Nachlass: ein Rechner mit einer <b>'+esc(GPUS[S.buchten[0].gpu].n)+'</b> ('+GPUS[S.buchten[0].gpu].vram+' GB Grafikspeicher; '+esc(S.buchten[0].cpu||'Bestands-CPU')+', '+(S.buchten[0].ramGB||32)+' GB RAM, '+(S.buchten[0].ssdTB||2)+' TB NVMe), '+geld(S.kredit)+' Startkapital, 50 GB angestaubte Web-Daten – und <b>zwei kleine KI-Modelle</b>, die du gleich aussuchst! Dein neuer Hof beginnt mit einer RTX 4080, Ryzen 7, 32 GB DDR5 und 2 TB NVMe im Geräteschuppen. Alte Spielstände behalten ihre Geräte.</p>'+
+    '<p>Im Nachlass: ein Rechner mit einer <b>'+esc(GPUS[S.buchten[0].gpu].n)+'</b> ('+GPUS[S.buchten[0].gpu].vram+' GB Grafikspeicher; '+esc(S.buchten[0].cpu||'Bestands-CPU')+', '+(S.buchten[0].ramGB||32)+' GB RAM, '+(S.buchten[0].ssdTB||2)+' TB NVMe), '+geld(S.kredit)+' Startkapital, 50 GB angestaubte Web-Daten – und <b>zwei kleine KI-Modelle</b>, die du gleich aussuchst! Dein neuer Hof beginnt mit einer RTX 4080, Ryzen 7, 32 GB DDR5 und 2 TB NVMe im Geräteschuppen.</p>'+
     '<p class="abstand">Hier leben KI-Modelle als Hoftiere: Du fütterst sie mit Datensätzen, trainierst sie mit echten Verfahren, spannst sie in echte Agent-Geschirre und verdienst Geld mit Aufträgen. <b>Technische Grundprinzipien folgen der KI-Praxis; Preise, Erträge und viele Leistungswerte sind gekennzeichnete Spielannahmen (Stand August 2026).</b></p>'+
     '<div class="abstand"><b>Wie soll dein Hof heißen?</b><br><input id="hofnameInput" value="'+esc(S.hofname)+'" maxlength="24" style="margin-top:6px;width:100%;padding:9px 12px;border:3px solid var(--holz-4);border-radius:12px;font:inherit;font-weight:800;background:#fffdf5"></div>'+
     '<div class="abstand"><b>Und wer soll bei dir leben? Wähl dein Wunschtier:</b>'+
@@ -8221,18 +8319,14 @@ function zeigeWillkommen(){
         '<span>'+esc((m.txt||"").split(" – ")[0].slice(0,90))+'</span></span></button>';
     }).join("")+'</div>'+
     '<div class="reihe abstand"><button class="knopf hell" onclick="einfWeiter(1)">⟵ Zurück</button>'+
-    '<button class="knopf gruen'+(_einf.wahl.length===2?"":" aus")+'" onclick="einfWeiter(3)">Weiter: Spezialisierung ➜</button></div>';
+    '<button class="knopf gruen'+(_einf.wahl.length===2?"":" aus")+'" onclick="einfWeiter(3)">Weiter: Hof-Fokus ➜</button></div>';
   } else {
-    inhalt='<div class="karte hell"><h3>🎯 Worauf soll sich dein Hof spezialisieren?</h3>'+
-    '<p>Die Spezialisierung bringt passendes Startfutter und dauerhaft <b>+8 % Erlös</b> auf Aufträge dieser Art – alles andere bleibt dir offen.</p></div>'+
+    inhalt='<div class="karte hell"><h3>🎯 Wähle deinen Hof-Fokus</h3>'+
+    '<p>Der Hof-Fokus bringt passendes Startfutter und dauerhaft <b>+8 % Erlös</b> auf Aufträge dieser Art – alles andere bleibt dir offen. (Einzelne Tiere können später zusätzlich <b>Spezialisten</b> ihrer Art werden.)</p></div>'+
     '<div class="gitter">'+Object.entries(SPEZIAL).map(([id,s])=>
       '<button class="listenzeile'+(_einf.spezial===id?" an":"")+'" onclick="einfSpezial(\''+id+'\')">'+
       '<span class="bild" style="font-size:34px;text-align:center">'+s.z+'</span>'+
       '<span class="txt"><b>'+(_einf.spezial===id?"✅ ":"")+s.n+'</b><span>'+s.txt+'</span></span></button>').join("")+'</div>'+
-    '<div class="karte abstand"><h3>Wie möchtest du spielen?</h3><div class="reihe">'+
-      '<button class="knopf s '+((_einf.modus||"lern")==="lern"?"gewaehlt":"hell")+'" onclick="einfModus(\'lern\')">🌱 Lernhof <small>mehr Hinweise & Vorhersagefragen</small></button>'+
-      '<button class="knopf s '+(_einf.modus==="wirtschaft"?"gewaehlt":"hell")+'" onclick="einfModus(\'wirtschaft\')">🧮 Wirtschaftshof <small>gleiche Regeln, weniger Händchenhalten</small></button></div>'+
-    '<p style="font-size:11px;color:var(--tinte-2);margin-top:4px">Beide Modi nutzen dieselbe Spielphysik – nur Hilfetexte und Start-Förderung unterscheiden sich. Förderungen erscheinen im Kassenbuch immer getrennt vom Betriebsergebnis.</p></div>'+
     '<div class="reihe abstand"><button class="knopf hell" onclick="einfWeiter(2)">⟵ Zurück</button>'+
     '<button class="knopf gruen" onclick="willkommenFertig()">🌅 Hof übernehmen!</button></div>'+
     '<p class="abstand" style="font-size:11px;color:var(--tinte-2)">Illustrationen KI-erzeugt (Gemini 2.5 Flash Image via OpenRouter) – Details im Hofhaus unter „Mitwirkende".</p>';
@@ -8253,14 +8347,14 @@ function einfModell(id){
   zeigeWillkommen();
 }
 function einfSpezial(id){ _einf.spezial=id; zeigeWillkommen(); }
-function einfModus(m){ _einf.modus=m; zeigeWillkommen(); }
+/* einfModus (Lernhof/Wirtschaftshof) ist Ära-7 ersatzlos entfallen (ADR 0003): der Schalter
+   wurde nie gelesen. Schwierigkeitsgrade & Geführte Woche kommen als ECHTE Systeme (Welle 2/3). */
 function willkommenFertig(){
   if(_einf.wahl.length!==2){ _einf.schritt=2; zeigeWillkommen(); melde("Bitte zwei Startmodelle auswählen!","schlecht"); return; }
   einfName();
   _einf.wahl.forEach(id=>S.tiere.push(neuesTier(id)));
   const sp=_einf.spezial||"gemischt";
   S.spezial=sp==="gemischt"?null:sp;
-  S.modus=_einf.modus||"lern";
   const geschenk={code:{fach_code:20},wissen:{kuratiert:20},agent:{beispiele:15}}[sp];
   if(geschenk) for(const f in geschenk) S.daten[f]=(S.daten[f]||0)+geschenk[f];
   else buche(150,"foerderung","Startbonus: Gemischter Hof");
@@ -8741,7 +8835,7 @@ function rhTeichInfo(){
 
 
 /* Fenster-Exporte für onclick */
-Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstall,rhPCUpgrade,rhLagern,rhModus,rhServerAusLager,rhTrinkenStart,oeffne,blattZu,blattZurueck,zeigeHilfe,zielModusAus,gebKlick,tagBeenden,
+Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstall,rhPCUpgrade,rhLagern,rhModus,rhServerAusLager,rhTrinkenStart,oeffne,blattZu,blattZurueck,zeigeHilfe,zeigeHofbuch,hbSpring,zielModusAus,gebKlick,tagBeenden,
   buchtFuellen,inBucht,ausBucht,tierZuweisen,gpuVerkaufen,mieteKuendigen,tierReiterWahl,denkenUm,setupUm,adapterAb,adapterAn,tempSetzen,
   auffrischen,verkaufen,geschirrAnlegen,geschirrAb,zielModusAn,quantSetzen,
   wizSchwein,wizTechnik,wizFokus,wizFutter,wizReplay,wizLehrer,wizRichter,wizBucht,wizZurueck,wizWeiter,wizStart,
@@ -8751,7 +8845,7 @@ Object.assign(window,{zeigeRechenhaus,rhWaehle,rhKauf,rhUpgrade,rhEvent,rhInstal
   forschReiterWahl,skillKaufen,meisterwegWaehlen,leseStart,leseAntwort,leseFertig,
   hofUmbenennen,standExport,standImport,neustart,willkommenFertig,kurieren,
   tierArtWahl,eigenGenerieren,eigenUebernehmen,eigenFlipWechsel,figurStilWahl,onboardWahl,onboardEigen,zeigeTierwahl,
-  einfWeiter,einfModell,einfSpezial,einfModus,
+  einfWeiter,einfModell,einfSpezial,
   zeigeWurfKarte,marktLosKaufen,awWaehle,awLos,awStop});
 
 
@@ -8937,9 +9031,15 @@ function hlTeamsTag(energie,bericht){
   const n=Math.max(1,team.seg.length),anteil=team.seg.reduce((a,s)=>a+s.anteil,0)/n,chance=team.seg.reduce((a,s)=>a+s.erfolg,0)/n;
   const gut=!spaet&&Math.random()*100<chance,akzeptiert=spaet?0:anteil*(gut?1:.55),er=einheitenRechnung(j,akzeptiert);
   if(spaet){const strafe=Math.round(j.vereinbart*.12*(skillAktiv('vertragskunst')?.7:1));buche(-strafe,'strafe','Lieferfrist verpasst · '+j.t);bericht.zeilen.push({t:'❌ '+j.t+': Lieferfrist verpasst. '+geld(strafe)+' Vertragsstrafe, keine Auszahlung.',art:'schlecht'});}
-  else {er.lohn=Math.round(er.lohn*(S.spezial===j.art?1.08:1));buche(er.lohn,'job',j.t+' · '+er.ok+'/'+er.einheiten+' abgenommen');S.statistik.jobs++;S.statistik.mtok+=j.mtokTag*team.seg.length*anteil;S.jobArt=S.jobArt||{};S.jobArt[j.art]=(S.jobArt[j.art]||0)+1;
-   bericht.zeilen.push({t:(gut?'✅ ':'⚠️ ')+j.t+': '+er.ok+'/'+er.einheiten+' abgenommen · '+geld(er.lohn)+(gut?'':' · Nacharbeit/Reklamation'),art:gut?'gut':'schlecht'});
-   if(gut){ps.forEach(p=>tierXp(p,20+j.tier*12));xpDazu(14+j.tier*8);questHook('job_fertig',null);questHook('jobs_fertig',S.statistik.jobs);if(j.agent)questHook('job_agent_fertig',null);if(j.dsgvo)questHook('dsgvo_job',null);}}
+  else {/* Ära 7 (Haupt-Session, R9/Fund 1): Tier-Spezialist wirkt jetzt echt und stapelt mit dem Hof-Fokus */
+   er.lohn=Math.round(er.lohn*(S.spezial===j.art?1.08:1)*(ps.some(p=>p.spezialArt===j.art)?1.08:1));buche(er.lohn,'job',j.t+' · '+er.ok+'/'+er.einheiten+' abgenommen');S.statistik.jobs++;S.statistik.mtok+=j.mtokTag*team.seg.length*anteil;S.jobArt=S.jobArt||{};S.jobArt[j.art]=(S.jobArt[j.art]||0)+1;
+   bericht.zeilen.push({t:(gut?'✅ ':'⚠️ ')+j.t+': '+er.ok+'/'+er.einheiten+' abgenommen · '+geld(er.lohn)+(ps.some(p=>p.spezialArt===j.art)?' · 🎯 Spezialist +8 %':'')+(gut?'':' · Nacharbeit/Reklamation'),art:gut?'gut':'schlecht'});
+   /* Ära 7 (Haupt-Session, Q5/Fund 3): XP werden nach Rollenanteil GETEILT (min. 25 % je Tier) –
+      vorher bekam jedes Tier die vollen XP, ein 3-Rollen-Team war ein 3×-XP-Exploit. */
+   if(gut){const gesamt=20+j.tier*12,rollenN=Math.max(1,hlRollen(j).length);
+    ps.forEach(p=>{const meine=Object.values(team.wahl).filter(id=>id===p.uid).length;
+     tierXp(p,Math.round(Math.max(gesamt*0.25,gesamt*meine/rollenN)));});
+    xpDazu(14+j.tier*8);questHook('job_fertig',null);questHook('jobs_fertig',S.statistik.jobs);if(j.agent)questHook('job_agent_fertig',null);if(j.dsgvo)questHook('dsgvo_job',null);}}
   kundeBewerten(j,{fail:spaet,rekla:!gut,anteil:akzeptiert},bericht);hlQualitaet(j,gut&&anteil>=.95,bericht);
   ps.forEach(p=>{p.status='frei';p.job=null;p.rest=0;p.zustand=kl(p.zustand-4,5,100);});S.jobs=S.jobs.filter(x=>x.id!==j.id);
  }
