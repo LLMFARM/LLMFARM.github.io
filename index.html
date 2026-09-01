@@ -8906,8 +8906,9 @@ function zeigeWillkommen(){
     '<p class="abstand" style="font-size:11px;color:var(--tinte-2)">Illustrationen KI-erzeugt (Gemini 2.5 Flash Image via OpenRouter) – Details im Hofhaus unter „Mitwirkende".</p>';
   }
   _adaImBlatt=true;                       /* Ada begleitet die Einführung IM Dialog */
-  if(!_adaId) _adaId="intro"+_einf.schritt;
-  blattAuf("🌅 Willkommen auf deiner LLM FARM!",punkte+adaKarteHtml()+inhalt,"willkommen");
+  /* Die Karte bekommt ihre Id als Parameter. _adaId hier zu setzen wäre fatal:
+     adaIntro() prüft darauf und hielte sich für schon gesprochen – Ada bliebe stumm. */
+  blattAuf("🌅 Willkommen auf deiner LLM FARM!",punkte+adaKarteHtml("intro"+_einf.schritt)+inhalt,"willkommen");
   if(typeof adaIntro==="function") try{ adaIntro(_einf.schritt); }catch(e){}
   adaKnopfNeu();
 }
@@ -9218,8 +9219,8 @@ function adaSprich(id,manuell){
 }
 /* Während der Einführung sitzt Ada IM Dialog statt als Blase darüber – sonst würde sie
    genau die Knöpfe verdecken, durch die sie einen gerade führt (v7.3). */
-function adaKarteHtml(){
-  const d=ADA_TEXTE[_adaId]||ADA_TEXTE.hallo||{t:"",titel:""};
+function adaKarteHtml(id){
+  const d=ADA_TEXTE[id||_adaId]||ADA_TEXTE.hallo||{t:"",titel:""};
   return '<div class="karte hell adaKarte">'+
     '<div class="adaKopf">'+
       '<button class="adaSelbst" onclick="adaPause()" aria-label="Ada antippen: anhalten oder weitersprechen"><span class="adaRund">'+adaFigurSvg()+'</span></button>'+
