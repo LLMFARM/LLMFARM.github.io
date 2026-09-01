@@ -65,7 +65,9 @@ small{font-size:.82em}
 #boot .titelbild{width:min(86vw,440px);border-radius:18px;border:4px solid var(--holz-4);box-shadow:0 8px 0 rgba(74,44,21,.6);display:block}
 #ladebalken{width:min(70vw,300px);height:22px;border-radius:12px;border:4px solid var(--holz-4);
   background:#3a2313;overflow:hidden;box-shadow:var(--tief)}
-#ladebalken i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#8ad467);transition:width .3s}
+/* Der Balken wird alle 60 ms selbst weitergerechnet – eine lange CSS-Überblendung
+   käme nie hinterher und der Schirm verschwände bei halb gefülltem Balken. */
+#ladebalken i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#8ad467);transition:width .09s linear}
 #ladetext{font-size:13px;font-weight:800;color:#3d2412}
 .bootpig{width:130px;animation:huepfen 1.1s infinite ease-in-out}
 @keyframes huepfen{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(2deg)}}
@@ -123,7 +125,7 @@ small{font-size:.82em}
 .stackhinweis{font-size:10.5px;color:var(--tinte-2);margin-top:5px;line-height:1.4}
 .merk.warnrot{background:#f6d6d1;border-color:#b5544a;color:#7d2a22}
 /* ── Ada: Sprechblase oben links + animierte Figur (Ära 7.2) ── */
-#adaBox{position:fixed;top:74px;left:10px;z-index:410;width:min(340px,calc(100vw - 20px));
+#adaBox{position:fixed;top:74px;left:10px;z-index:350;width:min(340px,calc(100vw - 20px));
   background:var(--papier,#fffdf5);border:4px solid var(--holz-4,#4a2c15);border-radius:16px 16px 16px 4px;
   box-shadow:0 10px 30px rgba(0,0,0,.35);padding:10px 12px 12px;display:none;font-size:13px;line-height:1.45}
 #adaBox.auf{display:block;animation:adaAuf .25s ease-out}
@@ -137,6 +139,11 @@ small{font-size:.82em}
   border-top:none;border-radius:0 0 11px 11px;background:var(--papier,#fffdf5);cursor:pointer;
   font:inherit;font-size:9.5px;font-weight:800;color:var(--tinte-2);line-height:15px;white-space:nowrap}
 .adaKlapp:hover{background:#ffefc2;color:var(--tinte)}
+/* Ada als Karte im Einführungs-Dialog: begleitet, ohne die Knöpfe zu verdecken */
+.adaKarte{background:linear-gradient(#fffdf3,#fff6e0);border:3px solid var(--holz-4);border-radius:15px;padding:10px 12px}
+.adaKarte .adaRund{width:52px;height:52px}
+.adaKtext{font-size:13px;line-height:1.5;white-space:pre-line}
+.adaKarte .adaWer b{font-size:16px}
 .adaKopf{display:flex;align-items:center;gap:9px;margin-bottom:7px}
 .adaKopf .adaWer{flex:1;min-width:0}
 .adaKopf b{font-family:var(--titel);font-size:15px;display:block;line-height:1.1}
@@ -737,8 +744,8 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
   <div class="adaKopf">
     <button class="adaSelbst" id="adaSelbst" onclick="adaPause()" aria-label="Ada antippen: Sprechen anhalten oder fortsetzen" title="Ada antippen: anhalten / weitersprechen"><span class="adaRund" id="adaFigurBox"></span></button>
     <span class="adaWer"><b>Ada</b><small id="adaTitel"></small></span>
-    <button class="adaKn" id="adaPauseKn" onclick="adaPause()" aria-label="Vorlesen pausieren oder fortsetzen" title="Pause / Weiter">⏸</button>
-    <button class="adaKn" id="adaStummKn" onclick="adaStummToggle()" aria-label="Ada stummschalten" title="Ada stumm / laut">🔊</button>
+    <button class="adaKn adaPauseKn" onclick="adaPause()" aria-label="Vorlesen pausieren oder fortsetzen" title="Pause / Weiter">⏸</button>
+    <button class="adaKn adaStummKn" onclick="adaStummToggle()" aria-label="Ada stummschalten" title="Ada stumm / laut">🔊</button>
     <button class="adaKn" onclick="adaZu()" aria-label="Sprechblase schließen" title="Schließen">✕</button>
   </div>
   <div id="adaText"></div>
@@ -6505,6 +6512,7 @@ function blattAuf(titel,html,id,vonZurueck){
   leib.scrollTop=pos;
 }
 function blattZu(){ schirm.classList.remove("auf"); blattStack=[];
+  _adaImBlatt=false;
   if(typeof adaTagCheck==="function") try{ adaTagCheck(); }catch(e){}
   if(S&&S._tagFaellig&&(S.tagMs||0)>=TAG_MS){ S._tagFaellig=false; setTimeout(()=>tagBeenden(),350); } }
 function blattZurueck(){
@@ -8897,8 +8905,11 @@ function zeigeWillkommen(){
     '<button class="knopf gruen" onclick="willkommenFertig()">🌅 Hof übernehmen!</button></div>'+
     '<p class="abstand" style="font-size:11px;color:var(--tinte-2)">Illustrationen KI-erzeugt (Gemini 2.5 Flash Image via OpenRouter) – Details im Hofhaus unter „Mitwirkende".</p>';
   }
-  blattAuf("🌅 Willkommen auf deiner LLM FARM!",punkte+inhalt,"willkommen");
+  _adaImBlatt=true;                       /* Ada begleitet die Einführung IM Dialog */
+  if(!_adaId) _adaId="intro"+_einf.schritt;
+  blattAuf("🌅 Willkommen auf deiner LLM FARM!",punkte+adaKarteHtml()+inhalt,"willkommen");
   if(typeof adaIntro==="function") try{ adaIntro(_einf.schritt); }catch(e){}
+  adaKnopfNeu();
 }
 function einfWeiter(z){
   if(_einf.schritt===1) einfName();
@@ -8955,7 +8966,17 @@ function inBuchtStumm(uid,bid){
 let _adaAudio=null,_adaTts=null,_adaId=null,_adaPausiert=false,_adaWartet=false,_adaWartetBis=0,
     _adaBlinkZiel=null,_adaBlinkIv=null,_adaBlinkStop=null,
     _adaKey="",_adaModell="google/gemini-2.5-flash-lite",_adaDenkt=false,
-    _adaRaf=null,_adaMundIst=0,_adaMundZeit=0;
+    _adaRaf=null,_adaMundIst=0,_adaMundZeit=0,
+    _adaBereit=false,_adaSpaeter=null,_adaImBlatt=false;
+/* Solange der Ladeschirm läuft, darf Ada nicht losreden. Die Boot-Sequenz ruft
+   adaBereitMachen() zwei Sekunden nachdem der Hof aufgebaut ist – bis dahin merkt
+   sie sich nur, was sie sagen wollte, und holt es dann nach. */
+function adaBereitMachen(){
+  if(_adaBereit) return;
+  _adaBereit=true;
+  const id=_adaSpaeter; _adaSpaeter=null;
+  if(id&&adaAn()&&ADA_TEXTE[id]) adaSpiele(id);
+}
 function adaAn(){ return !(S&&S.ada&&S.ada.stumm); }
 function adaLaueft(){
   if(_adaAudio&&!_adaAudio.paused&&!_adaAudio.ended) return true;
@@ -9125,13 +9146,15 @@ document.addEventListener("pointerdown",e=>{
 },true);
 function adaKnopfNeu(){
   try{
-    const p=document.getElementById("adaPauseKn"), s=document.getElementById("adaStummKn"),
-          k=document.getElementById("adaKnopf"), sel=document.getElementById("adaSelbst");
     const laeuft=adaLaueft();
-    if(p){ p.textContent=laeuft?"⏸":"▶"; p.title=laeuft?"Anhalten":"Weitersprechen"; }
-    if(s){ s.textContent=adaAn()?"🔊":"🔇"; s.classList.toggle("an",adaAn()); }
+    /* nach Klasse, nicht nach Id: Ada steht zugleich in der Sprechblase, im Kopfknopf
+       und (während der Einführung) als Karte im Dialog */
+    document.querySelectorAll(".adaPauseKn").forEach(p=>{ p.textContent=laeuft?"⏸":"▶"; p.title=laeuft?"Anhalten":"Weitersprechen"; });
+    document.querySelectorAll(".adaStummKn").forEach(s=>{ s.textContent=adaAn()?"🔊":"🔇"; s.classList.toggle("an",adaAn()); });
+    document.querySelectorAll(".adaSelbst").forEach(sel=>{ sel.classList.toggle("spricht",laeuft);
+      sel.title=laeuft?"Ada antippen: anhalten":"Ada antippen: weitersprechen"; });
+    const k=document.getElementById("adaKnopf");
     if(k) k.classList.toggle("spricht",laeuft);
-    if(sel){ sel.classList.toggle("spricht",laeuft); sel.title=laeuft?"Ada antippen: anhalten":"Ada antippen: weitersprechen"; }
     document.querySelectorAll(".adaFigur").forEach(f=>f.classList.toggle("spricht",laeuft));
   }catch(e){}
 }
@@ -9159,6 +9182,7 @@ function adaTTSText(txt,blink){
   }catch(e){}
 }
 function adaSpiele(id){
+  if(!_adaBereit){ _adaSpaeter=id; return; }    /* der Hof lädt noch – sie wartet ab */
   adaStopp();
   const d=ADA_TEXTE[id]||{};
   let a=null; try{ a=new Audio("ada/"+id+".mp3"); }catch(e){}
@@ -9175,6 +9199,12 @@ function adaSprich(id,manuell){
   _adaId=id;
   if(S){ S.ada=S.ada||{stumm:false,gehoert:{}}; S.ada.gehoert=S.ada.gehoert||{}; S.ada.gehoert[id]=1; try{ sichern(); }catch(e){} }
   try{
+    /* Einführung: Ada steckt als Karte IM Dialog – Blase bleibt zu, nichts wird verdeckt. */
+    if(_adaImBlatt&&adaKarteNeu()){
+      adaBlinkAn(d.ziel);
+      if(adaAn()||manuell) adaSpiele(id); else adaKnopfNeu();
+      return;
+    }
     const box=document.getElementById("adaBox"); if(!box) return;
     document.getElementById("adaTitel").textContent=d.titel||"";
     document.getElementById("adaText").textContent=d.t;
@@ -9185,6 +9215,27 @@ function adaSprich(id,manuell){
     adaBlinkAn(d.ziel);
     if(adaAn()||manuell) adaSpiele(id); else adaKnopfNeu();
   }catch(e){}
+}
+/* Während der Einführung sitzt Ada IM Dialog statt als Blase darüber – sonst würde sie
+   genau die Knöpfe verdecken, durch die sie einen gerade führt (v7.3). */
+function adaKarteHtml(){
+  const d=ADA_TEXTE[_adaId]||ADA_TEXTE.hallo||{t:"",titel:""};
+  return '<div class="karte hell adaKarte">'+
+    '<div class="adaKopf">'+
+      '<button class="adaSelbst" onclick="adaPause()" aria-label="Ada antippen: anhalten oder weitersprechen"><span class="adaRund">'+adaFigurSvg()+'</span></button>'+
+      '<span class="adaWer"><b>Ada</b><small class="adaKtitel">'+esc(d.titel||"")+'</small></span>'+
+      '<button class="adaKn adaPauseKn" onclick="adaPause()" aria-label="Vorlesen anhalten oder fortsetzen">⏸</button>'+
+      '<button class="adaKn adaStummKn" onclick="adaStummToggle()" aria-label="Ada stummschalten">🔊</button>'+
+    '</div>'+
+    '<div class="adaKtext">'+esc(d.t||"")+'</div></div>';
+}
+function adaKarteNeu(){
+  const k=document.querySelector(".adaKarte"); if(!k) return false;
+  const d=ADA_TEXTE[_adaId]; if(!d) return true;
+  const t=k.querySelector(".adaKtitel"), x=k.querySelector(".adaKtext");
+  if(t) t.textContent=d.titel||"";
+  if(x) x.textContent=d.t||"";
+  return true;
 }
 /* „Ich zeig dir wo“: Ada erklärt die Hürde UND umrandet den Knopf rot, der sie auflöst. */
 function adaZeig(ziel,id,oeffner){
@@ -10136,17 +10187,37 @@ const bootBild=document.createElement("img");
 bootBild.src=bild("titel"); bootBild.className="titelbild"; bootBild.alt="";
 bootBild.onerror=()=>bootBild.remove();
 document.querySelector("#boot .schild").before(bootBild);
+/* Ladebalken an ECHTE Meilensteine gehängt (v7.3): Er lief früher auf einem Zufallstakt
+   mit 0,3 s CSS-Überblendung – der Schirm verschwand, während der Balken noch bei 20 %
+   stand. Jetzt zieht der Balken weich zu einem Ziel, das nur echte Ereignisse anheben:
+   Titelbild geladen, Schriften bereit, window.load. Erst bei 100 % startet das Spiel. */
 const ladeworte=["Gewichte werden entpackt","Buchten werden ausgemistet","Geschirre geölt","Futtersilos gefüllt","Benchmark-Pokale poliert","Schweine geweckt"];
-let ladewert=0;
+let ladeZiel=10, ladeIst=0, ladeFrei=false, bootGestartet=false;
+function ladeSetz(z){ ladeZiel=Math.max(ladeZiel,Math.min(100,z)); }
+bootBild.addEventListener("load",()=>ladeSetz(48));
+bootBild.addEventListener("error",()=>ladeSetz(48));
+if(bootBild.complete) ladeSetz(48);
+try{ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>ladeSetz(64)); else ladeSetz(64); }catch(e){ ladeSetz(64); }
+function ladeFertig(){ ladeFrei=true; ladeSetz(100); }
+if(document.readyState==="complete") ladeFertig(); else window.addEventListener("load",ladeFertig);
+setTimeout(ladeFertig,7000);                       /* Sicherheitsnetz: nie im Ladeschirm hängen bleiben */
 const ladeTakt=setInterval(()=>{
-  ladewert+=zi(9,22);
-  document.querySelector("#ladebalken i").style.width=Math.min(100,ladewert)+"%";
-  document.getElementById("ladetext").textContent=ladeworte[Math.min(ladeworte.length-1,Math.floor(ladewert/(100/ladeworte.length)))];
-  if(ladewert>=100){
+  ladeIst=Math.min(ladeZiel,ladeIst+Math.max(0.8,(ladeZiel-ladeIst)*0.16));
+  document.querySelector("#ladebalken i").style.width=ladeIst.toFixed(1)+"%";
+  document.getElementById("ladetext").textContent=ladeworte[Math.min(ladeworte.length-1,Math.floor(ladeIst/(100/ladeworte.length)))];
+  if(ladeFrei&&ladeIst>=99.4&&!bootGestartet){
+    bootGestartet=true;
+    document.querySelector("#ladebalken i").style.width="100%";
+    document.getElementById("ladetext").textContent=ladeworte[ladeworte.length-1];
     clearInterval(ladeTakt);
-    setTimeout(()=>{ document.getElementById("boot").classList.add("weg"); start(); },350);
+    setTimeout(()=>{
+      document.getElementById("boot").classList.add("weg");
+      start();
+      /* Ada wartet, bis der Hof wirklich steht – erst dann fängt sie an vorzulesen. */
+      setTimeout(()=>{ if(typeof adaBereitMachen==="function") adaBereitMachen(); },2000);
+    },420);
   }
-},200);
+},60);
 
 </script>
 </body>
