@@ -8,8 +8,10 @@ Ruf, Pinnwand-Aufträgen und einem vollständigen Kassenbuch.
 
 **▶️ Spielen:** <https://llmfarm.github.io/>
 
-Das Spiel ist eine einzige HTML-Datei ohne Server-Abhängigkeiten – alle Bilder sind eingebettet,
-der Spielstand liegt im Browser (localStorage). Es läuft am besten in einem aktuellen
+Das Hauptspiel ist eine einzelne HTML-Datei; alle Bilder sind eingebettet und der Spielstand
+liegt im Browser (localStorage). Optional lädt der Ada-Hofsprecher das mitgelieferte offene
+Needle-2-Modell aus `needle/` (rund 14 MB) und rechnet vollständig im Browser. Ohne Nadel bleibt
+der deutsche Offline-Wörterbuchparser nutzbar. Das Spiel läuft am besten in einem aktuellen
 Desktop-Browser, funktioniert aber auch mobil.
 
 ## KI-Kennzeichnung
