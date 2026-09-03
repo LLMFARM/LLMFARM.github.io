@@ -76,29 +76,6 @@ small{font-size:.82em}
 #kopf{position:relative;z-index:30;padding:calc(5px + var(--sicher-o)) 8px 0;
   border-bottom:4px solid var(--holz-4);box-shadow:0 5px 14px rgba(0,0,0,.28)}
 .kopfreihe{display:flex;align-items:center;gap:8px}
-/* v9.9 (Nutzerhinweis): Auf schmalen Geräten bekommen die Rohstoffe eine eigene Zeile,
-   damit sie immer sichtbar bleiben; Tag und Uhr werden schrittweise kompakter. */
-@media (max-width:860px){
-  .kopfreihe{flex-wrap:wrap;row-gap:5px}
-  .kopfreihe .chips{order:9;flex:1 0 100%;width:100%;padding-bottom:2px}
-  #tagesuhr{flex:1 1 auto;width:auto;min-width:118px;max-width:none}
-}
-@media (max-width:560px){
-  .hofplakette{gap:5px;padding:2px 7px}
-  .hofplakette .tag{font-size:14px}
-  .hofplakette .uhrzeit{font-size:9.5px}
-  #tagesuhr{padding:3px 6px 2px;font-size:9.5px;min-width:96px}
-  #tagesuhr .tuSkala{display:none}
-  #tagesuhr .tuBalken{height:10px;margin:3px 0 1px}
-}
-@media (max-width:430px){
-  #kopf{padding-inline:5px}
-  .kopfreihe{gap:5px}
-  .hofplakette .uhrzeit{display:none}   /* die Zeit steht dann in der Tagesuhr */
-  #tagesuhr .tuKopf{font-size:10px}
-  #tagesuhr{min-width:84px}
-  .chips{gap:4px}
-}
 .hofplakette{display:flex;align-items:center;gap:8px;background:var(--papier);border:var(--rand);
   border-radius:12px;padding:3px 10px;box-shadow:0 3px 0 rgba(74,44,21,.75);flex:0 0 auto;cursor:pointer}
 .hofplakette .tag{font-family:var(--titel);font-size:16px;line-height:1.05}
@@ -248,6 +225,58 @@ small{font-size:.82em}
 .knopfrund{width:38px;height:36px;flex:0 0 38px;border-radius:11px;background:var(--papier);
   border:var(--rand);box-shadow:0 3px 0 rgba(74,44,21,.75);display:grid;place-items:center;font-size:17px;font-weight:900}
 .knopfrund:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(74,44,21,.75)}
+.kopfaktionen{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.kopfmenue{display:none;position:relative;z-index:45}
+.kopfmenue>summary{list-style:none}
+.kopfmenue>summary::-webkit-details-marker{display:none}
+.kopfmenue[open]>summary{background:#ffefc2;transform:translateY(1px);box-shadow:0 2px 0 rgba(74,44,21,.75)}
+.kopfmenueListe{position:absolute;right:0;top:calc(100% + 8px);width:174px;display:grid;gap:4px;padding:7px;
+  background:var(--papier);border:var(--rand);border-radius:12px;box-shadow:var(--tief)}
+.kopfmenueListe button{display:flex;align-items:center;gap:8px;width:100%;padding:7px 9px;border:2px solid var(--holz-4);
+  border-radius:9px;background:#fffdf5;font-size:12px;font-weight:900;text-align:left;white-space:nowrap}
+.kopfmenueListe button:hover,.kopfmenueListe button:focus-visible{background:#ffefc2}
+/* Kompakter Kopf für kleine Monitore: Uhr nicht doppelt zeigen, Werkzeuge in ein Menü,
+   Ressourcen zuerst. So bleiben alle Bestände ohne horizontales Suchen sichtbar. */
+@media (max-width:1280px){
+  #kopf{padding-left:6px;padding-right:6px}
+  .kopfreihe{gap:5px}
+  #tagesuhr{display:none}
+  .hofplakette{padding:2px 7px;border-radius:10px}
+  .hofplakette>div{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:6px}
+  .hofplakette .tag{font-size:14px;white-space:nowrap}
+  .hofplakette .rang{display:none}
+  .hofplakette .uhrzeit{grid-column:2;font-size:10px;margin:0;white-space:nowrap}
+  #tagbalken{grid-column:1/-1;margin-top:1px}
+  .kopfaktionDirekt{display:none}
+  .kopfmenue{display:block}
+  .chips{gap:4px}
+  .chips .chip{min-width:0;gap:3px;padding:3px 6px 3px 4px;border-width:2px;border-radius:9px}
+  .chips .chip svg{width:16px;height:16px;flex-basis:16px}
+  .chips .chip b{font-size:12.5px;white-space:nowrap}
+  .chips .chip small{display:none}
+}
+@media (max-width:760px){
+  .kopfreihe{flex-wrap:wrap;row-gap:4px}
+  .kopfaktionen{margin-left:auto}
+  .kopfreihe .chips{order:9;flex:1 0 100%;width:100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding-bottom:3px;overflow:visible}
+  .chips .chip{width:auto;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 rgba(74,44,21,.7)}
+  .chips .chip b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:11.5px}
+  #ticker{display:none}
+  #adaBox{top:72px}
+}
+@media (max-width:520px){
+  #kopf{padding-top:calc(3px + var(--sicher-o));padding-left:4px;padding-right:4px}
+  .hofplakette{padding:1px 6px}
+  .hofplakette .tag{font-size:13px}
+  .kopfreihe .chips{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+  .chips .chip{height:27px;padding:2px 4px}
+  .chips .chip svg{width:14px;height:14px;flex-basis:14px}
+  .chips .chip b{font-size:11px}
+  .knopfrund{width:35px;height:33px;flex-basis:35px}
+  .kopfmenueListe{right:-1px;top:calc(100% + 6px)}
+  #adaBox{top:98px}
+}
+@media (max-height:650px) and (max-width:1280px){#ticker{display:none}}
 #ticker{margin:5px -8px 0;padding:2px 8px;background:#2f1d0e;border-top:3px solid var(--holz-4);
   overflow:hidden;white-space:nowrap;position:relative;height:22px;cursor:pointer}
 #ticker span{position:absolute;left:0;top:1px;font-size:11.5px;font-weight:800;color:#ffd97a;
@@ -317,6 +346,16 @@ small{font-size:.82em}
   display:grid;place-items:center;font-size:10px;margin-top:1px}
 .zielkarte .haken.an{background:#7bc86c}
 .zielkarte .zielhilfe{font-size:11px;color:var(--tinte-2);font-weight:700;margin-top:2px}
+.zielkarte{position:relative}
+.zielklapp{position:absolute;right:5px;top:5px;z-index:2;height:27px;min-width:27px;padding:0 6px;display:flex;align-items:center;justify-content:center;gap:5px;
+  border:2px solid var(--holz-4);border-radius:9px;background:#fff7e0;box-shadow:0 2px 0 rgba(74,44,21,.45);font-size:11px;font-weight:900}
+.zielklapp:hover,.zielklapp:focus-visible{background:#ffefc2}
+.zielklappText{display:none}
+.zielinhalt>h4{padding-right:27px}
+.zielkarte.zu{width:auto;max-width:min(220px,calc(100vw - 16px));padding:4px 6px;border-radius:11px}
+.zielkarte.zu .zielinhalt{display:none}
+.zielkarte.zu .zielklapp{position:static;width:auto;height:29px;padding:0 9px}
+.zielkarte.zu .zielklappText{display:inline}
 
 /* ============ Hofleiste (Dock) ============ */
 #dock{position:relative;z-index:30;border-top:4px solid var(--holz-4);
@@ -843,9 +882,20 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
     </div>
     <div id="tagesuhr" role="img" aria-label="Tagesuhr" title="Die Hofuhr läuft von 06:00 bis 22:00 (16 Uhrstunden = 14 Arbeitsstunden). Fertige Aufträge werden sofort abgenommen; „Tag beenden“ verkürzt den Tag."><div class="tuKopf"><span id="tuZeit">🌅 06:00</span><span id="tuRest">14 h Arbeit vor dir</span></div><div class="tuBalken"><i id="tuFuell"></i><em class="tuTick" style="left:25%"></em><em class="tuTick" style="left:50%"></em><em class="tuTick" style="left:75%"></em><em class="tuTick abend" style="left:93.75%"></em><b id="tuMarke">☀️</b></div><div class="tuSkala"><span>06</span><span>10</span><span>14</span><span>18</span><span>22</span></div></div>
     <div class="chips" id="chips"></div>
-    <button class="knopfrund" id="adaKnopf" onclick="adaMenue()" aria-label="Ada sprechen – Erklärungen anhören und Fragen stellen" title="Ada sprechen"><span class="adaRund" id="adaKnopfFigur"></span></button>
-    <button class="knopfrund" onclick="oeffne('kompendium')" aria-label="Kompendium – Wissenskarten zur echten KI-Technik" title="Kompendium: Wissenskarten">🎓</button>
-    <button class="knopfrund" onclick="zeigeHofbuch()" aria-label="Hofbuch – Regelwerk und Hilfe">📖</button>
+    <div class="kopfaktionen">
+      <button class="knopfrund kopfaktionDirekt" id="adaKnopf" onclick="adaMenue()" aria-label="Ada sprechen – Erklärungen anhören und Fragen stellen" title="Ada sprechen"><span class="adaRund" id="adaKnopfFigur"></span></button>
+      <button class="knopfrund kopfaktionDirekt" onclick="oeffne('kompendium')" aria-label="Kompendium – Wissenskarten zur echten KI-Technik" title="Kompendium: Wissenskarten">🎓</button>
+      <button class="knopfrund kopfaktionDirekt" onclick="zeigeHofbuch()" aria-label="Hofbuch – Regelwerk und Hilfe">📖</button>
+      <details class="kopfmenue">
+        <summary class="knopfrund" aria-label="Ada, Lexikon und Hofbuch öffnen" title="Ada, Lexikon und Hofbuch">☰</summary>
+        <div class="kopfmenueListe">
+          <button onclick="this.closest('details').removeAttribute('open');adaMenue()">👩‍🌾 Ada fragen</button>
+          <button onclick="this.closest('details').removeAttribute('open');oeffne('kompendium')">🎓 KI-Lexikon</button>
+          <button onclick="this.closest('details').removeAttribute('open');zeigeHofbuch()">📖 Hofbuch & Hilfe</button>
+          <button onclick="this.closest('details').removeAttribute('open');oeffne('news')">📰 Neuigkeiten</button>
+        </div>
+      </details>
+    </div>
   </div>
   <div id="ticker" onclick="oeffne('news')"><span id="tickertext"></span></div>
 </header>
@@ -3468,10 +3518,18 @@ function tierText(t){
 function zieleNeu(){
   const k=document.getElementById("zielkarte");
   const q=QUESTS[S.questIdx];
-  if(!q){ k.innerHTML=wocheBoxHtml()+'<h4>'+IKONEN.ziel+'Alle Hofziele erreicht!</h4><div class="zielhilfe">Der Hof läuft – jetzt zählt deine eigene Strategie.</div>'; return; }
-  k.innerHTML=wocheBoxHtml()+'<h4>'+IKONEN.ziel+'Hofziel '+(S.questIdx+1)+'/'+QUESTS.length+'</h4>'+
+  const zu=!!(S.flags&&S.flags.zielkarte_zu), label=wocheAktiv()?"Aufgaben & Ziele":"Hofziel";
+  k.classList[zu?"add":"remove"]("zu");
+  const rahmen=inhalt=>'<button class="zielklapp" onclick="zieleKlapp()" aria-expanded="'+(!zu)+'" aria-label="'+label+(zu?' anzeigen':' einklappen')+'" title="'+label+(zu?' anzeigen':' einklappen')+'"><span class="zielklappText">'+label+'</span><span aria-hidden="true">'+(zu?'▼':'▲')+'</span></button><div class="zielinhalt">'+inhalt+'</div>';
+  if(!q){ k.innerHTML=rahmen(wocheBoxHtml()+'<h4>'+IKONEN.ziel+'Alle Hofziele erreicht!</h4><div class="zielhilfe">Der Hof läuft – jetzt zählt deine eigene Strategie.</div>'); return; }
+  k.innerHTML=rahmen(wocheBoxHtml()+'<h4>'+IKONEN.ziel+'Hofziel '+(S.questIdx+1)+'/'+QUESTS.length+'</h4>'+
     '<div class="zielzeile"><span class="haken"></span><span class="zieltext">'+esc(tierText(q.t))+'</span><b class="zielpreis">+'+geld(q.pr)+'</b></div>'+
-    '<div class="zielhilfe">💡 '+esc(tierText(q.hilfe))+'</div>';
+    '<div class="zielhilfe">💡 '+esc(tierText(q.hilfe))+'</div>');
+}
+function zieleKlapp(){
+  if(!S) return;
+  S.flags=S.flags||{}; S.flags.zielkarte_zu=!S.flags.zielkarte_zu;
+  zieleNeu(); sichern();
 }
 
 /* --- Gebäude-Katalog & Fächer-Gruppen der Hofleiste --- */

@@ -710,6 +710,10 @@ test("WOCHE-1","Geführte Woche: 7 Kapitel, alle Checks laufen fehlerfrei, Gesel
   if(!S.geselle) return "Prüfung trotz erfüllter Ziele nicht bestanden: "+JSON.stringify(ber.zeilen);
   const kasse=S.kredit; ctx.wocheTick({zeilen:[]});
   return S.kredit===kasse?true:"Gesellen-Prämie doppelt gezahlt!"; });
+test("WOCHE-1b","Aufgaben- und Zielkarte lässt sich dauerhaft ein- und wieder ausklappen",()=>{
+  frisch(); S.fuehrung="gefuehrt"; S.flags={};
+  ctx.zieleKlapp(); if(!S.flags.zielkarte_zu) return "Einklappen wurde nicht gespeichert";
+  ctx.zieleKlapp(); return S.flags.zielkarte_zu?"Ausklappen funktioniert nicht":true; });
 test("CHEMIE-1","eingespieltes Team: gleiche Modellfamilie senkt die Übergabelast von 12 % auf 8 %",()=>{
   frisch();
   const a=ctx.neuesTier("qwen35-4b"), b=ctx.neuesTier("qwen35-9b"), fremd=ctx.neuesTier("smollm3-3b");
