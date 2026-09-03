@@ -1,0 +1,73 @@
+/* LLM FARM · Dorfplatz-Minispiele – ergänzendes CSS (Präfix .mini)
+   Nutzt die vorhandenen Hof-Variablen (--holz-4, --papier, --tinte-2 …) und die
+   bestehenden Klassen .karte/.knopf/.merk/.notiz. Nichts davon wird überschrieben. */
+
+/* Spieleliste auf dem Dorfplatz */
+.miniListe{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:10px}
+.miniSpiel{display:flex;flex-direction:column;gap:6px}
+.miniSpiel .reihe{margin-top:auto;padding-top:6px}
+.miniSpiel.miniFertig{opacity:.72;background:#f6efdc}
+.miniKopf h3{color:#3f6b39}
+.miniLehre{font-size:11.5px;color:var(--tinte-2);line-height:1.5}
+.miniBonus{font-size:11.5px;font-weight:800;color:#7a5a1e}
+
+/* Textproben (Kundenpost, Antwortproben, Codeschnipsel) */
+.miniText{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;
+  white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f1e3;border:1px solid #ddcba6;border-radius:9px;
+  padding:8px 10px;margin:6px 0;max-height:260px;overflow:auto}
+
+/* Zustände einer Karte in der Auflösung */
+.miniFalsch{border-color:#a33 !important;background:#fff3ef}
+.miniMarkiert{box-shadow:inset 0 0 0 3px #d9a441,0 4px 0 rgba(74,44,21,.5)}
+.miniAufloesung{font-size:12px;line-height:1.55;margin-top:7px;border-top:1px dashed #cbb68f;padding-top:6px}
+.miniOpt{gap:6px;flex-wrap:wrap}
+.miniZurueck p{font-size:12px;color:var(--tinte-2)}
+
+/* VRAM-Balken: Gewichte | Kontext-Cache | Reserve, dazu die Kartengrenze */
+.miniBalken{position:relative;display:flex;height:22px;width:100%;border:2px solid var(--holz-4);
+  border-radius:8px;overflow:hidden;background:#efe4c9}
+.miniBalken>span{display:block;height:100%}
+.miniB1{background:linear-gradient(#7fb2e5,#4a90d9)}
+.miniB2{background:linear-gradient(#9ad9c9,#4fb79b)}
+.miniB3{background:linear-gradient(#e6cf94,#c9a44e)}
+.miniBGrenze{position:absolute;top:-2px;bottom:-2px;width:3px;background:#a33;box-shadow:0 0 0 1px #fff}
+.miniBalkenVoll{border-color:#a33}
+.miniBLegende{display:block;font-size:11px;font-weight:700;color:var(--tinte-2);margin-top:4px;line-height:1.5}
+
+/* Abzeichenband */
+.miniAbz{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.miniAbz .merk{margin:1px}
+
+/* Stammbuch der Familien */
+.miniFam h3{align-items:center}
+.miniFamPunkt{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--holz-4);flex:0 0 auto}
+.miniFamOrg{font-size:11.5px;color:var(--tinte-2);font-weight:700}
+.miniAlbumGitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin-top:8px}
+.miniModell{border:2px solid #d8c6a4;border-radius:10px;padding:6px 8px;background:#fbf5e6;
+  display:flex;flex-direction:column;gap:2px;min-width:0}
+.miniModell b{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.miniModell span{font-size:10.5px;color:var(--tinte-2);font-weight:700}
+.miniModell.miniHabe{border-color:#6b934e;background:#eef7e2}
+.miniModell .miniHaken{font-size:12px}
+
+@media(max-width:600px){
+  .miniListe{grid-template-columns:1fr}
+  .miniText{font-size:11px;max-height:200px}
+  .miniAlbumGitter{grid-template-columns:repeat(auto-fill,minmax(115px,1fr))}
+}
+@media(prefers-reduced-motion:reduce){ .miniBalken>span{transition:none} }
+
+/* Ära 8 · Vier gewinnt gegen den Hacker */
+.miniSpiel.miniEreignis{border:2px solid #c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.15)}
+.miniBrettKarte{max-width:420px}
+.miniSpalten{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.miniSpalten .knopf{padding:2px 0;min-width:0}
+.miniBrett{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:#2d4a6b;padding:6px;border-radius:10px}
+.miniFeld{aspect-ratio:1;border-radius:50%;background:#f4f1e8;display:flex;align-items:center;justify-content:center;font-size:.85em;line-height:1}
+.miniFeld.miniHof{background:#4caf50;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.miniFeld.miniHack{background:#e53935;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.merkOptik-shiny{animation:merkShiny 1.6s ease-in-out infinite;background:linear-gradient(90deg,#fff3b0,#ffd54f,#fff3b0)}
+.merkOptik-regenbogen{background:linear-gradient(90deg,#ff8a80,#ffd180,#ffff8d,#ccff90,#80d8ff,#ea80fc);color:#222}
+.merkOptik-sternenfell{background:#e3f2fd}
+@keyframes merkShiny{0%,100%{box-shadow:0 0 2px #ffd54f}50%{box-shadow:0 0 10px #ffca28}}
+@media (prefers-reduced-motion:reduce){.merkOptik-shiny{animation:none}}

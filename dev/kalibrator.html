@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modellhof – Positions-Kalibrator</title>
+<style>
+:root{--holz:#4a2c15;--papier:#fff6e0;--gruen:#7bc86c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito','Segoe UI',sans-serif;background:#6bbd4c;color:#3d2412;display:flex;min-height:100vh}
+#leiste{width:230px;flex:0 0 230px;background:var(--papier);border-right:4px solid var(--holz);padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+#leiste h1{font-size:17px;margin-bottom:8px}
+#leiste p{font-size:11.5px;line-height:1.4;margin-bottom:10px}
+.quelle{border:3px dashed var(--holz);border-radius:12px;background:#fffdf5;padding:8px;text-align:center;margin-bottom:10px;cursor:grab;user-select:none}
+.quelle b{display:block;font-size:12px;margin-top:4px}
+.quelle img,.quelle svg{width:70px;pointer-events:none}
+#info{border:2.5px solid var(--holz);border-radius:10px;background:#fffdf5;padding:8px;font-size:11.5px;margin-bottom:10px;min-height:74px}
+#info b{font-size:12px}
+.knopfzeile{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+button{font:inherit;font-weight:900;border:2.5px solid var(--holz);border-radius:9px;background:linear-gradient(#ffd97a,#eb9b2d);padding:5px 9px;cursor:pointer;font-size:12px}
+button.gruen{background:linear-gradient(#b7ef98,#5fb44f);width:100%;padding:10px;font-size:14px;margin-top:6px}
+button.hell{background:linear-gradient(#fffaea,#ecdcb4)}
+#ausgabe{width:100%;height:110px;font-size:9px;margin-top:8px;display:none}
+#haupt{flex:1;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;align-content:start}
+.karte{background:var(--gruen);border:3px solid var(--holz);border-radius:14px;padding:8px}
+.karte h3{font-size:13px;background:var(--papier);border:2px solid var(--holz);border-radius:8px;display:inline-block;padding:1px 9px;margin-bottom:6px}
+.buehne{position:relative;width:100%;user-select:none;touch-action:none}
+.buehne>img.figur{width:100%;display:block;pointer-events:none;-webkit-user-drag:none}
+.teil{position:absolute;cursor:grab;touch-action:none}
+.teil img{width:100%;display:block;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 2px 2px rgba(61,36,18,.35));transform:scaleX(-1)}
+.quelle img,#schlepp{transform:scaleX(-1)}   /* Sattel blickt wie die Tiere nach rechts */
+.teil svg{width:100%;display:block;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(61,36,18,.35))}
+.teil.gewaehlt{outline:2.5px dashed #e0563f;outline-offset:2px}
+#hinweis{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);background:var(--papier);border:3px solid var(--holz);border-radius:12px;padding:8px 14px;font-weight:900;font-size:13px;display:none;z-index:50}
+#schlepp{position:fixed;pointer-events:none;z-index:99;width:70px;display:none}
+</style>
+</head>
+<body>
+<div id="leiste">
+  <h1>🎯 Positions-Kalibrator</h1>
+  <p><b>So geht’s:</b> Krone/Sattel sitzen schon als Startwerte auf jeder Figur. <b>Ziehen</b> zum Verschieben (oder aus der Leiste neu auflegen). Feinjustage nach Klick: <b>Pfeiltasten</b> (Shift = grob), <b>Q/E</b> = Sattel drehen, <b>+/−</b> = Größe.</p>
+  <div class="quelle" data-typ="krone">
+    <svg viewBox="0 0 44 30"><path d="M4 26 L8 8 L16 16 L22 4 L28 16 L36 8 L40 26 Z" fill="#f5c451" stroke="#3d2412" stroke-width="3.5" stroke-linejoin="round"/></svg>
+    <b>👑 Krone (ziehen)</b>
+  </div>
+  <div class="quelle" data-typ="sattel">
+    <img src="../assets/posen/sattel_klassik.png" alt="">
+    <b>🏇 Sattel (ziehen)</b>
+  </div>
+  <div id="info"><b>Nichts gewählt</b><br>Klicke Krone oder Sattel auf einer Figur an.</div>
+  <div class="knopfzeile">
+    <button class="hell" id="dreL">⟲ Q</button><button class="hell" id="dreR">⟳ E</button>
+    <button class="hell" id="grM">−</button><button class="hell" id="grP">＋</button>
+  </div>
+  <button class="gruen" id="fertig">✅ Fertig – speichern</button>
+  <button class="hell" style="width:100%;margin-top:6px" id="bild">🖼️ Bild mit Positionen sichern</button>
+  <textarea id="ausgabe" readonly></textarea>
+  <p style="margin-top:8px;font-size:10.5px">„Fertig“ lädt <b>kalibrierung.json</b> herunter – bitte nach<br><b>D:\Projekte_D\Modellhof_game\</b> speichern/verschieben, dann übernimmt Claude die Werte exakt.</p>
+</div>
+<div id="haupt"></div>
+<div id="hinweis"></div>
+<img id="schlepp" src="../assets/posen/sattel_klassik.png" alt="">
+
+<script>
+/* Startwerte = aktueller Spielstand (damit nur korrigiert werden muss).
+   r = Bildbreite/Bildhöhe. sat:[cx,backY,rot,w] kro:[kx,ky,kw] */
+const DATEN={
+ schwein:{r:{steh:1.30,lauf:1.27,lieg:1.74},
+  sat:{steh:[42,4,-6,34],lauf:[42,4,-6,34],lieg:[44,3,-2,34]},
+  kro:{steh:[61,10,15],lauf:[61,11,15],lieg:[68,15,15]}},
+ huhn:{r:{steh:0.82,lauf:0.82,lieg:1.09},
+  sat:{steh:[41,34,-5,26],lauf:[41,34,-4,26],lieg:[43,46,-6,26]},
+  kro:{steh:[75,6,13],lauf:[75,6,13],lieg:[74,7,12]}},
+ kuh:{r:{steh:1.12,lauf:1.31,lieg:1.23},
+  sat:{steh:[42,28,0,31],lauf:[42,27,3,31],lieg:[44,36,0,31]},
+  kro:{steh:[86,4,14],lauf:[88,4,14],lieg:[84,6,14]}},
+ esel:{r:{steh:0.86,lauf:1.00,lieg:1.02},
+  sat:{steh:[39,45,0,30],lauf:[39,44,3,30],lieg:[41,56,2,30]},
+  kro:{steh:[74,17,12],lauf:[75,17,12],lieg:[78,16,12]}},
+ lama:{r:{steh:0.71,lauf:0.73,lieg:0.92},
+  sat:{steh:[34,48,-2,28],lauf:[34,48,-7,28],lieg:[36,58,-7,28]},
+  kro:{steh:[73,5,12],lauf:[73,5,12],lieg:[80,6,12]}},
+ dino:{r:{steh:0.94,lauf:0.97,lieg:2.25},
+  sat:{steh:[36,41,-10,26],lauf:[36,39,-10,26],lieg:[38,10,-3,26]},
+  kro:{steh:[67,3,13],lauf:[60,3,13],lieg:[66,21,13]}}
+};
+const ARTEN=["schwein","huhn","kuh","esel","lama","dino","hund","katze"];
+const POSEN=["steh","lauf","lieg"];
+const TITEL={steh:"stehend",lauf:"laufend",lieg:"liegend"};
+const SASP=1.14, SAUF=0.31, KASP=30/44, KAUF=0.72;
+const KRONE_SVG='<svg viewBox="0 0 44 30"><path d="M4 26 L8 8 L16 16 L22 4 L28 16 L36 8 L40 26 Z" fill="#f5c451" stroke="#3d2412" stroke-width="3.5" stroke-linejoin="round"/></svg>';
+
+const haupt=document.getElementById("haupt");
+const buehnen={};   /* key art_pose -> {el, teile:{krone,sattel}} */
+
+function teilAnlegen(buehne,typ,art,pose,roh){
+  const alt=buehne.querySelector('.teil[data-typ="'+typ+'"]'); if(alt) alt.remove();
+  const t=document.createElement("div");
+  t.className="teil"; t.dataset.typ=typ; t.dataset.art=art; t.dataset.pose=pose;
+  t.dataset.rot=roh.rot||0;
+  t.style.left=roh.x+"%"; t.style.top=roh.y+"%"; t.style.width=roh.w+"%";
+  t.style.transform="rotate("+(roh.rot||0)+"deg)"; t.style.zIndex=typ==="krone"?6:5;
+  t.innerHTML=typ==="krone"?KRONE_SVG:'<img src="../assets/posen/sattel_klassik.png" alt="">';
+  buehne.appendChild(t);
+  return t;
+}
+ARTEN.forEach(art=>POSEN.forEach(pose=>{
+  const k=document.createElement("div"); k.className="karte";
+  k.innerHTML='<h3>'+art+' · '+TITEL[pose]+'</h3>';
+  const b=document.createElement("div"); b.className="buehne"; b.dataset.key=art+"_"+pose;
+  b.innerHTML='<img class="figur" src="../assets/posen/'+art+'_'+pose+'.png" alt="">';
+  k.appendChild(b); haupt.appendChild(k); buehnen[art+"_"+pose]=b;
+  const d=DATEN[art], r=d.r[pose];
+  const s=d.sat[pose], w=s[3], sx=s[0]-w/2, sy=s[1]-w*SASP*r*SAUF;
+  teilAnlegen(b,"sattel",art,pose,{x:sx,y:sy,w:w,rot:s[2]});
+  const c=d.kro[pose], kw=c[2], kh=kw*KASP*r;
+  teilAnlegen(b,"krone",art,pose,{x:c[0]-kw/2,y:c[1]-kh*KAUF,w:kw,rot:0});
+}));
+
+/* ── Auswahl + Ziehen ── */
+let gewaehlt=null, zieh=null;
+const info=document.getElementById("info");
+function waehle(t){
+  if(gewaehlt) gewaehlt.classList.remove("gewaehlt");
+  gewaehlt=t; if(t){ t.classList.add("gewaehlt"); infoNeu(); }
+  else info.innerHTML='<b>Nichts gewählt</b><br>Klicke Krone oder Sattel auf einer Figur an.';
+}
+function infoNeu(){
+  if(!gewaehlt) return;
+  info.innerHTML='<b>'+(gewaehlt.dataset.typ==="krone"?"👑 Krone":"🏇 Sattel")+' · '+gewaehlt.dataset.art+' ('+TITEL[gewaehlt.dataset.pose]+')</b><br>'+
+    'x: '+parseFloat(gewaehlt.style.left).toFixed(1)+'% · y: '+parseFloat(gewaehlt.style.top).toFixed(1)+'%<br>'+
+    'Breite: '+parseFloat(gewaehlt.style.width).toFixed(1)+'% · Drehung: '+gewaehlt.dataset.rot+'°';
+}
+document.addEventListener("pointerdown",e=>{
+  const t=e.target.closest(".teil");
+  if(t){ waehle(t);
+    const b=t.parentElement.getBoundingClientRect(), r=t.getBoundingClientRect();
+    zieh={t,dx:e.clientX-r.left,dy:e.clientY-r.top};
+    t.setPointerCapture&&t.setPointerCapture(e.pointerId);
+    e.preventDefault(); return; }
+  const q=e.target.closest(".quelle");
+  if(q){ zieh={neu:q.dataset.typ,dx:35,dy:20};
+    const s=document.getElementById("schlepp");
+    if(q.dataset.typ==="krone"){ s.style.display="none"; } else { s.style.display="block"; }
+    e.preventDefault(); return; }
+  if(!e.target.closest("#leiste")) waehle(null);
+});
+document.addEventListener("pointermove",e=>{
+  if(!zieh) return;
+  if(zieh.neu){ const s=document.getElementById("schlepp"); s.style.left=(e.clientX-35)+"px"; s.style.top=(e.clientY-20)+"px"; return; }
+  const b=zieh.t.parentElement.getBoundingClientRect();
+  zieh.t.style.left=((e.clientX-zieh.dx-b.left)/b.width*100).toFixed(2)+"%";
+  zieh.t.style.top=((e.clientY-zieh.dy-b.top)/b.height*100).toFixed(2)+"%";
+  infoNeu();
+});
+document.addEventListener("pointerup",e=>{
+  if(zieh&&zieh.neu){
+    document.getElementById("schlepp").style.display="none";
+    const ziel=document.elementsFromPoint(e.clientX,e.clientY).find(x=>x.classList&&x.classList.contains("buehne"));
+    if(ziel){
+      const b=ziel.getBoundingClientRect();
+      const w=zieh.neu==="krone"?13:28;
+      const t=teilAnlegen(ziel,zieh.neu,ziel.dataset.key.split("_")[0],ziel.dataset.key.split("_")[1],
+        {x:(e.clientX-b.left)/b.width*100-w/2,y:(e.clientY-b.top)/b.height*100-4,w:w,rot:0});
+      waehle(t);
+    }
+  }
+  zieh=null;
+});
+/* Feinjustage */
+function dreh(d){ if(!gewaehlt||gewaehlt.dataset.typ!=="sattel") return;
+  const r=(parseFloat(gewaehlt.dataset.rot)||0)+d; gewaehlt.dataset.rot=r;
+  gewaehlt.style.transform="rotate("+r+"deg)"; infoNeu(); }
+function groesse(f){ if(!gewaehlt) return;
+  gewaehlt.style.width=Math.max(4,parseFloat(gewaehlt.style.width)*f).toFixed(1)+"%"; infoNeu(); }
+document.addEventListener("keydown",e=>{
+  if(!gewaehlt) return;
+  const s=e.shiftKey?1:0.25;
+  if(e.key==="ArrowLeft"){gewaehlt.style.left=(parseFloat(gewaehlt.style.left)-s)+"%";}
+  else if(e.key==="ArrowRight"){gewaehlt.style.left=(parseFloat(gewaehlt.style.left)+s)+"%";}
+  else if(e.key==="ArrowUp"){gewaehlt.style.top=(parseFloat(gewaehlt.style.top)-s)+"%";}
+  else if(e.key==="ArrowDown"){gewaehlt.style.top=(parseFloat(gewaehlt.style.top)+s)+"%";}
+  else if(e.key==="q"||e.key==="Q"){dreh(-2);}
+  else if(e.key==="e"||e.key==="E"){dreh(2);}
+  else if(e.key==="+"){groesse(1.05);}
+  else if(e.key==="-"){groesse(1/1.05);}
+  else return;
+  e.preventDefault(); infoNeu();
+});
+document.getElementById("dreL").onclick=()=>dreh(-2);
+document.getElementById("dreR").onclick=()=>dreh(2);
+document.getElementById("grP").onclick=()=>groesse(1.05);
+document.getElementById("grM").onclick=()=>groesse(1/1.05);
+
+/* ── Speichern ── */
+function sammeln(){
+  const aus={};
+  ARTEN.forEach(art=>{ aus[art]={};
+    POSEN.forEach(pose=>{
+      const b=buehnen[art+"_"+pose]; const o={};
+      b.querySelectorAll(".teil").forEach(t=>{
+        o[t.dataset.typ==="krone"?"kro":"sat"]={
+          x:+parseFloat(t.style.left).toFixed(1), y:+parseFloat(t.style.top).toFixed(1),
+          w:+parseFloat(t.style.width).toFixed(1), rot:+(parseFloat(t.dataset.rot)||0) };
+      });
+      aus[art][pose]=o;
+    });
+  });
+  return aus;
+}
+function melde(t){ const h=document.getElementById("hinweis"); h.textContent=t; h.style.display="block"; setTimeout(()=>h.style.display="none",3500); }
+document.getElementById("fertig").onclick=()=>{
+  const j=JSON.stringify(sammeln(),null,1);
+  const a=document.getElementById("ausgabe"); a.style.display="block"; a.value=j;
+  try{ localStorage.setItem("modellhof_kalibrierung",j); }catch(e){}
+  const dl=document.createElement("a");
+  dl.href=URL.createObjectURL(new Blob([j],{type:"application/json"}));
+  dl.download="kalibrierung.json"; dl.click();
+  try{ navigator.clipboard.writeText(j); }catch(e){}
+  melde("✅ kalibrierung.json gespeichert – bitte in den Projektordner legen!");
+};
+document.getElementById("bild").onclick=async()=>{
+  try{
+    const karten=[...document.querySelectorAll(".buehne")];
+    const spalten=3, bw=340, reihen=Math.ceil(karten.length/spalten);
+    let zeilenH=[]; karten.forEach((b,i)=>{const z=Math.floor(i/spalten); const h=bw*(b.offsetHeight/b.offsetWidth)+26; zeilenH[z]=Math.max(zeilenH[z]||0,h);});
+    const c=document.createElement("canvas");
+    c.width=spalten*bw+40; c.height=zeilenH.reduce((a,b)=>a+b,0)+40;
+    const g=c.getContext("2d"); g.fillStyle="#7bc86c"; g.fillRect(0,0,c.width,c.height);
+    g.textBaseline="top";
+    let y0=20;
+    for(let z=0;z<reihen;z++){
+      for(let s=0;s<spalten;s++){
+        const i=z*spalten+s; if(i>=karten.length) break;
+        const b=karten[i], x0=20+s*bw;
+        const fig=b.querySelector(".figur");
+        const skal=(bw-20)/b.offsetWidth, fh=b.offsetHeight*skal;
+        g.fillStyle="#3d2412"; g.font="900 13px sans-serif"; g.fillText(b.dataset.key.replace("_"," · "),x0,y0);
+        await new Promise(res=>{ if(fig.complete) res(); else fig.onload=res; });
+        g.drawImage(fig,x0,y0+18,bw-20,fh);
+        for(const t of b.querySelectorAll(".teil")){
+          const tx=x0+parseFloat(t.style.left)/100*(bw-20), ty=y0+18+parseFloat(t.style.top)/100*fh;
+          const tw=parseFloat(t.style.width)/100*(bw-20), rot=(parseFloat(t.dataset.rot)||0)*Math.PI/180;
+          g.save(); g.translate(tx+tw/2,ty); g.rotate(rot); g.translate(-tw/2,0);
+          if(t.dataset.typ==="sattel"){ const im=t.querySelector("img"); g.drawImage(im,0,0,tw,tw*(im.naturalHeight/im.naturalWidth)); }
+          else{ g.fillStyle="#f5c451"; g.strokeStyle="#3d2412"; g.lineWidth=2.5;
+            const u=tw/44; g.beginPath();
+            g.moveTo(4*u,26*u*(30/44)/(30/44)); /* einfacher Kronenpfad */
+            g.beginPath(); g.moveTo(4*u,26*u); g.lineTo(8*u,8*u); g.lineTo(16*u,16*u); g.lineTo(22*u,4*u);
+            g.lineTo(28*u,16*u); g.lineTo(36*u,8*u); g.lineTo(40*u,26*u); g.closePath(); g.fill(); g.stroke(); }
+          g.restore();
+          g.fillStyle="#e0563f"; g.beginPath(); g.arc(tx+tw/2,ty+2,3,0,7); g.fill();
+        }
+        g.fillStyle="#3d2412"; g.font="10px sans-serif";
+      }
+      y0+=zeilenH[z];
+    }
+    const dl=document.createElement("a"); dl.href=c.toDataURL("image/png"); dl.download="kalibrierung_bild.png"; dl.click();
+    melde("🖼️ kalibrierung_bild.png gespeichert");
+  }catch(e){ melde("⚠️ Bild-Export ging nicht ("+e.message+") – bitte über http://localhost:8123 öffnen"); }
+};
+/* Vorherige Kalibrierung wieder laden, falls vorhanden */
+try{ const alt=localStorage.getItem("modellhof_kalibrierung");
+ if(alt){ const o=JSON.parse(alt);
+  ARTEN.forEach(art=>POSEN.forEach(pose=>{ const e=o[art]&&o[art][pose]; if(!e) return;
+   const b=buehnen[art+"_"+pose];
+   if(e.sat) teilAnlegen(b,"sattel",art,pose,e.sat);
+   if(e.kro) teilAnlegen(b,"krone",art,pose,e.kro); }));
+  melde("Vorherige Kalibrierung geladen"); }
+}catch(e){}
+</script>
+</body>
+</html>

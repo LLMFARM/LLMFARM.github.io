@@ -1,0 +1,142 @@
+{
+  "passed": 34,
+  "total": 34,
+  "results": [
+    {
+      "name": "Alte RAG-Käufe bleiben erhalten, Migration idempotent",
+      "ok": true
+    },
+    {
+      "name": "Energie-Vorschau ist vollständig nebenwirkungsfrei",
+      "ok": true
+    },
+    {
+      "name": "0,6B-Modell kann alle vier Mikroaufgaben erfüllen",
+      "ok": true
+    },
+    {
+      "name": "Nachtplanung rechnet noch keinen Tag ab",
+      "ok": true
+    },
+    {
+      "name": "Doppelklick auf Nachtstart führt zu genau einem Tageswechsel",
+      "ok": true
+    },
+    {
+      "name": "Laden während Mondanimation stellt ungebuchte Planung wieder her",
+      "ok": true
+    },
+    {
+      "name": "Zwei Modelle ergänzen Fähigkeiten, ohne sie zu addieren",
+      "ok": true
+    },
+    {
+      "name": "Team wird einmal bezahlt, zwei Arbeitstage und beide Modelle freigegeben",
+      "ok": true
+    },
+    {
+      "name": "Doppelte Annahme desselben Auftrags ist gesperrt",
+      "ok": true
+    },
+    {
+      "name": "auf eigener Hardware gilt für jede Stufe der Kette",
+      "ok": true
+    },
+    {
+      "name": "Kaufpreis wird bei Vertragsschluss eingefroren",
+      "ok": true
+    },
+    {
+      "name": "Frist läuft bei Energiepause weiter; Strafe statt Gratisbezahlung",
+      "ok": true
+    },
+    {
+      "name": "Eigenstrom ohne Anlage kann nicht heimlich Netzstrom verbrauchen",
+      "ok": true
+    },
+    {
+      "name": "Netzausfall erst ab Stufe 5, Cloud unabhängig",
+      "ok": true
+    },
+    {
+      "name": "Wind oder voller Akku kann Nacht versorgen; Solar allein nicht",
+      "ok": true
+    },
+    {
+      "name": "Halber Tarif nur in Nachtstunden, keine pauschale Erstattung",
+      "ok": true
+    },
+    {
+      "name": "Pipeline für 210 €, alle Bausteine für 470 €, kein Doppelabbuchen",
+      "ok": true
+    },
+    {
+      "name": "Neue Quellen invalidieren Index; Reindex verändert keine Gewichte",
+      "ok": true
+    },
+    {
+      "name": "LoRA nachts nutzt reale Stunden und bestehendes Trainingsverfahren",
+      "ok": true
+    },
+    {
+      "name": "Nachttraining über mehrere Nächte arbeitet tagsüber nicht weiter",
+      "ok": true
+    },
+    {
+      "name": "Ungültiges „Training fortsetzen“ ohne laufendes Nachttraining wird ohne Nullzugriff abgewiesen",
+      "ok": true
+    },
+    {
+      "name": "Unversorgte Nacht erzeugt weder Training noch Daten",
+      "ok": true
+    },
+    {
+      "name": "Synthetik erzeugt nachvollziehbare Charge und kostet Kapazität",
+      "ok": true
+    },
+    {
+      "name": "Lehrer kann nicht doppelt für zwei Schüler gebucht werden; Nacht fällt sicher auf Ruhe zurück",
+      "ok": true
+    },
+    {
+      "name": "Zahlungsunfähiger Nachtplan fällt auf kostenlose Ruhe zurück und blockiert den Tag nicht",
+      "ok": true
+    },
+    {
+      "name": "Qualitätsserie belohnt sauber, Reklamation setzt nur Serie zurück",
+      "ok": true
+    },
+    {
+      "name": "Aktuelle Dreistufenprüfung wird nach Konfigurationsänderung ungültig",
+      "ok": true
+    },
+    {
+      "name": "Energie bleibt auch mit Prioritäten, Akku und Netzausfall erhalten",
+      "ok": true
+    },
+    {
+      "name": "Quellenänderung macht auch den jungen Index sofort ungültig",
+      "ok": true
+    },
+    {
+      "name": "Fehlgeschlagene Nachtschicht zählt nicht als Projektfortschritt",
+      "ok": true
+    },
+    {
+      "name": "Hofprojekt zahlt genau einmal und nur während seiner Spielwoche",
+      "ok": true
+    },
+    {
+      "name": "LoRA-Risiko verändert niemals die eingefrorene Basis",
+      "ok": true
+    },
+    {
+      "name": "Tagesbericht stimmt auch beim Kürzen des 500-Zeilen-Journals",
+      "ok": true
+    },
+    {
+      "name": "120 Tage über 8 Seeds: kleiner Spezialist bleibt wirtschaftlich",
+      "ok": true
+    }
+  ]
+}

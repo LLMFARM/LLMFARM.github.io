@@ -1,0 +1,352 @@
+{
+  "stand": "2026-08-30",
+  "stil": "Originale Modellhof-Palette, transparente Einzelobjekte",
+  "teich": {
+    "viewBox": [
+      0,
+      0,
+      1600,
+      900
+    ],
+    "cx": 950,
+    "cy": 712,
+    "rx": 132,
+    "ry": 38,
+    "preserveAspectRatio": "xMidYMax slice"
+  },
+  "hinweis": "Alle SVG sind selbständig nutzbar. Gebäude-SVG enthalten ihre PNG-Daten. Keine externen Bild- oder Schriftdateien nötig. Dach-Overlays passen unverändert über das zugehörige Gebäude-PNG; kombinierte Gebäude-SVG sind bereits fertig.",
+  "dateien": [
+    {
+      "datei": "wind_klein.svg",
+      "name": "Windrad klein · 5 kW",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 180 235"
+    },
+    {
+      "datei": "wind_mittel.svg",
+      "name": "Windrad mittel · 20 kW",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 230 335"
+    },
+    {
+      "datei": "wind_gross.svg",
+      "name": "Windrad groß · 50 kW",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 280 450"
+    },
+    {
+      "datei": "nachbarkabel.svg",
+      "name": "Das Kabel vom Nachbarn",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 400 220"
+    },
+    {
+      "datei": "solarpanel_400w.svg",
+      "name": "Solarpanel · 400 W",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 160 116"
+    },
+    {
+      "datei": "solarpanel_600w.svg",
+      "name": "Solarpanel · 600 W",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 160 116"
+    },
+    {
+      "datei": "solarfeld.svg",
+      "name": "Solarfeld · vier 600-W-Module",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 320 185"
+    },
+    {
+      "datei": "akku.svg",
+      "name": "Akkuspeicher",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 170 180"
+    },
+    {
+      "datei": "kraftwerk.svg",
+      "name": "Fossiles Kraftwerk",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 270 180"
+    },
+    {
+      "datei": "transformator.svg",
+      "name": "Transformator",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 180 180"
+    },
+    {
+      "datei": "stromverteiler.svg",
+      "name": "Stromverteiler",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 128 155"
+    },
+    {
+      "datei": "pc.svg",
+      "name": "PC mit Bildschirm",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 225 170"
+    },
+    {
+      "datei": "serverschrank.svg",
+      "name": "Serverschrank · vier Knoten",
+      "typ": "objekt",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 170 230"
+    },
+    {
+      "datei": "dach_4_overlay.svg",
+      "name": "4 exakt ausgerichtete Dachplätze · Overlay",
+      "typ": "overlay",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 768 512"
+    },
+    {
+      "datei": "dach_4_felder.svg",
+      "name": "Dachfläche · 4 freie Plätze",
+      "typ": "dach",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "224 16 413 203"
+    },
+    {
+      "datei": "dach_4_belegt.svg",
+      "name": "Dachfläche · 4 mit Solarmodulen",
+      "typ": "dach",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "224 16 413 203"
+    },
+    {
+      "datei": "gebaeude_4_felder.svg",
+      "name": "Geräteschuppen · 4 Dachplätze",
+      "typ": "gebaeude",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 768 512"
+    },
+    {
+      "datei": "dach_6_overlay.svg",
+      "name": "6 exakt ausgerichtete Dachplätze · Overlay",
+      "typ": "overlay",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 768 572"
+    },
+    {
+      "datei": "dach_6_felder.svg",
+      "name": "Dachfläche · 6 freie Plätze",
+      "typ": "dach",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "66 35 468 257"
+    },
+    {
+      "datei": "dach_6_belegt.svg",
+      "name": "Dachfläche · 6 mit Solarmodulen",
+      "typ": "dach",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "66 35 468 257"
+    },
+    {
+      "datei": "gebaeude_6_felder.svg",
+      "name": "Nerdtümpel · 6 Dachplätze",
+      "typ": "gebaeude",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 768 572"
+    },
+    {
+      "datei": "dach_10_overlay.svg",
+      "name": "10 exakt ausgerichtete Dachplätze · Overlay",
+      "typ": "overlay",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 768 512"
+    },
+    {
+      "datei": "dach_10_felder.svg",
+      "name": "Dachfläche · 10 freie Plätze",
+      "typ": "dach",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "67 25 452 203"
+    },
+    {
+      "datei": "dach_10_belegt.svg",
+      "name": "Dachfläche · 10 mit Solarmodulen",
+      "typ": "dach",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "67 25 452 203"
+    },
+    {
+      "datei": "gebaeude_10_felder.svg",
+      "name": "Rechenzentrum · 10 Dachplätze",
+      "typ": "gebaeude",
+      "format": "SVG",
+      "transparent": true,
+      "viewBox": "0 0 768 512"
+    },
+    {
+      "datei": "hintergrund_morgen.svg",
+      "name": "Morgenwiese",
+      "typ": "hintergrund",
+      "format": "SVG",
+      "transparent": false,
+      "viewBox": "0 0 1600 900"
+    },
+    {
+      "datei": "hintergrund_blumen.svg",
+      "name": "Blumenwiese",
+      "typ": "hintergrund",
+      "format": "SVG",
+      "transparent": false,
+      "viewBox": "0 0 1600 900"
+    },
+    {
+      "datei": "hintergrund_spaetsommer.svg",
+      "name": "Spätsommerwiese",
+      "typ": "hintergrund",
+      "format": "SVG",
+      "transparent": false,
+      "viewBox": "0 0 1600 900"
+    },
+    {
+      "datei": "schuppen.png",
+      "name": "schuppen",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 768,
+      "hoehe": 512
+    },
+    {
+      "datei": "nerd.png",
+      "name": "nerd",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 768,
+      "hoehe": 572
+    },
+    {
+      "datei": "zentrum.png",
+      "name": "zentrum",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 768,
+      "hoehe": 512
+    },
+    {
+      "datei": "raum.png",
+      "name": "raum",
+      "typ": "innenraum",
+      "format": "PNG",
+      "transparent": false,
+      "breite": 768,
+      "hoehe": 512
+    },
+    {
+      "datei": "trink_schwein.png",
+      "name": "trink schwein",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_huhn.png",
+      "name": "trink huhn",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_kuh.png",
+      "name": "trink kuh",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_esel.png",
+      "name": "trink esel",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_lama.png",
+      "name": "trink lama",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_dino.png",
+      "name": "trink dino",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_hund.png",
+      "name": "trink hund",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    },
+    {
+      "datei": "trink_katze.png",
+      "name": "trink katze",
+      "typ": "raster",
+      "format": "PNG",
+      "transparent": true,
+      "breite": 360,
+      "hoehe": 240
+    }
+  ]
+}

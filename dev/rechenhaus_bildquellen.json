@@ -1,0 +1,50 @@
+[
+  {
+    "id": "schuppen",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-0c040762-1a17-492d-a2c7-5afcce07ae8e.png"
+  },
+  {
+    "id": "nerd",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-b329e4ef-3bfa-4be3-a130-362b2c5767d1.png"
+  },
+  {
+    "id": "zentrum",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-1e26aa5b-397c-423f-953f-eb74838f9360.png"
+  },
+  {
+    "id": "raum",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-2e2aafe7-f65c-4ef7-b3e6-15acf4a47f5d.png"
+  },
+  {
+    "id": "trink_schwein",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-f8f9b5ef-5584-4746-a081-2e8aa5d22456.png"
+  },
+  {
+    "id": "trink_huhn",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-0e6bb4d3-7f35-405b-8f85-4b130069d3f9.png"
+  },
+  {
+    "id": "trink_kuh",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-445510cf-0eab-42ab-8ef4-af3ea5a20b79.png"
+  },
+  {
+    "id": "trink_esel",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-12f33812-2690-4633-8cae-0eb9d0293e16.png"
+  },
+  {
+    "id": "trink_lama",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-c6da998f-aa8c-4471-858c-48c8eadddcfc.png"
+  },
+  {
+    "id": "trink_dino",
+    "path": "C:\\Users\\Ingeborg\\.codex\\generated_images\\01a052e4-9742-79e1-8acb-b3f3fe8d8035\\exec-3898a627-b33b-46c8-b927-f6ea0423685e.png"
+  },
+  {
+    "id": "trink_hund",
+    "path": "assets\\posen_roh\\hund_trink.png"
+  },
+  {
+    "id": "trink_katze",
+    "path": "assets\\posen_roh\\katze_trink.png"
+  }
+]

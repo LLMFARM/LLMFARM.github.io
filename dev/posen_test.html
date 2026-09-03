@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Modellhof - Posen-Test (Liegepose + Symbolmuster)</title>
+<style>
+  body{font-family:system-ui,-apple-system,sans-serif;background:#f3efe6;color:#3d2412;margin:16px}
+  h1{font-size:20px;margin:0 0 4px}
+  p.hinweis{font-size:12px;margin:0 0 14px;opacity:.75}
+  h2{font-size:14px;margin:16px 0 6px;border-bottom:2px solid #d9cdb4;padding-bottom:2px}
+  .reihe{display:flex;flex-wrap:wrap;gap:10px}
+  .zelle{width:150px;background:#fdfaf3;border:2px solid #d9cdb4;border-radius:10px;padding:6px 6px 2px}
+  .zelle svg{display:block}
+  .zelle .name{font-size:11px;font-weight:700;text-align:center;margin:2px 0 3px;line-height:1.25;min-height:26px}
+
+  /* Simulation der Engine-Regeln fuer das Augenlid:
+     im Stehen blinzelt es gelegentlich, in der Liegepose (.liegt)
+     bleibt es geschlossen - exakt die Regel
+     .liegt .lid{animation:none;transform:scaleY(1)} */
+  .lid{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:blinzeln 4.6s infinite}
+  @keyframes blinzeln{0%,91%,97%,100%{transform:scaleY(0)}93%,95%{transform:scaleY(1)}}
+  .liegt .lid{animation:none;transform:scaleY(1)}
+</style>
+</head>
+<body>
+<h1>Posen-Test: Liegepose &amp; Symbolmuster</h1>
+<p class="hinweis">Zellen mit Liegepose tragen class="liegt" &rarr; Lid bleibt geschlossen (Engine-Simulation). Keine externen Ressourcen.</p>
+<div id="raster"></div>
+
+<script src="grafik.js"></script>
+<script>
+(function(){
+  const arten=[["schwein","Schwein"],["huhn","Huhn"],["kuh","Kuh"],["esel","Esel"],["dino","Dino"],["lama","Lama"]];
+  const raster=document.getElementById("raster");
+
+  function zelle(svg,label,liegt){
+    const el=document.createElement("div");
+    el.className="zelle"+(liegt?" liegt":"");
+    el.innerHTML=svg+'<div class="name">'+label+"</div>";
+    return el;
+  }
+  function reihe(titel,zellen){
+    const h=document.createElement("h2"); h.textContent=titel; raster.appendChild(h);
+    const r=document.createElement("div"); r.className="reihe";
+    zellen.forEach(z=>r.appendChild(z)); raster.appendChild(r);
+  }
+
+  /* Hauptraster: je Art gr0/gr2/gr5, stehend neben liegend */
+  for(const [art,name] of arten){
+    const z=[];
+    for(const gr of [0,2,5]){
+      z.push(zelle(tierSvg(art,{gr}),          "gr"+gr+" stehend", false));
+      z.push(zelle(tierSvg(art,{gr},{liegt:true}), "gr"+gr+" liegend", true));
+    }
+    if(art==="lama"){
+      z.push(zelle(tierSvg("lama",{gr:2,zustand:30},{liegt:true}), "gr2 liegend traurig", true));
+      z.push(zelle(tierSvg("lama",{gr:2,muster:"hexagone",musterFarbe:"#f5c451"}), "gr2 hexagone gelb", false));
+    }
+    reihe(name, z);
+  }
+
+  /* Zeile: liegend traurig gr2, je Art */
+  reihe("liegend traurig gr2",
+    arten.map(([art,name])=>zelle(tierSvg(art,{gr:2,zustand:30},{liegt:true}), name+" traurig", true)));
+
+  /* Zeile: Anbauteile muessen auch im Liegen sitzen */
+  reihe("liegend gr3 + Krone + Agenten-Tool + Adapter + Denkblase",
+    arten.map(([art,name])=>zelle(tierSvg(art,{gr:3,geschirrZ:"\u{1F947}",adapter:2,denkt:1},{liegt:true,krone:true}), name, true)));
+
+  /* Zeilen: Symbolmuster am Schwein gr2 stehend, ohne und mit musterFarbe */
+  const muster=["punkte","quadrate","dreiecke","hexagone"];
+  reihe("Muster - Schwein gr2, ohne musterFarbe",
+    muster.map(m=>zelle(tierSvg("schwein",{gr:2,muster:m}), m, false)));
+  reihe("Muster mit musterFarbe - gelb #f5c451 / blau #5a8fd8 im Wechsel",
+    muster.map((m,i)=>{
+      const f=(i%2? "#5a8fd8":"#f5c451");
+      return zelle(tierSvg("schwein",{gr:2,muster:m,musterFarbe:f}), m+" "+f, false);
+    }));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Was nicht ins Repository gehört: alte Sicherungen, Zwischenstände und Werkzeugmüll.
+# Alles andere – Spiel, Quellen, Grafiken, Tondateien, Prüfungen – wird versioniert.
+
+# Alte Sicherungskopien und Vorstufen
+backup_*/
+*.bak
+*.vor_freistellung.bak
+dev/modellhof_template_v*_backup.html
+dev/rechenhaus_qa.html
+dev/rechenhaus_mobile_qa.html
+dev/_*.html
+
+# Werkzeug- und Systemmüll
+node_modules/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.log
+
+# Der Web-Ordner ist aufgelöst: das Spiel liegt als index.html in der Wurzel
+publish_pages/
+
+# Laufende Spieltests und Zwischenablagen (werden staendig neu geschrieben)
+scratchpad/
+pruefung_*/
+sim*/
+
+# Alte Spielstaende und Fremdarchive
+modellhof_game_v*_backup.html
+Modellhof_Grafiken_fertig.zip
