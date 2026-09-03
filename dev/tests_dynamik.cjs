@@ -155,6 +155,10 @@ test("FINALE-2 Mehr als ein Weg: jedes Lebenswerk zählt einzeln, Karte und Hofb
   assert.ok(g("finaleStand().wege.find(x=>x.id==='wissen').ok"),"Forschungsbaum als eigener Weg");
   const k=g("finaleKarteHtml()"); assert.ok(/Lebenswerk|Hofmeisterbrief/.test(k)&&/Fachhaus/.test(k),k.slice(0,160));
   assert.ok(/Hofmeisterbrief/.test(g("hofbuchHtml()"))&&/Legende/.test(g("hofbuchHtml()"))); });
+test("FINALE-2b Rechenpark zählt Freiland-Solar: 10 kWp sind mit Dach und Feldern erreichbar",()=>{
+  const r=g("rh()"); Object.assign(r,{stufe:2,pv:Array(10).fill(600),solarfelder:2,legacySolar:0,akku:20});
+  const w=g("finaleStand().wege.find(x=>x.id==='rechen')");
+  assert.match(w.ist,/Rechenzentrum · 10[.,]8\/10 kWp · 20\/20 kWh/); assert.equal(w.ok,true); });
 test("FINALE-3 Ein geschlossener Hof bekommt keinen Brief",()=>{
   S().xp=99999; S().statistik.jobs=100; S().ruf=95; S().statistik.merges=5; const p=g("__add('qwen35-4b')"); p.gen=3;
   S().geschlossen={tag:1,grund:"Test"}; assert.equal(g("finalePruefen(null)"),null); assert.ok(!(S().finale&&S().finale.meister)); });

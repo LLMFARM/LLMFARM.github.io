@@ -31,7 +31,9 @@ const FINALE_WEGE=[
    txt:"Ausbau zum Rechenzentrum, dazu 10 kWp Solar und 20 kWh Speicher – der Hof trägt seine Last selbst.",
    lehre:"Große Rechenleistung ist ein Energieproblem: Anschluss, Wirkungsgrad (PUE) und Speicher entscheiden über die Rechnung.",
    stand:()=>{ const r=(typeof rh==="function")?rh():null; if(!r) return {ist:"–",ok:false};
-     const kwp=Math.round(((r.pv||[]).reduce((n,w)=>n+w,0)/1000+(r.legacySolar||0))*10)/10, akku=r.akku||0;
+     /* Dach, Bestandsanlage UND Freilandfelder zählen. Ohne die Felder wären 10 kWp
+        bei maximal zehn 600-W-Dachplätzen konstruktiv unerreichbar. */
+     const kwp=Math.round(((typeof rhPV==="function")?rhPV(r):((r.pv||[]).reduce((n,w)=>n+w,0)/1000+(r.solarfelder||0)*2.4+(r.legacySolar||0)))*10)/10, akku=r.akku||0;
      const letzte=(typeof RH_STUFEN!=="undefined")?RH_STUFEN.length-1:2;
      return {ist:(r.stufe>=letzte?"Rechenzentrum":"Ausbaustufe "+(r.stufe+1)+"/"+(letzte+1))+" · "+kwp+"/10 kWp · "+akku+"/20 kWh", ok:r.stufe>=letzte&&kwp>=10&&akku>=20}; } },
  { id:"wissen", n:"Forschungsbaum", z:"📚",

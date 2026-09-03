@@ -76,13 +76,36 @@ small{font-size:.82em}
 #kopf{position:relative;z-index:30;padding:calc(5px + var(--sicher-o)) 8px 0;
   border-bottom:4px solid var(--holz-4);box-shadow:0 5px 14px rgba(0,0,0,.28)}
 .kopfreihe{display:flex;align-items:center;gap:8px}
+/* v9.9 (Nutzerhinweis): Auf schmalen Geräten bekommen die Rohstoffe eine eigene Zeile,
+   damit sie immer sichtbar bleiben; Tag und Uhr werden schrittweise kompakter. */
+@media (max-width:860px){
+  .kopfreihe{flex-wrap:wrap;row-gap:5px}
+  .kopfreihe .chips{order:9;flex:1 0 100%;width:100%;padding-bottom:2px}
+  #tagesuhr{flex:1 1 auto;width:auto;min-width:118px;max-width:none}
+}
+@media (max-width:560px){
+  .hofplakette{gap:5px;padding:2px 7px}
+  .hofplakette .tag{font-size:14px}
+  .hofplakette .uhrzeit{font-size:9.5px}
+  #tagesuhr{padding:3px 6px 2px;font-size:9.5px;min-width:96px}
+  #tagesuhr .tuSkala{display:none}
+  #tagesuhr .tuBalken{height:10px;margin:3px 0 1px}
+}
+@media (max-width:430px){
+  #kopf{padding-inline:5px}
+  .kopfreihe{gap:5px}
+  .hofplakette .uhrzeit{display:none}   /* die Zeit steht dann in der Tagesuhr */
+  #tagesuhr .tuKopf{font-size:10px}
+  #tagesuhr{min-width:84px}
+  .chips{gap:4px}
+}
 .hofplakette{display:flex;align-items:center;gap:8px;background:var(--papier);border:var(--rand);
   border-radius:12px;padding:3px 10px;box-shadow:0 3px 0 rgba(74,44,21,.75);flex:0 0 auto;cursor:pointer}
 .hofplakette .tag{font-family:var(--titel);font-size:16px;line-height:1.05}
 .hofplakette .rang{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:var(--tinte-2);overflow-wrap:anywhere}
 .hofplakette .uhrzeit{font-size:10.5px;font-weight:800;color:var(--tinte-2);margin-top:1px;white-space:nowrap}
 /* v9.9 (Nutzerwunsch): Tagesuhr im Kopf – Balken zeigt, wie viel vom Hoftag (06–22 Uhr) vergangen ist */
-#tagesuhr{flex:0 0 auto;width:clamp(150px,18vw,230px);background:var(--papier);border:var(--rand);border-radius:13px;padding:5px 8px 4px;box-shadow:0 3px 0 var(--holz-4);font-size:10.5px;color:var(--tinte-2);line-height:1.15}
+#tagesuhr{flex:0 1 auto;width:clamp(96px,17vw,230px);background:var(--papier);border:var(--rand);border-radius:13px;padding:5px 8px 4px;box-shadow:0 3px 0 var(--holz-4);font-size:10.5px;color:var(--tinte-2);line-height:1.15}
 #tagesuhr .tuKopf{display:flex;justify-content:space-between;gap:6px;font-weight:900;color:var(--tinte)}
 #tagesuhr .tuKopf #tuRest{font-weight:700;color:var(--tinte-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #tagesuhr .tuBalken{position:relative;height:12px;margin:4px 0 2px;border-radius:7px;background:linear-gradient(90deg,#c9dff0 0%,#ffe9a8 22%,#fff1c4 60%,#f7c27a 88%,#7d6aa8 100%);border:2px solid var(--holz-4);overflow:visible}
@@ -91,7 +114,7 @@ small{font-size:.82em}
 #tagesuhr .tuBalken em.abend{background:rgba(224,90,90,.7)}
 #tagesuhr .tuBalken b{position:absolute;top:-9px;left:0;font-size:15px;line-height:1;transform:translateX(-50%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));transition:left .8s linear}
 #tagesuhr .tuSkala{display:flex;justify-content:space-between;font-size:9px;font-weight:800;letter-spacing:.02em}
-@media (max-width:640px){#tagesuhr{width:120px;padding:4px 6px 3px}#tagesuhr .tuKopf #tuRest{display:none}}
+@media (max-width:900px){#tagesuhr .tuKopf #tuRest{display:none}}   /* Resttext erst auf breiten Bildschirmen */
 #tagbalken{height:4px;border-radius:3px;background:rgba(74,44,21,.18);margin-top:3px;overflow:hidden}
 #tagbalken i{display:block;height:100%;width:0%;border-radius:3px;background:linear-gradient(90deg,#ffd84d,#e8873c);transition:width .8s linear}
 /* Energie-Objekt-SVGs füllen ihre vorbereiteten Halterungen */
@@ -211,7 +234,8 @@ small{font-size:.82em}
   .adaZiel{animation:none;box-shadow:0 0 0 5px rgba(212,59,42,.55)}
   #adaBox.auf,.adaKopfG,.adaZopf,.adaFigur.spricht .adaKopfG,.adaFigur.spricht .adaBraue,.adaSelbst.spricht::after{animation:none}
 }
-.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
+.chips{display:flex;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;flex:1 1 auto;min-width:0}
+.chips>*{flex:0 0 auto}   /* v9.9: Rohstoffe nie zusammenquetschen – lieber wischen */
 .chips::-webkit-scrollbar{display:none}
 .chip{display:flex;align-items:center;gap:5px;flex:0 0 auto;background:#2f1d0e;
   border:3px solid var(--holz-4);border-radius:11px;padding:3px 9px 3px 5px;

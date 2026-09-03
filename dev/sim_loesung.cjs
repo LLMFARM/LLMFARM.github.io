@@ -2,7 +2,8 @@
 /* LLM FARM · Lösungs-Bot: spielt das gebaute Spiel in-process mit einer „kluge Wirtschaft"-Politik über
    viele Hoftage und protokolliert, wann welche Endspiel-Meilensteine erreicht werden (oder nie).
    Ziel: Beweis, dass jeder Weg (Hofstufe 12, kompletter Forschungsbaum, alle Meisterpunkte, Rechenzentrum,
-   Tier-5-Tier, Zucht, Agenten-Welt, Cloud, Liga, Gesellenbrief) mit guter Wirtschaft erreichbar ist.
+   Tier-5-Tier, Zucht, Agenten-Welt, Cloud, Liga sowie alle fünf Lebenswerke bis zur Legende)
+   mit guter Wirtschaft erreichbar ist.
    Aufruf: node dev/sim_loesung.cjs [tage=365] [seeds=3,7,42] [html=../modellhof_game.html] [--protokoll] */
 "use strict";
 const fs=require("fs"),path=require("path"),vm=require("vm");
@@ -40,6 +41,23 @@ function politik(g,log,st){
   const reserve=()=>200+S.buchten.length*60+c.hofLevel().i*40;
   const cash=()=>S.kredit-reserve();
   const mt=c.maxTier();
+  /* Fachhaus: drei Spezialisierungen mit echten Kursen aufbauen. Bereits spezialisierte
+     Tiere bekommen in Schritt 6 passende Praxis-Zettel für die letzten Punkte bis 85. */
+  if(c.forschungFrei("sft")&&cash()>4500){
+    if((S.daten.kuratiert||0)<70) c.futterKauf("kuratiert",80);
+    for(const gebiet of ["datenschutz","recht","medizin"]){
+      const zielUid=st.fachZiele[gebiet];
+      const belegt=new Set(Object.values(st.fachZiele));
+      const kandidaten=frei().filter(p=>!p.api&&!p.nadel&&p.bucht&&(zielUid?p.uid===zielUid:!belegt.has(p.uid)))
+        .sort((a,b)=>c.fachWert(b,gebiet)-c.fachWert(a,gebiet));
+      const p=kandidaten[0], lerngebiet=p&&gebiet!=="datenschutz"&&c.fachWert(p,"datenschutz")<80?"datenschutz":gebiet;
+      const kurs=p&&c.fachKurseOffen(p,lerngebiet)[0];
+      if(!p||!kurs) continue;
+      const technik=lerngebiet==="datenschutz"&&c.forschungFrei("dpo")?"dpo":"sft";
+      const kk=c.fachKursKosten(p,kurs.id,technik,lerngebiet);
+      if(kk&&(S.daten.kuratiert||0)>=kk.gb&&cash()>kk.preis+2500&&c.fachSchulungStart(p.uid,lerngebiet,kurs.id,technik)){ st.fachZiele[gebiet]=p.uid; log("fach-"+gebiet+"-"+lerngebiet+"-"+kurs.id,p.name); }
+    }
+  }
   /* 1) Stall: freie Tiere in freie Buchten (passend, sonst mit RAM-Auslagerung) */
   for(const p of frei().filter(p=>!p.api&&!p.bucht)){ const kl=S.buchten.filter(b=>!b.tier&&c.passtInBucht(p,b)).sort((x,y)=>c.GPUS[x.gpu].vram-c.GPUS[y.gpu].vram); const b=kl[0]||S.buchten.find(b=>!b.tier&&(b.stackBereit||0)<=S.tag); if(b&&!(c.GPUS[b.gpu].vram>=300&&p.pT<200)) c.inBucht(p.uid,b.id); }
   /* Riesenbucht frei → bestes Tier-5-Modell kaufen, das hineinpasst */
@@ -54,17 +72,21 @@ function politik(g,log,st){
   if(c.forschungFrei("geschirr")&&c.istFrei("gebGeschirr")){ for(const p of frei().filter(p=>!p.api&&!p.geschirr&&c.archVon(p)!=="hrm")){ let best=null,bs=0; for(const hid in c.HARNESSE){ if(c.HARNESSE[hid].abo) continue; const sc=c.geschirrEignung(p,hid); if(sc>bs){bs=sc;best=hid;} } if(best&&bs>=60) c.geschirrAnlegen(p.uid,best); } }
   /* 6) Aufträge: beste Besetzung je offenem Zettel (Lohn je Stunde, Frist muss halten) */
   const offen=()=>S.jobs.filter(j=>!j.team&&!S.tiere.some(p=>p.job===j.id));
+  const fachZiele=st.fachZiele;
   let runden=0;
   while(runden++<8){
-    const kand=frei().filter(p=>p.bucht||p.api).sort((a,b)=>c.effizienzIndex(b)-c.effizienzIndex(a)).slice(0,6); if(!kand.length) break;
+    const alle=frei().filter(p=>p.bucht||p.api).sort((a,b)=>c.effizienzIndex(b)-c.effizienzIndex(a));
+    const fachIds=new Set(Object.values(st.fachZiele));
+    const kand=[...alle.slice(0,6),...alle.filter(p=>fachIds.has(p.uid)&&!alle.slice(0,6).includes(p))]; if(!kand.length) break;
     let best=null;
     for(const j of offen()){
       const rollen=c.hlRollen(j);
       // Einzeltier für alle Rollen
-      /* v9.8: Datenschutz-Risiko nur mit Schutz */ for(const p of kand){ const w=Object.fromEntries(rollen.map((r,i)=>[i,p.uid])); const ch=c.hlTeamCheck(j,w); if(!ch.ok) continue; if(c.dsWahrscheinlichkeit&&c.dsWahrscheinlichkeit(j,[p]).p>0) continue; const st=c.hlStunden(j,ch); if(st.tage>c.hlFristTage(j)) continue;
-        const lohn=c.jobLohnGesamt(j)*(ch.erfolg/100), score=lohn/Math.max(1,st.std)*(j.liga?3:1); if(!best||score>best.score) best={j,w,score,st}; }
+      /* Restrisiko nur für wenige gezielte Praxiszettel bis Fachwert 85 zulassen. */ for(const p of kand){ const w=Object.fromEntries(rollen.map((r,i)=>[i,p.uid])); const ch=c.hlTeamCheck(j,w); if(!ch.ok) continue; const gebiet=c.fachGebietVonJob(j), istPraxis=gebiet&&fachZiele[gebiet]===p.uid&&c.fachWert(p,gebiet)<85; const ds=c.dsWahrscheinlichkeit?c.dsWahrscheinlichkeit(j,[p]).p:0; if(ds>0&&!(istPraxis&&ds<=.06)) continue; const st=c.hlStunden(j,ch); if(st.tage>c.hlFristTage(j)) continue;
+        const praxis=istPraxis?20000+((p.fach||{})[gebiet]||0)*10:0;
+        const lohn=c.jobLohnGesamt(j)*(ch.erfolg/100), score=lohn/Math.max(1,st.std)*(j.liga?3:1)+praxis; if(!best||score>best.score) best={j,w,score,st}; }
       // Zweierteam bei mehrstufigen Zetteln
-      if(rollen.length>=2&&kand.length>=2){ for(const p1 of kand.slice(0,3)) for(const p2 of kand.slice(0,3)){ if(p1===p2) continue; const w={}; rollen.forEach((r,i)=>{w[i]=i===rollen.length-1?p2.uid:p1.uid;}); const ch=c.hlTeamCheck(j,w); if(!ch.ok) continue; if(c.dsWahrscheinlichkeit&&c.dsWahrscheinlichkeit(j,[p1,p2]).p>0) continue; const st=c.hlStunden(j,ch); if(st.tage>c.hlFristTage(j)) continue; const lohn=c.jobLohnGesamt(j)*(ch.erfolg/100), score=lohn/Math.max(1,st.std)/1.6*(j.liga?3:1); if(!best||score>best.score) best={j,w,score,st}; } }
+      if(rollen.length>=2&&kand.length>=2){ for(const p1 of kand) for(const p2 of kand){ if(p1===p2) continue; const w={}; rollen.forEach((r,i)=>{w[i]=i===rollen.length-1?p2.uid:p1.uid;}); const ch=c.hlTeamCheck(j,w); if(!ch.ok) continue; const gebiet=c.fachGebietVonJob(j), praxisTiere=gebiet?[p1,p2].filter(p=>fachZiele[gebiet]===p.uid&&c.fachWert(p,gebiet)<85):[]; const ds=c.dsWahrscheinlichkeit?c.dsWahrscheinlichkeit(j,[p1,p2]).p:0; if(ds>0&&!(praxisTiere.length&&ds<=.06)) continue; const st=c.hlStunden(j,ch); if(st.tage>c.hlFristTage(j)) continue; const praxis=praxisTiere.reduce((n,p)=>n+12000+((p.fach||{})[gebiet]||0)*5,0); const lohn=c.jobLohnGesamt(j)*(ch.erfolg/100), score=lohn/Math.max(1,st.std)/1.6*(j.liga?3:1)+praxis; if(!best||score>best.score) best={j,w,score,st}; } }
     }
     if(!best) break;
     Object.entries(best.w).forEach(([i,uid])=>c.hlWaehlen(best.j.id,Number(i),uid)); c.hlTeamStart(best.j.id);
@@ -82,7 +104,8 @@ function politik(g,log,st){
   /* 9) Rechenhaus & Energie */
   const r=c.rh();
   if(cash()>400&&r.pv.length<c.rhCfg().dach) c.rhKauf("solar");
-  if(cash()>900&&r.akku<5) c.rhKauf("akku");
+  if(cash()>900&&r.akku<(r.stufe===2?20:5)) c.rhKauf("akku");
+  if(r.stufe===2&&c.rhPV(r)<10&&cash()>1000) c.rhKauf("solarfeld");
   /* Endspielpfad: Nerdtempel → Anschluss → Racks → große Karten → Rechenzentrum */
   const pcIdx=b=>Number(((b.rhSlot||"pc:0").split(":")[1])||0);
   if(r.stufe===0&&cash()>20000&&S.buchten.length>=6){ for(const b of S.buchten.filter(b=>(b.rhSlot||"").startsWith("pc:")&&pcIdx(b)>=6)){ const p=S.tiere.find(t=>t.uid===b.tier); if(p&&p.status==="frei") c.ausBucht(p.uid); } if(S.buchten.filter(b=>pcIdx(b)>=6).every(b=>!b.tier)){ c.rhUpgrade(); if(c.rh().stufe===1) log("nerdtempel",S.tag); } }
@@ -93,11 +116,18 @@ function politik(g,log,st){
     if(!rackFrei.length&&nextRack!==undefined&&r.racks.length<6&&!r.events||true){ if(!rackFrei.length&&nextRack!==undefined&&r.racks.length<6) c.rhInstall("rack",nextRack); }
     const leer=r.racks.find(i=>!S.buchten.some(b=>(b.rhSlot||"").startsWith("rack:"+i+":")));
     if(leer!==undefined){ const karte=cash()>420000?"rack8b200":cash()>270000?"rack8h100":cash()>140000?"rack4h100":cash()>55000?"b200":cash()>42000?"h200":cash()>38000?"h100":cash()>14000?"a100":null; if(karte){ const vor=S.buchten.length; c.rhInstall("rack",leer,karte,0); if(S.buchten.length>vor) log("rack-"+karte,S.tag); } } }
-  if(r.stufe===1&&cash()>120000&&S.buchten.some(b=>(b.rhSlot||"").startsWith("rack"))){ for(const b of S.buchten.filter(b=>(b.rhSlot||"").startsWith("pc:"))){ const p=S.tiere.find(t=>t.uid===b.tier); if(p&&p.status==="frei") c.ausBucht(p.uid); } if(S.buchten.filter(b=>(b.rhSlot||"").startsWith("pc:")).every(b=>!b.tier)){ c.rhUpgrade(); if(c.rh().stufe===2) log("rechenzentrum",S.tag); } }
+  const fachFertig=Object.entries(st.fachZiele).length>=3&&Object.entries(st.fachZiele).every(([gebiet,uid])=>c.fachWert(S.tiere.find(p=>p.uid===uid),gebiet)>=85);
+  if(r.stufe===1&&fachFertig&&cash()>120000&&S.buchten.some(b=>(b.rhSlot||"").startsWith("rack"))){ for(const b of S.buchten.filter(b=>(b.rhSlot||"").startsWith("pc:"))){ const p=S.tiere.find(t=>t.uid===b.tier); if(p&&p.status==="frei") c.ausBucht(p.uid); } if(S.buchten.filter(b=>(b.rhSlot||"").startsWith("pc:")).every(b=>!b.tier)){ c.rhUpgrade(); if(c.rh().stufe===2) log("rechenzentrum",S.tag); } }
   /* 10) Cloud-Lizenz für Spitzenlast */
   if(c.istFrei("gebCloud")&&cash()>2500&&!S.tiere.some(p=>p.api)&&S.cloudAngebot.ids.length){ c.lizenzKaufen(S.cloudAngebot.ids[0]); log("cloud",S.cloudAngebot.ids[0]); }
-  /* 11) Zucht: zwei freie Tiere gleicher Basis */
-  if(c.forschungFrei("merge")&&c.istFrei("gebZucht")&&cash()>1200&&S.statistik.merges<3&&S.tiere.length<S.buchten.length+2){ const f=frei().filter(p=>!p.api); for(let i=0;i<f.length;i++) for(let k=i+1;k<f.length;k++){ if(c.mergeKompatibel(f[i],f[k],"slerp").ok){ c.__zucht("slerp",[f[i].uid,f[k].uid]); c.zuchtStart(); if(f[i].status==="zucht"){ log("zucht",f[i].name+"×"+f[k].name); i=f.length; break; } } } }
+  /* 11) Zuchtlinie: fünf echte Würfe; höchste verfügbare Generation bevorzugen,
+     damit aus derselben kompatiblen Basis eine nachvollziehbare G3-Linie entsteht. */
+  if(c.forschungFrei("merge")&&c.istFrei("gebZucht")&&cash()>1200&&S.statistik.merges<5){
+    const f=frei().filter(p=>!p.api&&(p.zuchtRuhe||0)<=S.tag).sort((a,b)=>(b.gen||0)-(a.gen||0));
+    let paar=null, best=-1;
+    for(let i=0;i<f.length;i++) for(let k=i+1;k<f.length;k++) if(c.mergeKompatibel(f[i],f[k],"slerp").ok){ const sc=Math.max(f[i].gen||0,f[k].gen||0)*10+Math.min(f[i].gen||0,f[k].gen||0); if(sc>best){best=sc;paar=[f[i],f[k]];} }
+    if(paar){ c.__zucht("slerp",paar.map(p=>p.uid)); c.zuchtStart(); if(paar[0].status==="zucht") log("zucht-"+(S.statistik.merges+1),paar[0].name+"×"+paar[1].name); }
+  }
   /* 12) Arena einmal je 5 Tage */
   if(c.istFrei("gebArena")&&S.tag%5===0&&cash()>200){ const p=frei().filter(p=>p.bucht||p.api).sort((a,b)=>c.rennWert(b,"wissen")-c.rennWert(a,"wissen"))[0]; if(p){ c.__renn("wissen",p.uid); let t=0; c.performance.now=()=>t; c.requestAnimationFrame=fn=>{t+=60;fn();}; try{ c.rennenStarten(); }catch(e){ st.fehler.push("arena "+e.message); } c.requestAnimationFrame=()=>{}; } }
   /* 13) Agenten-Welt */
@@ -123,7 +153,7 @@ function lauf(seed){
   const S=c.frischerStand(); c.__set(S); c.rhMigration(S); c.hlStand();
   const e=c.__einf(); e.wahl=["qwen35-4b","granite42-3b"]; e.spezial="code"; e.schwierig="hofalltag"; e.fuehrung="gefuehrt";
   S.jobs.push(c.jobNeu(),c.jobNeu(),c.jobNeu()); c.cloudRotieren(); c.marktLosNeu(); c.willkommenFertig();
-  const st={jobsAngenommen:0,grosse:0,fehler:[],meilen:{},verlauf:[],strafen:0,min:S.kredit,max:S.kredit};
+  const st={jobsAngenommen:0,grosse:0,fehler:[],meilen:{},verlauf:[],strafen:0,min:S.kredit,max:S.kredit,fachZiele:{}};
   const log=(k,v)=>{ if(!st.meilen[k]) st.meilen[k]="T"+S.tag+(v!==undefined?" ("+v+")":""); };
   let lvlAlt=1;
   for(let d=0;d<TAGE;d++){
@@ -157,6 +187,8 @@ for(const {seed,S,st,c} of ergebnisse){
   const kat={}; (S.journal||[]).forEach(e=>{ kat[e.kat]=(kat[e.kat]||0)+e.b; }); console.log("Journal (letzte 400 Buchungen) je Kategorie:",Object.entries(kat).sort((a,b)=>a[1]-b[1]).map(([k,v])=>k+" "+Math.round(v)).join(" · "));
   const offenQ=c.QUESTS.filter(q=>!S.questsDone[q.id]).slice(0,4).map(q=>q.id+"("+q.check+")"); console.log("Offene Hofziele (nächste):",offenQ.join(" · "));
   console.log("Meilensteine:",Object.entries(st.meilen).map(([k,v])=>k+"="+v).join(" · "));
+  console.log("Lebenswerke:",c.finaleStand().wege.map(w=>w.id+"="+(w.ok?"✓ ":"· ")+w.ist).join(" · "));
+  console.log("Fachziele:",Object.entries(st.fachZiele).map(([g,uid])=>{const p=S.tiere.find(t=>t.uid===uid);return g+"="+(p?p.name+" "+c.fachWert(p,g):"fehlt");}).join(" · "));
   console.log("Verlauf:",st.verlauf.map(v=>`T${v.tag}:${v.kasse}€/S${v.stufe}/${v.tiere}T/${v.buchten}B/F${v.forsch}/J${v.jobs}`).join(" "));
   if(st.fehler.length) console.log("FEHLER:",[...new Set(st.fehler)].slice(0,8).join(" | "));
 }

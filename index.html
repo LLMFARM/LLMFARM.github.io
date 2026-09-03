@@ -757,6 +757,11 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
 /* Mobile-Feinschliff: alles lesbar, nichts abgeschnitten, Touch-freundlich */
 @media(max-width:480px){
   body{font-size:14px}
+  /* Die feste Tagesuhr und drei runden Hilfsknöpfe müssen gemeinsam in die
+     schmale Kopfleiste passen. Der Rang bleibt im Hof und in den Details
+     sichtbar; hier genügt auf Handys die Tagesplakette. */
+  .hofplakette{padding-inline:6px}
+  .hofplakette .rang{display:none}
   .blattkopf h2{font-size:16px}
   .blattleib{padding:10px;gap:10px}
   .karte{padding:10px;border-radius:14px}
@@ -8156,7 +8161,9 @@ const FINALE_WEGE=[
    txt:"Ausbau zum Rechenzentrum, dazu 10 kWp Solar und 20 kWh Speicher – der Hof trägt seine Last selbst.",
    lehre:"Große Rechenleistung ist ein Energieproblem: Anschluss, Wirkungsgrad (PUE) und Speicher entscheiden über die Rechnung.",
    stand:()=>{ const r=(typeof rh==="function")?rh():null; if(!r) return {ist:"–",ok:false};
-     const kwp=Math.round(((r.pv||[]).reduce((n,w)=>n+w,0)/1000+(r.legacySolar||0))*10)/10, akku=r.akku||0;
+     /* Dach, Bestandsanlage UND Freilandfelder zählen. Ohne die Felder wären 10 kWp
+        bei maximal zehn 600-W-Dachplätzen konstruktiv unerreichbar. */
+     const kwp=Math.round(((typeof rhPV==="function")?rhPV(r):((r.pv||[]).reduce((n,w)=>n+w,0)/1000+(r.solarfelder||0)*2.4+(r.legacySolar||0)))*10)/10, akku=r.akku||0;
      const letzte=(typeof RH_STUFEN!=="undefined")?RH_STUFEN.length-1:2;
      return {ist:(r.stufe>=letzte?"Rechenzentrum":"Ausbaustufe "+(r.stufe+1)+"/"+(letzte+1))+" · "+kwp+"/10 kWp · "+akku+"/20 kWh", ok:r.stufe>=letzte&&kwp>=10&&akku>=20}; } },
  { id:"wissen", n:"Forschungsbaum", z:"📚",
@@ -15666,7 +15673,7 @@ function zeigeNachtSetup(){if(!S||hlNachtLaeuft)return;const h=hlStand();   /* �
  (q.art==='distill'?'<label>Lehrer<select onchange="hlNachtSet(\''+p.uid+'\',\'lehrer\',this.value)"><option value="">Bitte wählen</option>'+plaene.filter(x=>x.p.uid!==p.uid).map(({p:l})=>'<option value="'+l.uid+'" '+(q.lehrer===l.uid?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><p>Beide Modelle sind gebunden. Ergebnis: gekennzeichnete Lehrdaten für späteres Training des vorhandenen kleinen Schülers, kein kostenloses neues Grundmodell.</p>':'')+
  (q.art==='synth'?'<p>6 GPU-Stunden → 8–40 GB Lehrbeispiele, abhängig von Tempo und Qualität. Herkunft wird gespeichert; rekursive Synthetik verliert Qualität.</p>':'')+
  (q.art==='reindex'?'<p>2 GPU-Stunden · 2 GB vorhandene Quellen nötig · setzt die Indexfrische zurück.</p>':'')+
- '<p>'+rhN(std)+' GPU-Stunden in dieser Nacht'+(q.art==='weiter'?' · '+rhN(p.training.nachtRest)+' Stunden Restarbeit':'')+'. '+(q.art==='ruhe'?'Sitzungspflege: +6 Zustand, keine Heilung beschädigter Gewichte.':'Bei fehlender Energie wird pausiert, kein Ergebnis verschenkt.')+'</p>'+(fehler?'<p class="hlRot">⚠️ '+fehler+'</p>':'')+'</div>';}).join(''):'<div class="karte"><p>Alle Modelle sind noch beschäftigt. Die Nacht kann auch ohne zusätzliche Jobs beginnen.</p></div>')+
+ '<p>'+rhN(std)+' GPU-Stunden in dieser Nacht'+(q.art==='weiter'&&p.training?.nurNacht?' · '+rhN(p.training.nachtRest)+' Stunden Restarbeit':'')+'. '+(q.art==='ruhe'?'Sitzungspflege: +6 Zustand, keine Heilung beschädigter Gewichte.':'Bei fehlender Energie wird pausiert, kein Ergebnis verschenkt.')+'</p>'+(fehler?'<p class="hlRot">⚠️ '+fehler+'</p>':'')+'</div>';}).join(''):'<div class="karte"><p>Alle Modelle sind noch beschäftigt. Die Nacht kann auch ohne zusätzliche Jobs beginnen.</p></div>')+
  '<div class="karte"><h3>🗂️ Nachtvorlagen</h3><div class="reihe">'+hlBtn('↩️ Wie gestern','hlNachtVorlage(\'gestern\')')+Object.keys(hlStand().vorlagen||{}).map(n=>hlBtn('📂 '+esc(n),'hlNachtVorlage(\'laden\',\''+esc(n)+'\')')).join('')+hlBtn('💾 Speichern','hlNachtVorlage(\'speichern\',prompt(\'Name der Vorlage\')||\'Plan\')')+'</div><p>Bis zu '+HL_NACHT_REGELN.vorlagen+' Vorlagen; „Wie gestern“ übernimmt den letzten gestarteten Plan. Aktionen schalten mit der Hofstufe frei: Überstunden ab 5, Destillation ab 6, Wartung ab 7.</p></div>'+
  '<div class="karte hlZusagen"><h3>Schichtvorschau</h3><p>Tag + Nacht: '+rhN(e.last)+' kWh tatsächlicher Bedarf · '+rhEuro(e.kosten)+' Energiekosten inkl. Wartung, abzüglich Einspeisung. Davon Nacht-Netzbezug: '+rhEuro(e.nachtKosten||0)+'. Pacht, Mieten und Auftragskontrolle zusätzlich.</p>'+(e.fehl>.01?'<p class="hlRot">⚠️ '+rhN(e.fehl)+' kWh nicht versorgt. Einsatz & Energie prüfen.</p>':'')+'<div class="reihe">'+hlBtn('⚡ Energie zuweisen','zeigeEnergieplan()')+hlBtn('Zurück zum Tag','hlZurueckTag()')+hlBtn('🌙 Nachtschicht starten','starteNachtSchicht()',false,'gruen')+'</div></div>', 'nachtsetup');sichern();}
 function starteNachtSchicht(){if(hlNachtLaeuft||hlStand().phase!=='planung')return false;
