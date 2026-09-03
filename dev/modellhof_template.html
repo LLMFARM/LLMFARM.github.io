@@ -142,14 +142,13 @@ small{font-size:.82em}
 #adaBox.auf{display:block;animation:adaAuf .25s ease-out}
 @keyframes adaAuf{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
 #adaBox::before{content:"";position:absolute;top:-14px;left:24px;border:7px solid transparent;border-bottom-color:var(--holz-4,#4a2c15)}
-/* eingeklappt: nur Ada, Titel und Bedienung – die Stimme läuft weiter */
-#adaBox.zu{width:auto;max-width:calc(100vw - 20px)}
+/* eingeklappt: kompakte Kopfzeile – die Stimme läuft weiter */
+#adaBox.zu{width:min(238px,calc(100vw - 20px));padding:7px 8px}
 #adaBox.zu #adaText,#adaBox.zu #adaExtra,#adaBox.zu .adaFuss{display:none}
-#adaBox.zu .adaKopf{margin-bottom:0}
-.adaKlapp{position:absolute;left:12px;bottom:-15px;height:20px;padding:0 9px;border:3px solid var(--holz-4);
-  border-top:none;border-radius:0 0 11px 11px;background:var(--papier,#fffdf5);cursor:pointer;
-  font:inherit;font-size:9.5px;font-weight:800;color:var(--tinte-2);line-height:15px;white-space:nowrap}
-.adaKlapp:hover{background:#ffefc2;color:var(--tinte)}
+#adaBox.zu .adaKopf{margin-bottom:0;gap:6px}
+#adaBox.zu .adaPauseKn,#adaBox.zu .adaStummKn{display:none}
+#adaBox.zu .adaRund{width:38px;height:38px}
+.adaKlappKn{font-size:15px;font-weight:900}
 /* Ada als Karte im Einführungs-Dialog: begleitet, ohne die Knöpfe zu verdecken */
 .adaKarte{background:linear-gradient(#fffdf3,#fff6e0);border:3px solid var(--holz-4);border-radius:15px;padding:10px 12px}
 .adaKarte .adaRund{width:52px;height:52px}
@@ -257,10 +256,15 @@ small{font-size:.82em}
 }
 @media (max-width:760px){
   .kopfreihe{flex-wrap:wrap;row-gap:4px}
-  .kopfaktionen{margin-left:auto}
+  .kopfaktionen{margin-left:auto;gap:4px}
+  /* Ada, Lexikon und Hofbuch bleiben auf Handys direkt erreichbar. */
+  .kopfaktionDirekt{display:grid}
   .kopfreihe .chips{order:9;flex:1 0 100%;width:100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding-bottom:3px;overflow:visible}
-  .chips .chip{width:auto;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 rgba(74,44,21,.7)}
-  .chips .chip b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:11.5px}
+  .chips .chip{width:auto;justify-content:center;background:linear-gradient(180deg,#fffaf0,#f2dfb8);border-color:#684526;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 2px 0 rgba(74,44,21,.55)}
+  .chips .chip b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:center;font-size:11.5px;color:var(--tinte)}
+  .chips .chip.warn{animation:none;background:linear-gradient(180deg,#fff3ee,#edc7bc);border-color:#93483f}
+  .chips .chip.warn b{color:#762d26}
   #ticker{display:none}
   #adaBox{top:72px}
 }
@@ -275,6 +279,13 @@ small{font-size:.82em}
   .knopfrund{width:35px;height:33px;flex-basis:35px}
   .kopfmenueListe{right:-1px;top:calc(100% + 6px)}
   #adaBox{top:98px}
+}
+@media (max-width:350px){
+  .hofplakette{padding-inline:4px}
+  .hofplakette .tag{font-size:12px}
+  .kopfaktionen{gap:2px}
+  .knopfrund{width:31px;height:31px;flex-basis:31px;font-size:15px}
+  #adaKnopf .adaRund{width:30px;height:30px}
 }
 @media (max-height:650px) and (max-width:1280px){#ticker{display:none}}
 #ticker{margin:5px -8px 0;padding:2px 8px;background:#2f1d0e;border-top:3px solid var(--holz-4);
@@ -926,6 +937,7 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
   <div class="adaKopf">
     <button class="adaSelbst" id="adaSelbst" onclick="adaPause()" aria-label="Ada antippen: Sprechen anhalten oder fortsetzen" title="Ada antippen: anhalten / weitersprechen"><span class="adaRund" id="adaFigurBox"></span></button>
     <span class="adaWer"><b>Ada</b><small id="adaTitel"></small></span>
+    <button class="adaKn adaKlappKn" id="adaKlappKn" onclick="adaKlapp()" aria-label="Ada einklappen" title="Ada einklappen">▲</button>
     <button class="adaKn adaPauseKn" onclick="adaPause()" aria-label="Vorlesen pausieren oder fortsetzen" title="Pause / Weiter">⏸</button>
     <button class="adaKn adaStummKn" onclick="adaStummToggle()" aria-label="Ada stummschalten" title="Ada stumm / laut">🔊</button>
     <button class="adaKn" onclick="adaZu()" aria-label="Sprechblase schließen" title="Schließen">✕</button>
@@ -933,7 +945,6 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
   <div id="adaText"></div>
   <div id="adaExtra"></div>
   <div class="adaFuss">🤖 Alles mit KI erstellt – auch Adas Stimme (Bilder, Texte &amp; Code)</div>
-  <button class="adaKlapp" id="adaKlappKn" onclick="adaKlapp()" aria-label="Sprechblase ein- oder ausklappen">▼ Einklappen</button>
 </div>
 
 <div id="schirm"><div id="dunkel" onclick="blattZu()"></div>
@@ -6145,7 +6156,10 @@ function adaInit(){
 function adaKlappText(){
   try{
     const box=document.getElementById("adaBox"), k=document.getElementById("adaKlappKn");
-    if(box&&k) k.textContent=box.classList.contains("zu")?"▲ Text zeigen":"▼ Einklappen";
+    if(box&&k){
+      const zu=box.classList.contains("zu"), text=zu?"Ada ausklappen":"Ada einklappen";
+      k.textContent=zu?"▼":"▲"; k.setAttribute("aria-label",text); k.title=text;
+    }
   }catch(e){}
 }
 /* Ära 9: Die Ziele-Leiste rutscht unter die Sprechblase, damit Ada keinen Text verdeckt */
@@ -6187,7 +6201,7 @@ function adaKlapp(){
   const zu=box.classList.toggle("zu"); setTimeout(adaPlatz,50);
   if(S){ S.ada=S.ada||{stumm:false,gehoert:{}}; S.ada.zu=zu; try{ sichern(); }catch(e){} }
   adaKlappText();
-  if(zu) melde("Ada ist eingeklappt – sie spricht weiter. Über „▲ Text zeigen“ oder ihren Kopf oben rechts kommt sie zurück.","info");
+  if(zu) melde("Ada ist eingeklappt – sie spricht weiter. Mit dem Pfeil neben ihrem Namen klappt sie wieder auf.","info");
 }
 function adaFinde(ziel){
   try{

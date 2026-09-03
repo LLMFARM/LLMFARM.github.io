@@ -856,6 +856,19 @@ test("ADA-4","Ada spricht in jedem Einfuehrungsschritt wirklich los (kein stumme
       return "Schritt "+nr+" hat nicht gesprochen (gespielt: "+JSON.stringify(gespielt)+")";
   return true; });
 
+test("ADA-5","Adas Einklappen ist als erreichbarer Kopfzeilen-Knopf umgesetzt",()=>{
+  if(!html.includes('class="adaKn adaKlappKn" id="adaKlappKn"')) return "Einklappknopf fehlt in der Ada-Kopfzeile";
+  if(/class="adaKlapp"/.test(html)) return "alter, unter der Karte haengender Knopf noch vorhanden";
+  if(!html.includes('k.setAttribute("aria-label",text)')) return "wechselnde barrierefreie Beschriftung fehlt";
+  return true; });
+
+test("ADA-6","Handy-Kopf zeigt Ada, Lexikon und Hofbuch direkt neben hellen Ressourcen",()=>{
+  if(!html.includes('.kopfaktionDirekt{display:grid}')) return "direkte Schnellzugriffe werden mobil nicht eingeblendet";
+  if(!html.includes('background:linear-gradient(180deg,#fffaf0,#f2dfb8)')) return "helle mobile Ressourcen-Karten fehlen";
+  for(const aufruf of ['adaMenue()','oeffne(\'kompendium\')','zeigeHofbuch()'])
+    if(!html.includes('class="knopfrund kopfaktionDirekt"'+(aufruf==='adaMenue()'?' id="adaKnopf"':'')+' onclick="'+aufruf+'"')) return "Schnellzugriff fehlt: "+aufruf;
+  return true; });
+
 console.log(erg.join("\n"));
 console.log("\n"+(erg.length-fail)+"/"+erg.length+" bestanden"+(fail?" – "+fail+" FEHLGESCHLAGEN":""));
 process.exit(fail?1:0);
