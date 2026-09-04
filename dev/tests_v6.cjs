@@ -862,9 +862,12 @@ test("ADA-5","Adas Einklappen ist als erreichbarer Kopfzeilen-Knopf umgesetzt",(
   if(!html.includes('k.setAttribute("aria-label",text)')) return "wechselnde barrierefreie Beschriftung fehlt";
   return true; });
 
-test("ADA-6","Handy-Kopf zeigt Ada, Lexikon und Hofbuch direkt neben hellen Ressourcen",()=>{
+test("ADA-6","Handy-Kopf zeigt Ada, Lexikon und Hofbuch direkt neben der hellen Rohstofftafel",()=>{
   if(!html.includes('.kopfaktionDirekt{display:grid}')) return "direkte Schnellzugriffe werden mobil nicht eingeblendet";
-  if(!html.includes('background:linear-gradient(180deg,#fffaf0,#f2dfb8)')) return "helle mobile Ressourcen-Karten fehlen";
+  if(!html.includes('background:linear-gradient(180deg,#fffaf1,#eddcb6)')) return "helle Rohstofftafel fehlt";
+  if(!html.includes('grid-template-columns:repeat(7,minmax(0,1fr))')) return "die sieben Bestände stehen mobil nicht in einer Reihe";
+  if(/\.kopfreihe \.chips\{grid-template-columns:repeat\([1-6],/.test(html)) return "die Tafel bricht auf schmalen Geräten wieder in mehrere Reihen um";
+  if(!html.includes('.chips .chip .kurz{display:block')) return "Kurz-Etiketten der Bestände fehlen";
   for(const aufruf of ['adaMenue()','oeffne(\'kompendium\')','zeigeHofbuch()'])
     if(!html.includes('class="knopfrund kopfaktionDirekt"'+(aufruf==='adaMenue()'?' id="adaKnopf"':'')+' onclick="'+aufruf+'"')) return "Schnellzugriff fehlt: "+aufruf;
   return true; });
