@@ -872,6 +872,12 @@ test("ADA-6","Handy-Kopf zeigt Ada, Lexikon und Hofbuch direkt neben der hellen 
     if(!html.includes('class="knopfrund kopfaktionDirekt"'+(aufruf==='adaMenue()'?' id="adaKnopf"':'')+' onclick="'+aufruf+'"')) return "Schnellzugriff fehlt: "+aufruf;
   return true; });
 
+test("ADA-7","Adas Kopfzeile bleibt beim Scrollen greifbar - Einklappen und Verschieben gehen immer",()=>{
+  if(!/#adaBox\s+\.adaKopf\{position:sticky/.test(html)) return "die Kopfzeile scrollt aus der Blase heraus - Einklapp-Knopf und Ziehflaeche waeren weg";
+  if(!html.includes('class="adaGriff"')) return "sichtbarer Ziehgriff fehlt";
+  if(!html.includes(".adaKopf{cursor:grab;touch-action:none")) return "die Kopfzeile ist nicht als Ziehflaeche ausgewiesen";
+  return true; });
+
 console.log(erg.join("\n"));
 console.log("\n"+(erg.length-fail)+"/"+erg.length+" bestanden"+(fail?" – "+fail+" FEHLGESCHLAGEN":""));
 process.exit(fail?1:0);

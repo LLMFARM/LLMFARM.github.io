@@ -165,6 +165,17 @@ small{font-size:.82em}
 /* v9.9 (Nutzerwunsch): Ada-Box verschiebbar – am Kopf ziehen, Doppelklick setzt zurück */
 .adaKopf{cursor:grab;touch-action:none;user-select:none}
 .adaKopf:active{cursor:grabbing}
+/* Die Blase scrollt innen (max-height). Vorher rutschte ihre Kopfzeile dabei aus dem Blick –
+   und mit ihr der Einklapp-Knopf UND die einzige Ziehfläche. Jetzt klebt sie oben fest. */
+#adaBox .adaKopf{position:sticky;top:-10px;z-index:3;background:var(--papier,#fffdf5);
+  margin:-10px -12px 7px;padding:10px 12px 7px;border-radius:12px 12px 0 0}
+#adaBox.gescrollt .adaKopf{box-shadow:0 7px 9px -7px rgba(74,44,21,.55)}
+#adaBox.zu .adaKopf{top:-7px;margin:-7px -8px 0;padding:7px 8px;border-radius:10px}
+/* Sichtbarer Griff: markiert die Ziehfläche und vergrößert sie – die Knöpfe daneben
+   nehmen dem Kopf sonst fast die ganze Breite weg. */
+.adaGriff{flex:0 0 auto;align-self:stretch;display:grid;place-items:center;width:16px;
+  font-size:13px;line-height:1;letter-spacing:-1px;color:var(--holz-3,#a8845f);cursor:grab}
+.adaKopf:active .adaGriff{cursor:grabbing}
 #adaBox.zieht{transition:none!important;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 #adaBox.verschoben{transition:none}
 #adaText{max-height:32vh;overflow-y:auto;white-space:pre-line}
@@ -1123,6 +1134,7 @@ details.wkarte .winhalt{padding:9px 11px;font-size:12.5px}
   <div class="adaKopf">
     <button class="adaSelbst" id="adaSelbst" onclick="adaPause()" aria-label="Ada antippen: Sprechen anhalten oder fortsetzen" title="Ada antippen: anhalten / weitersprechen"><span class="adaRund" id="adaFigurBox"></span></button>
     <span class="adaWer"><b>Ada</b><small id="adaTitel"></small></span>
+    <span class="adaGriff" aria-hidden="true">⠿</span>
     <button class="adaKn adaKlappKn" id="adaKlappKn" onclick="adaKlapp()" aria-label="Ada einklappen" title="Ada einklappen">▲</button>
     <button class="adaKn adaPauseKn" onclick="adaPause()" aria-label="Vorlesen pausieren oder fortsetzen" title="Pause / Weiter">⏸</button>
     <button class="adaKn adaStummKn" onclick="adaStummToggle()" aria-label="Ada stummschalten" title="Ada stumm / laut">🔊</button>
@@ -14309,6 +14321,8 @@ function adaZiehenStart(){
   kopf.addEventListener('pointerup',ende); kopf.addEventListener('pointercancel',ende);
   kopf.addEventListener('dblclick',ev=>{ if(ev.target.closest('button')) return; adaLageZuruecksetzen(); });
   kopf.title='Ziehen zum Verschieben · Doppelklick setzt die Lage zurück';
+  /* Der klebende Kopf wirft erst einen Schatten, wenn Text unter ihm durchläuft */
+  box.addEventListener('scroll',()=>box.classList.toggle('gescrollt',box.scrollTop>2),{passive:true});
   adaLageLaden();
 }
 try{ if(document.readyState!=='loading') setTimeout(adaZiehenStart,0); else document.addEventListener('DOMContentLoaded',()=>setTimeout(adaZiehenStart,0)); }catch(e){}
